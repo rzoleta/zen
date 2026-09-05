@@ -1,0 +1,6 @@
+{
+  "name": "zen",
+  "private": true,
+  "packageManager": "pnpm@10.14.0",
+  "scripts": {}
+}
