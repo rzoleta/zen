@@ -18,7 +18,7 @@ export default function HomeScreen() {
     day: "numeric",
   });
   return (
-    <Screen scroll={false} className="flex-1 pb-24">
+    <Screen scroll={false} className="flex-1 pb-6">
       <View className="pt-2">
         <Text variant="label">{today}</Text>
       </View>

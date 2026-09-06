@@ -24,7 +24,7 @@ export function Screen({
 }>) {
   const content = (
     <View
-      className={cn("w-full max-w-3xl gap-6 self-center px-5 py-4", className)}
+      className={cn("w-full max-w-3xl gap-6 self-center px-5 pt-4", className)}
     >
       {children}
     </View>
@@ -42,7 +42,10 @@ export function Screen({
   );
   if (header) return <View className="flex-1 bg-background">{body}</View>;
   return (
-    <SafeAreaView edges={["top"]} className="flex-1 bg-background">
+    <SafeAreaView
+      edges={scroll ? ["top"] : ["top", "bottom"]}
+      className="flex-1 bg-background"
+    >
       {body}
     </SafeAreaView>
   );
