@@ -2,5 +2,13 @@
   "name": "zen",
   "private": true,
   "packageManager": "pnpm@10.14.0",
-  "scripts": {}
+  "scripts": {
+    "extract:kaishi": "tsx scripts/extract-kaishi.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
 }

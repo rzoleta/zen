@@ -153,34 +153,39 @@
 <p>Storing the pre-review snapshot in the log makes undo a one-row restore instead of a scheduler replay, and it means we never lose information FSRS optimization will want later.</p>
 
 <h3>File structure</h3>
+<p>The repo is a monorepo (npm workspaces, Expo's best-supported setup). <code>apps/mobile</code> is the Expo app and the only workspace V1 builds. <code>apps/web</code> is reserved for the marketing site, a later PR; nothing gets written there now.</p>
 <pre><code>zen/
-├── app/                      # expo-router
-│   ├── _layout.tsx           # root: fonts, theme, db provider
-│   ├── (tabs)/
-│   │   ├── _layout.tsx       # native tabs
-│   │   ├── index.tsx         # Home
-│   │   ├── words/
-│   │   │   ├── index.tsx     # word list
-│   │   │   └── [id].tsx      # word detail
-│   │   ├── progress.tsx
-│   │   └── settings.tsx
-│   └── review.tsx            # full-screen modal session
-├── components/               # Card, FlipCard, StatusChip, Heatmap, ...
-├── db/
-│   ├── schema.ts
-│   ├── migrations/
-│   └── seed.ts               # first-launch import of kaishi.json
-├── scheduler/
-│   ├── index.ts              # buildQueue, grade, undo, dayBoundary, leech
-│   └── __tests__/
-├── stores/
-│   └── session.ts            # zustand review-session store
-├── assets/
-│   ├── deck/                 # kaishi.json + audio/ (committed, generated)
-│   └── fonts/
-├── scripts/
-│   └── extract-kaishi.ts
-└── docs/                     # LEARNING_SPEC.html, PLAN.html
+├── package.json              # workspaces: apps/*
+├── docs/                     # LEARNING_SPEC.html, PLAN.html
+├── apps/
+│   ├── web/                  # marketing site (reserved, empty in V1)
+│   └── mobile/
+│       ├── app/                      # expo-router
+│       │   ├── _layout.tsx           # root: fonts, theme, db provider
+│       │   ├── (tabs)/
+│       │   │   ├── _layout.tsx       # native tabs
+│       │   │   ├── index.tsx         # Home
+│       │   │   ├── words/
+│       │   │   │   ├── index.tsx     # word list
+│       │   │   │   └── [id].tsx      # word detail
+│       │   │   ├── progress.tsx
+│       │   │   └── settings.tsx
+│       │   └── review.tsx            # full-screen modal session
+│       ├── components/               # Card, FlipCard, StatusChip, Heatmap, ...
+│       ├── db/
+│       │   ├── schema.ts
+│       │   ├── migrations/
+│       │   └── seed.ts               # first-launch import of kaishi.json
+│       ├── scheduler/
+│       │   ├── index.ts              # buildQueue, grade, undo, dayBoundary, leech
+│       │   └── __tests__/
+│       ├── stores/
+│       │   └── session.ts            # zustand review-session store
+│       ├── assets/
+│       │   ├── deck/                 # kaishi.json + audio/ (committed, generated)
+│       │   └── fonts/
+│       └── scripts/
+│           └── extract-kaishi.ts
 </code></pre>
 
 <h3>Scheduler details worth writing down</h3>
@@ -204,9 +209,13 @@
   <li>Write <code>scripts/extract-kaishi.ts</code>, generate <code>kaishi.json</code> + audio, commit, and measure total size. Decide bundled vs first-launch download per the risk note.</li>
 </ul>
 
+<div class="aside">
+<p><strong>Phase 0 completed on September 6, 2026.</strong> The extractor is implemented and verified against Kaishi v2.4.2. It produced 1,500 vocabulary records and 2,999 audio files totaling 73.40 MiB, so V1 should bundle the deck if redistribution is approved. The official Kaishi repository has no license, and its content draws from other Core, Tango, and AJT Japanese sources. Zen cannot ship or commit the generated payload until written permission covers the text, audio, and required attribution. See the <a href="./PHASE_0_CONTENT.md">full Phase 0 report</a>.</p>
+</div>
+
 <h3>Phase 1: skeleton</h3>
 <ul>
-  <li>Scaffold Expo (latest SDK), expo-router with the four native tabs plus the review modal route, NativeWind with light/dark theme tokens, bundled fonts.</li>
+  <li>Set up the monorepo (root package.json with npm workspaces, <code>apps/mobile</code> and an empty <code>apps/web</code> placeholder), then scaffold Expo (latest SDK) in <code>apps/mobile</code>: expo-router with the four native tabs plus the review modal route, NativeWind with light/dark theme tokens, bundled fonts.</li>
   <li>Placeholder screens that prove navigation, theming, and fonts end to end.</li>
 </ul>
 

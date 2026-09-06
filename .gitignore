@@ -1,4 +1,5 @@
 node_modules/
 .pnpm-store/
 *.log
+*.apkg
 .DS_Store
