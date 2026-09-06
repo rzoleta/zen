@@ -1,22 +1,22 @@
 import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { useLocalSearchParams } from "expo-router";
-import { Alert, Pressable, StyleSheet, View } from "react-native";
+import { Stack, useLocalSearchParams } from "expo-router";
+import { Alert, Pressable, View } from "react-native";
 
 import { StatusChip } from "@/components/status-chip";
 import {
-  Divider,
+  Card,
   JapaneseText,
   Screen,
   SectionTitle,
-  Surface,
-  ZenText,
+  Separator,
+  Text,
 } from "@/components/ui";
 import { db } from "@/db/client";
 import { cards, words } from "@/db/schema";
+import { cn } from "@/lib/cn";
 import { cardStatus } from "@/hooks/use-deck";
 import { useSettings } from "@/hooks/use-settings";
-import { useTheme } from "@/hooks/use-theme";
 import { resetCard, setKnown, setSuspended } from "@/scheduler";
 
 export default function WordDetailScreen() {
@@ -33,23 +33,24 @@ export default function WordDetailScreen() {
   ).data[0];
   if (!detail)
     return (
-      <Screen>
-        <ZenText>Loading…</ZenText>
+      <Screen header>
+        <Text muted>Loading…</Text>
       </Screen>
     );
   const { words: word, cards: card } = detail;
-  const action = async (work: () => Promise<void>) => {
-    await work();
-  };
   const due =
     card.state === 0 ? "Not introduced" : new Date(card.due).toLocaleString();
   return (
-    <Screen>
-      <View style={styles.wordHeader}>
-        <JapaneseText font={jpFont} style={styles.headword}>
+    <Screen header>
+      <Stack.Screen options={{ title: word.word }} />
+      <View className="items-start gap-1.5 pt-2">
+        <JapaneseText font={jpFont} className="text-[48px] leading-[62px]">
           {word.word}
         </JapaneseText>
-        <JapaneseText font={jpFont} style={styles.reading}>
+        <JapaneseText
+          font={jpFont}
+          className="text-[17px] leading-6 text-muted-foreground"
+        >
           {word.wordFurigana}
         </JapaneseText>
         <StatusChip
@@ -57,78 +58,86 @@ export default function WordDetailScreen() {
           leech={card.suspended === "leech"}
         />
       </View>
-      <Surface style={styles.definition}>
-        <ZenText variant="label" muted>
-          Meaning
-        </ZenText>
-        <ZenText style={styles.meaning}>{word.meaning}</ZenText>
-        <Divider />
-        <JapaneseText font={jpFont} style={styles.sentence}>
+      <Card className="gap-4">
+        <Text variant="label">Meaning</Text>
+        <Text className="text-[22px] leading-[30px]">{word.meaning}</Text>
+        <Separator />
+        <JapaneseText font={jpFont} className="text-[24px] leading-[38px]">
           {word.sentence}
         </JapaneseText>
-        <JapaneseText font={jpFont} style={styles.sentenceReading}>
+        <JapaneseText
+          font={jpFont}
+          className="text-[13px] leading-5 text-muted-foreground"
+        >
           {word.sentenceFurigana}
         </JapaneseText>
-        <ZenText muted>{word.sentenceMeaning}</ZenText>
-      </Surface>
-      <SectionTitle>Scheduling</SectionTitle>
-      <Surface style={styles.stats}>
-        <Stat label="Next due" value={due} />
-        <Stat label="Interval" value={`${card.scheduledDays} days`} />
-        <Stat label="Reviews" value={String(card.reps)} />
-        <Stat label="Lapses" value={String(card.lapses)} />
-      </Surface>
-      <SectionTitle>Actions</SectionTitle>
-      <Surface style={styles.actions}>
-        <Action
-          label={card.suspended === "none" ? "Suspend" : "Unsuspend"}
-          onPress={() =>
-            void action(() =>
-              setSuspended(
+        <Text variant="footnote" muted>
+          {word.sentenceMeaning}
+        </Text>
+      </Card>
+      <View className="gap-2">
+        <SectionTitle>Scheduling</SectionTitle>
+        <Card className="gap-3.5">
+          <Stat label="Next due" value={due} />
+          <Stat label="Interval" value={`${card.scheduledDays} days`} />
+          <Stat label="Reviews" value={String(card.reps)} />
+          <Stat label="Lapses" value={String(card.lapses)} />
+        </Card>
+      </View>
+      <View className="gap-2">
+        <SectionTitle>Actions</SectionTitle>
+        <Card className="py-1">
+          <Action
+            label={card.suspended === "none" ? "Suspend" : "Unsuspend"}
+            onPress={() =>
+              void setSuspended(
                 db,
                 wordId,
                 card.suspended === "none" ? "manual" : "none",
-              ),
-            )
-          }
-        />
-        <Divider />
-        <Action
-          label={card.known ? "Return to study" : "Mark known"}
-          onPress={() => void action(() => setKnown(db, wordId, !card.known))}
-        />
-        <Divider />
-        <Action
-          label="Reset card"
-          destructive
-          onPress={() =>
-            Alert.alert(
-              "Reset this card?",
-              "Its review history and scheduling will be removed.",
-              [
-                { text: "Cancel", style: "cancel" },
-                {
-                  text: "Reset",
-                  style: "destructive",
-                  onPress: () => void action(() => resetCard(db, wordId)),
-                },
-              ],
-            )
-          }
-        />
-      </Surface>
+              )
+            }
+          />
+          <Separator />
+          <Action
+            label={card.known ? "Return to study" : "Mark known"}
+            onPress={() => void setKnown(db, wordId, !card.known)}
+          />
+          <Separator />
+          <Action
+            label="Reset card"
+            destructive
+            onPress={() =>
+              Alert.alert(
+                "Reset this card?",
+                "Its review history and scheduling will be removed.",
+                [
+                  { text: "Cancel", style: "cancel" },
+                  {
+                    text: "Reset",
+                    style: "destructive",
+                    onPress: () => void resetCard(db, wordId),
+                  },
+                ],
+              )
+            }
+          />
+        </Card>
+      </View>
     </Screen>
   );
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <View style={styles.stat}>
-      <ZenText muted>{label}</ZenText>
-      <ZenText>{value}</ZenText>
+    <View className="flex-row justify-between gap-4">
+      <Text variant="footnote" muted>
+        {label}
+      </Text>
+      <Text variant="footnote">{value}</Text>
     </View>
   );
 }
+
 function Action({
   label,
   onPress,
@@ -138,31 +147,13 @@ function Action({
   onPress: () => void;
   destructive?: boolean;
 }) {
-  const theme = useTheme();
   return (
-    <Pressable onPress={onPress} style={styles.action}>
-      <ZenText style={destructive ? { color: theme.fail } : undefined}>
-        {label}
-      </ZenText>
-      <ZenText muted>›</ZenText>
+    <Pressable
+      onPress={onPress}
+      className="min-h-[52px] flex-row items-center justify-between active:opacity-60"
+    >
+      <Text className={cn(destructive && "text-destructive")}>{label}</Text>
+      <Text muted>›</Text>
     </Pressable>
   );
 }
-const styles = StyleSheet.create({
-  wordHeader: { alignItems: "flex-start", gap: 6, paddingTop: 8 },
-  headword: { fontSize: 52, lineHeight: 64 },
-  reading: { fontSize: 17, lineHeight: 26, opacity: 0.65 },
-  definition: { gap: 16 },
-  meaning: { fontSize: 22, lineHeight: 30 },
-  sentence: { fontSize: 25, lineHeight: 38 },
-  sentenceReading: { fontSize: 14, lineHeight: 24, opacity: 0.7 },
-  stats: { gap: 14 },
-  stat: { flexDirection: "row", justifyContent: "space-between", gap: 16 },
-  actions: { paddingVertical: 3 },
-  action: {
-    minHeight: 54,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-});

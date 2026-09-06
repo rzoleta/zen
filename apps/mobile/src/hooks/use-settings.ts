@@ -5,6 +5,7 @@ import { DEFAULT_SETTINGS } from "@/db/seed";
 import { settings } from "@/db/schema";
 
 export type JapaneseFont = "mincho" | "gothic";
+export type ThemePreference = "system" | "light" | "dark";
 
 export function useSettings() {
   const { data = [] } = useLiveQuery(db.select().from(settings));
@@ -16,6 +17,7 @@ export function useSettings() {
     ),
     autoplay: (values.autoplay ?? DEFAULT_SETTINGS.autoplay) === "true",
     jpFont: (values.jp_font ?? DEFAULT_SETTINGS.jp_font) as JapaneseFont,
+    theme: (values.theme ?? DEFAULT_SETTINGS.theme) as ThemePreference,
   };
 }
 

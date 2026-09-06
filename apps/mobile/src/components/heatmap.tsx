@@ -1,6 +1,6 @@
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 
-import { ZenText } from "@/components/ui";
+import { Text } from "@/components/ui";
 import { useTheme } from "@/hooks/use-theme";
 import { currentStudyDay } from "@/scheduler";
 
@@ -23,35 +23,29 @@ export function Heatmap({
     return date;
   });
   return (
-    <View style={styles.wrap}>
-      <View style={styles.grid}>
+    <View className="gap-3">
+      <View className="flex-row flex-wrap gap-[5px]">
         {days.map((day) => {
           const count = counts[currentStudyDay(day)] ?? 0;
-          const opacity = count === 0 ? 0.08 : Math.min(0.25 + count / 18, 1);
+          const opacity = count === 0 ? 0.07 : Math.min(0.3 + count / 18, 1);
           return (
             <View
               key={day.toISOString()}
               accessibilityLabel={`${currentStudyDay(day)}: ${count} reviews`}
-              style={[styles.cell, { backgroundColor: theme.accent, opacity }]}
+              className="h-[15px] w-[15px] rounded"
+              style={{ backgroundColor: theme.primary, opacity }}
             />
           );
         })}
       </View>
-      <View style={styles.legend}>
-        <ZenText variant="caption" muted>
+      <View className="flex-row justify-between">
+        <Text variant="caption" muted>
           12 weeks
-        </ZenText>
-        <ZenText variant="caption" muted>
+        </Text>
+        <Text variant="caption" muted>
           More activity →
-        </ZenText>
+        </Text>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: { gap: 12 },
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: 5 },
-  cell: { width: 15, height: 15, borderRadius: 4 },
-  legend: { flexDirection: "row", justifyContent: "space-between" },
-});

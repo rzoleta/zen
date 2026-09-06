@@ -1,18 +1,10 @@
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import { useMemo, useState } from "react";
-import {
-  FlatList,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { FlatList, Pressable, ScrollView, View } from "react-native";
 
 import { StatusChip } from "@/components/status-chip";
-import { JapaneseText, ZenText } from "@/components/ui";
-import { BottomTabInset, MaxContentWidth } from "@/constants/theme";
+import { JapaneseText, Text } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import { cardStatus, type WordStatus, useDeckRows } from "@/hooks/use-deck";
 import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
@@ -49,81 +41,83 @@ export default function WordsScreen() {
     [filter, query, rows],
   );
   return (
-    <SafeAreaView
-      edges={["top"]}
-      style={[styles.safe, { backgroundColor: theme.background }]}
-    >
-      <View style={styles.header}>
-        <ZenText variant="title">Words</ZenText>
-        <ZenText muted>
-          {data.length} of {rows.length}
-        </ZenText>
-        <TextInput
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Search word, reading, or meaning"
-          placeholderTextColor={theme.muted}
-          style={[
-            styles.search,
-            {
-              backgroundColor: theme.surface,
-              borderColor: theme.line,
-              color: theme.text,
-            },
-          ]}
-        />
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filters}
-        >
-          {filters.map((item) => (
-            <Pressable
-              key={item}
-              onPress={() => setFilter(item)}
-              style={[
-                styles.filter,
-                {
-                  backgroundColor:
-                    filter === item ? theme.accent : theme.surface,
-                  borderColor: theme.line,
-                },
-              ]}
-            >
-              <ZenText
-                variant="caption"
-                style={{
-                  color: filter === item ? theme.accentText : theme.text,
-                }}
-              >
-                {item}
-              </ZenText>
-            </Pressable>
-          ))}
-        </ScrollView>
-      </View>
+    <View className="flex-1 bg-background">
+      <Stack.Screen
+        options={{
+          headerSearchBarOptions: {
+            placeholder: "Word, reading, or meaning",
+            hideWhenScrolling: false,
+            textColor: theme.text,
+            onChangeText: (event) => setQuery(event.nativeEvent.text),
+          },
+        }}
+      />
       <FlatList
         data={data}
         keyExtractor={(item) => String(item.words.id)}
-        contentContainerStyle={styles.list}
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerClassName="w-full max-w-3xl self-center px-5 pb-28"
+        ListHeaderComponent={
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerClassName="gap-2 py-3"
+          >
+            {filters.map((item) => (
+              <Pressable
+                key={item}
+                onPress={() => setFilter(item)}
+                className={cn(
+                  "rounded-full border px-3.5 py-1.5",
+                  filter === item
+                    ? "border-primary bg-primary"
+                    : "border-border bg-transparent",
+                )}
+              >
+                <Text
+                  variant="footnote"
+                  className={cn(
+                    "capitalize",
+                    filter === item
+                      ? "font-sans-medium text-primary-foreground"
+                      : "text-muted-foreground",
+                  )}
+                >
+                  {item}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        }
+        ListEmptyComponent={
+          <View className="items-center py-16">
+            <Text variant="footnote" muted>
+              No words match.
+            </Text>
+          </View>
+        }
         renderItem={({ item }) => {
           const status = cardStatus(item.cards);
           return (
             <Pressable
               onPress={() => router.push(`/words/${item.words.id}`)}
-              style={({ pressed }) => [
-                styles.row,
-                { borderBottomColor: theme.line },
-                pressed && { opacity: 0.55 },
-              ]}
+              className="flex-row items-center justify-between gap-4 border-b border-border py-4 active:opacity-60"
             >
-              <View style={styles.word}>
-                <JapaneseText font={jpFont} style={styles.jp}>
-                  {item.words.word}
-                </JapaneseText>
-                <ZenText variant="caption" muted numberOfLines={1}>
-                  {item.words.wordFurigana} · {item.words.meaning}
-                </ZenText>
+              <View className="flex-1 gap-1">
+                <View className="flex-row items-baseline gap-2.5">
+                  <JapaneseText
+                    font={jpFont}
+                    className="text-[22px] leading-[30px]"
+                  >
+                    {item.words.word}
+                  </JapaneseText>
+                  <Text variant="footnote" muted>
+                    {item.words.wordFurigana}
+                  </Text>
+                </View>
+                <Text variant="footnote" muted numberOfLines={1}>
+                  {item.words.meaning}
+                </Text>
               </View>
               <StatusChip
                 status={status}
@@ -133,50 +127,6 @@ export default function WordsScreen() {
           );
         }}
       />
-    </SafeAreaView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: { flex: 1 },
-  header: {
-    width: "100%",
-    maxWidth: MaxContentWidth,
-    alignSelf: "center",
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    gap: 14,
-  },
-  search: {
-    height: 50,
-    borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
-    paddingHorizontal: 16,
-    fontFamily: "Geist_400Regular",
-    fontSize: 15,
-  },
-  filters: { gap: 8, paddingRight: 24 },
-  filter: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 99,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  list: {
-    width: "100%",
-    maxWidth: MaxContentWidth,
-    alignSelf: "center",
-    paddingHorizontal: 24,
-    paddingBottom: BottomTabInset + 28,
-  },
-  row: {
-    flexDirection: "row",
-    minHeight: 78,
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  word: { flex: 1, gap: 2 },
-  jp: { fontSize: 24, lineHeight: 32 },
-});

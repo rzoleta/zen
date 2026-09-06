@@ -1,4 +1,5 @@
 import { Tabs } from "expo-router";
+
 import { Fonts } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 
@@ -8,10 +9,11 @@ export default function WebTabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: theme.tint,
+        tabBarActiveTintColor: theme.text,
+        tabBarInactiveTintColor: theme.muted,
         tabBarStyle: {
-          backgroundColor: theme.surface,
-          borderTopColor: theme.line,
+          backgroundColor: theme.background,
+          borderTopColor: theme.border,
         },
         tabBarLabelStyle: { fontFamily: Fonts.medium },
       }}

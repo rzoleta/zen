@@ -6,13 +6,13 @@ import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Pressable, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { State } from "ts-fsrs";
 
 import { audioAssets } from "@/assets/deck/audio-assets";
 import { ReviewCard } from "@/components/review-card";
-import { PrimaryButton, ZenText } from "@/components/ui";
+import { Button, Text } from "@/components/ui";
 import { db } from "@/db/client";
 import { cards, words } from "@/db/schema";
 import { useSettings } from "@/hooks/use-settings";
@@ -29,6 +29,7 @@ import { useSessionStore } from "@/stores/session";
 
 export default function ReviewScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const settings = useSettings();
   const { queue, answered, startedAt, canUndo, begin, finishCard, restore } =
     useSessionStore();
@@ -111,36 +112,41 @@ export default function ReviewScreen() {
   const glass = isLiquidGlassAvailable();
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
-      <View style={styles.header}>
+    <View
+      className="flex-1 bg-background"
+      style={{
+        paddingTop: Math.max(insets.top, 16),
+        paddingBottom: Math.max(insets.bottom, 24),
+      }}
+    >
+      <View className="h-16 flex-row items-center justify-between gap-4 px-5">
         <GlassView
           glassEffectStyle={glass ? "regular" : "none"}
-          style={[styles.glass, !glass && { backgroundColor: theme.surface }]}
+          style={[
+            { borderRadius: 22, overflow: "hidden" },
+            !glass && { backgroundColor: theme.secondary },
+          ]}
         >
           <Pressable
             accessibilityLabel="Close review"
             onPress={close}
-            style={styles.iconButton}
+            className="h-11 w-11 items-center justify-center"
           >
             <SymbolView
               name={{ ios: "xmark", android: "close", web: "close" }}
               tintColor={theme.text}
-              size={18}
+              size={17}
             />
           </Pressable>
         </GlassView>
-        <View style={styles.count}>
-          <ZenText variant="caption" muted>
+        <View className="flex-1 items-center gap-2">
+          <Text variant="caption" muted>
             {queue.length} left
-          </ZenText>
-          <View
-            style={[styles.track, { backgroundColor: theme.surfaceStrong }]}
-          >
+          </Text>
+          <View className="h-1 w-full max-w-[180px] flex-row overflow-hidden rounded-full bg-secondary">
             <View
-              style={[
-                styles.fill,
-                { backgroundColor: theme.accent, flex: answered },
-              ]}
+              className="min-w-[2px] bg-primary"
+              style={{ flex: answered }}
             />
             <View style={{ flex: queue.length }} />
           </View>
@@ -148,8 +154,8 @@ export default function ReviewScreen() {
         <GlassView
           glassEffectStyle={glass ? "regular" : "none"}
           style={[
-            styles.glass,
-            !glass && { backgroundColor: theme.surface },
+            { borderRadius: 22, overflow: "hidden" },
+            !glass && { backgroundColor: theme.secondary },
             !canUndo && { opacity: 0.35 },
           ]}
         >
@@ -157,7 +163,7 @@ export default function ReviewScreen() {
             accessibilityLabel="Undo last answer"
             disabled={!canUndo}
             onPress={() => void onUndo()}
-            style={styles.iconButton}
+            className="h-11 w-11 items-center justify-center"
           >
             <SymbolView
               name={{
@@ -166,20 +172,20 @@ export default function ReviewScreen() {
                 web: "undo",
               }}
               tintColor={theme.text}
-              size={18}
+              size={17}
             />
           </Pressable>
         </GlassView>
       </View>
-      <View style={styles.content}>
+      <View className="flex-1 gap-3.5 px-5 pt-2">
         {waiting ? (
-          <View style={styles.center}>
-            <ZenText variant="title">Learning card queued</ZenText>
-            <ZenText muted style={styles.centerText}>
+          <View className="w-full max-w-md flex-1 items-center justify-center gap-4 self-center">
+            <Text variant="title">Learning card queued</Text>
+            <Text variant="footnote" muted className="text-center">
               It will return in {formatWait(current.due - now)}. You can leave
               and come back when it is ready.
-            </ZenText>
-            <PrimaryButton label="Finish for now" onPress={close} />
+            </Text>
+            <Button label="Finish for now" onPress={close} />
           </View>
         ) : current && detail ? (
           <>
@@ -194,30 +200,29 @@ export default function ReviewScreen() {
               onGrade={(answer) => void onGrade(answer)}
               onUndo={() => void onUndo()}
             />
-            <ZenText variant="caption" muted style={styles.hint}>
-              Tap to flip · swipe up to pass · swipe down to fail · swipe right
-              to undo
-            </ZenText>
+            <Text variant="caption" muted className="text-center">
+              Tap to flip · swipe up to pass · swipe down to fail
+            </Text>
           </>
         ) : queue.length === 0 ? (
-          <View style={styles.center}>
-            <ZenText variant="label" muted>
-              Session complete
-            </ZenText>
-            <ZenText variant="hero">Done.</ZenText>
-            <ZenText muted style={styles.centerText}>
+          <View className="w-full max-w-md flex-1 items-center justify-center gap-4 self-center">
+            <Text variant="label">Session complete</Text>
+            <Text variant="largeTitle">Done.</Text>
+            <Text variant="footnote" muted className="text-center">
               {answered} {answered === 1 ? "answer" : "answers"} in{" "}
               {formatElapsed(now - startedAt)}.
-            </ZenText>
-            <PrimaryButton label="Back to home" onPress={close} />
+            </Text>
+            <Button label="Back to home" onPress={close} />
           </View>
         ) : (
-          <View style={styles.center}>
-            <ZenText muted>Loading card…</ZenText>
+          <View className="flex-1 items-center justify-center">
+            <Text variant="footnote" muted>
+              Loading card…
+            </Text>
           </View>
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -233,49 +238,3 @@ function formatElapsed(ms: number) {
     ? `${seconds} seconds`
     : `${Math.round(seconds / 60)} minutes`;
 }
-const styles = StyleSheet.create({
-  safe: { flex: 1 },
-  header: {
-    height: 72,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    gap: 16,
-  },
-  glass: { borderRadius: 22, overflow: "hidden" },
-  iconButton: {
-    width: 44,
-    height: 44,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  count: { flex: 1, alignItems: "center", gap: 7 },
-  track: {
-    width: "100%",
-    maxWidth: 190,
-    height: 3,
-    borderRadius: 3,
-    overflow: "hidden",
-    flexDirection: "row",
-  },
-  fill: { minWidth: 2 },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 24,
-    gap: 14,
-  },
-  hint: { textAlign: "center" },
-  center: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 18,
-    maxWidth: 420,
-    alignSelf: "center",
-    width: "100%",
-  },
-  centerText: { textAlign: "center" },
-});

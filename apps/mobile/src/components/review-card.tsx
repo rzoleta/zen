@@ -1,6 +1,6 @@
 import { useAudioPlayer } from "expo-audio";
 import { SymbolView } from "expo-symbols";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   interpolate,
@@ -12,7 +12,7 @@ import Animated, {
 import { scheduleOnRN } from "react-native-worklets";
 
 import { audioAssets } from "@/assets/deck/audio-assets";
-import { JapaneseText, ZenText } from "@/components/ui";
+import { JapaneseText, Separator, Text } from "@/components/ui";
 import type { Word } from "@/db/schema";
 import type { JapaneseFont } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
@@ -27,6 +27,9 @@ interface ReviewCardProps {
   onFlip: () => void;
 }
 
+const faceClassName =
+  "absolute inset-0 rounded-3xl border border-border bg-card p-7";
+
 export function ReviewCard({
   word,
   font,
@@ -35,7 +38,6 @@ export function ReviewCard({
   onUndo,
   onFlip,
 }: ReviewCardProps) {
-  const theme = useTheme();
   const rotation = useSharedValue(0);
   const isFlipped = useSharedValue(0);
   const offsetY = useSharedValue(0);
@@ -99,38 +101,37 @@ export function ReviewCard({
   }));
   return (
     <GestureDetector gesture={Gesture.Exclusive(pan, tap)}>
-      <Animated.View style={styles.wrapper}>
+      <Animated.View className="w-full max-w-xl flex-1 self-center">
         <Animated.View
-          style={[
-            styles.face,
-            { backgroundColor: theme.surface, borderColor: theme.line },
-            frontStyle,
-          ]}
+          className={`${faceClassName} items-center justify-between`}
+          style={[{ backfaceVisibility: "hidden" }, frontStyle]}
         >
-          <View style={styles.center}>
-            <JapaneseText font={font} style={styles.word}>
+          <View className="flex-1 items-center justify-center gap-8">
+            <JapaneseText
+              font={font}
+              className="text-center text-[60px] leading-[80px]"
+            >
               {word.word}
             </JapaneseText>
             <HighlightedSentence word={word} font={font} />
           </View>
-          <ZenText variant="caption" muted>
+          <Text variant="caption" muted>
             Tap to reveal
-          </ZenText>
+          </Text>
         </Animated.View>
         <Animated.View
-          style={[
-            styles.face,
-            styles.back,
-            { backgroundColor: theme.surface, borderColor: theme.line },
-            backStyle,
-          ]}
+          className={`${faceClassName} justify-between`}
+          style={[{ backfaceVisibility: "hidden" }, backStyle]}
         >
-          <View style={styles.backHeader}>
-            <View style={styles.headword}>
-              <JapaneseText font={font} style={styles.backWord}>
+          <View className="flex-row items-center justify-between">
+            <View className="flex-1">
+              <JapaneseText font={font} className="text-[40px] leading-[54px]">
                 {word.word}
               </JapaneseText>
-              <JapaneseText font={font} style={styles.furigana}>
+              <JapaneseText
+                font={font}
+                className="text-base leading-6 text-muted-foreground"
+              >
                 {word.wordFurigana}
               </JapaneseText>
             </View>
@@ -142,16 +143,17 @@ export function ReviewCard({
               }}
             />
           </View>
-          <View style={[styles.rule, { backgroundColor: theme.line }]} />
-          <View style={styles.meaning}>
-            <ZenText variant="label" muted>
-              Meaning
-            </ZenText>
-            <ZenText style={styles.meaningText}>{word.meaning}</ZenText>
+          <Separator />
+          <View className="gap-1.5">
+            <Text variant="label">Meaning</Text>
+            <Text className="text-[22px] leading-[30px]">{word.meaning}</Text>
           </View>
-          <View style={styles.sentenceBlock}>
-            <View style={styles.sentenceRow}>
-              <JapaneseText font={font} style={styles.backSentence}>
+          <View className="gap-2">
+            <View className="flex-row items-center gap-3.5">
+              <JapaneseText
+                font={font}
+                className="flex-1 text-[24px] leading-[38px]"
+              >
                 {word.sentence}
               </JapaneseText>
               <AudioButton
@@ -162,18 +164,23 @@ export function ReviewCard({
                 }}
               />
             </View>
-            <JapaneseText font={font} style={styles.sentenceReading}>
+            <JapaneseText
+              font={font}
+              className="text-[13px] leading-5 text-muted-foreground"
+            >
               {word.sentenceFurigana}
             </JapaneseText>
-            <ZenText muted>{word.sentenceMeaning}</ZenText>
+            <Text variant="footnote" muted>
+              {word.sentenceMeaning}
+            </Text>
           </View>
-          <View style={styles.gradeHints}>
-            <ZenText variant="caption" style={{ color: theme.pass }}>
+          <View className="flex-row justify-between">
+            <Text variant="caption" className="font-sans-medium">
               ↑ pass
-            </ZenText>
-            <ZenText variant="caption" style={{ color: theme.fail }}>
+            </Text>
+            <Text variant="caption" className="text-destructive">
               ↓ fail
-            </ZenText>
+            </Text>
           </View>
         </Animated.View>
       </Animated.View>
@@ -188,7 +195,6 @@ function HighlightedSentence({
   word: Word;
   font: JapaneseFont;
 }) {
-  const theme = useTheme();
   const before = word.sentence.slice(0, word.sentenceTargetStart);
   const target = word.sentence.slice(
     word.sentenceTargetStart,
@@ -198,11 +204,14 @@ function HighlightedSentence({
     word.sentenceTargetStart + word.sentenceTargetLength,
   );
   return (
-    <JapaneseText font={font} style={styles.frontSentence}>
+    <JapaneseText
+      font={font}
+      className="text-center text-[22px] leading-[36px] text-muted-foreground"
+    >
       {before}
       <JapaneseText
         font={font}
-        style={[styles.frontSentence, { color: theme.accent }]}
+        className="text-[22px] leading-[36px] text-foreground underline"
       >
         {target}
       </JapaneseText>
@@ -224,11 +233,9 @@ function AudioButton({
       accessibilityLabel={disabled ? "Audio unavailable" : "Play audio"}
       disabled={disabled}
       onPress={onPress}
-      style={[
-        styles.audio,
-        { backgroundColor: theme.surfaceStrong },
-        disabled && { opacity: 0.3 },
-      ]}
+      className={`h-11 w-11 items-center justify-center rounded-full bg-secondary active:opacity-60 ${
+        disabled ? "opacity-30" : ""
+      }`}
     >
       <SymbolView
         name={{
@@ -237,59 +244,8 @@ function AudioButton({
           web: "volume_up",
         }}
         tintColor={theme.text}
-        size={18}
+        size={17}
       />
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    width: "100%",
-    maxWidth: 620,
-    minHeight: 480,
-    alignSelf: "center",
-  },
-  face: {
-    ...StyleSheet.absoluteFill,
-    backfaceVisibility: "hidden",
-    borderRadius: 30,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: 28,
-    alignItems: "center",
-    justifyContent: "space-between",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.08,
-    shadowRadius: 26,
-    elevation: 4,
-  },
-  back: { alignItems: "stretch" },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 30 },
-  word: { fontSize: 64, lineHeight: 80, textAlign: "center" },
-  frontSentence: { fontSize: 23, lineHeight: 38, textAlign: "center" },
-  backHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  headword: { flex: 1 },
-  backWord: { fontSize: 43, lineHeight: 56 },
-  furigana: { fontSize: 16, lineHeight: 24, opacity: 0.65 },
-  audio: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  rule: { height: StyleSheet.hairlineWidth },
-  meaning: { gap: 7 },
-  meaningText: { fontSize: 24, lineHeight: 32 },
-  sentenceBlock: { gap: 8 },
-  sentenceRow: { flexDirection: "row", alignItems: "center", gap: 14 },
-  backSentence: { flex: 1, fontSize: 25, lineHeight: 38 },
-  sentenceReading: { fontSize: 13, lineHeight: 22, opacity: 0.65 },
-  gradeHints: { flexDirection: "row", justifyContent: "space-between" },
-});

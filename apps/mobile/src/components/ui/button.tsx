@@ -1,0 +1,64 @@
+import type { ReactNode } from "react";
+import { Pressable, type PressableProps, Text } from "react-native";
+
+import { cn } from "@/lib/cn";
+
+const variants = {
+  default: { container: "bg-primary", text: "text-primary-foreground" },
+  secondary: { container: "bg-secondary", text: "text-secondary-foreground" },
+  outline: {
+    container: "border border-border bg-transparent",
+    text: "text-foreground",
+  },
+  ghost: { container: "bg-transparent", text: "text-foreground" },
+  destructive: {
+    container: "bg-destructive",
+    text: "text-destructive-foreground",
+  },
+} as const;
+
+const sizes = {
+  default: { container: "h-12 rounded-xl px-5", text: "text-[15px]" },
+  lg: { container: "h-14 rounded-2xl px-6", text: "text-base" },
+  sm: { container: "h-9 rounded-lg px-3", text: "text-[13px]" },
+} as const;
+
+export function Button({
+  label,
+  variant = "default",
+  size = "default",
+  icon,
+  className,
+  disabled,
+  ...props
+}: Omit<PressableProps, "children"> & {
+  label: string;
+  variant?: keyof typeof variants;
+  size?: keyof typeof sizes;
+  icon?: ReactNode;
+}) {
+  return (
+    <Pressable
+      {...props}
+      disabled={disabled}
+      className={cn(
+        "flex-row items-center justify-center gap-2 active:opacity-70",
+        variants[variant].container,
+        sizes[size].container,
+        disabled && "opacity-40",
+        className,
+      )}
+    >
+      {icon}
+      <Text
+        className={cn(
+          "font-sans-semibold",
+          variants[variant].text,
+          sizes[size].text,
+        )}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
+}

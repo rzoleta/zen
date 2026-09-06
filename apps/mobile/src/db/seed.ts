@@ -9,6 +9,7 @@ export const DEFAULT_SETTINGS = {
   desired_retention: "0.90",
   autoplay: "true",
   jp_font: "mincho",
+  theme: "system",
 } as const;
 
 interface SeedWord {

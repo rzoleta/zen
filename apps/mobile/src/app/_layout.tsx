@@ -7,13 +7,52 @@ import { NotoSerifJP_500Medium } from "@expo-google-fonts/noto-serif-jp/500Mediu
 import { useFonts } from "expo-font";
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import { colorScheme as nativewindScheme } from "nativewind";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+import { Colors } from "@/constants/theme";
 import { DatabaseProvider } from "@/db/client";
+import { useSettings } from "@/hooks/use-settings";
 
 void SplashScreen.preventAutoHideAsync();
+
+const navThemes = {
+  light: {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      primary: Colors.light.primary,
+      background: Colors.light.background,
+      card: Colors.light.background,
+      text: Colors.light.text,
+      border: Colors.light.border,
+      notification: Colors.light.destructive,
+    },
+  },
+  dark: {
+    ...DarkTheme,
+    colors: {
+      ...DarkTheme.colors,
+      primary: Colors.dark.primary,
+      background: Colors.dark.background,
+      card: Colors.dark.background,
+      text: Colors.dark.text,
+      border: Colors.dark.border,
+      notification: Colors.dark.destructive,
+    },
+  },
+};
+
+function ThemeSync() {
+  const { theme } = useSettings();
+  useEffect(() => {
+    nativewindScheme.set(theme);
+  }, [theme]);
+  return null;
+}
 
 export default function RootLayout() {
   const scheme = useColorScheme();
@@ -30,8 +69,11 @@ export default function RootLayout() {
   if (!loaded && !error) return null;
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider value={scheme === "dark" ? DarkTheme : DefaultTheme}>
+      <ThemeProvider
+        value={scheme === "dark" ? navThemes.dark : navThemes.light}
+      >
         <DatabaseProvider>
+          <ThemeSync />
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen
@@ -42,6 +84,7 @@ export default function RootLayout() {
               }}
             />
           </Stack>
+          <StatusBar style="auto" />
         </DatabaseProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
