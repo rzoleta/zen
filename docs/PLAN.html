@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zen: V1 plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Geist', system-ui, sans-serif;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 6rem;
+    line-height: 1.6;
+    color: #d4d4d4;
+    background: #000;
+  }
+  h1 { font-size: 1.8rem; line-height: 1.25; color: #f5f5f5; }
+  h2 { font-size: 1.35rem; margin-top: 2.5rem; border-bottom: 1px solid #2a2a2a; padding-bottom: 0.3rem; color: #f5f5f5; }
+  h3 { font-size: 1.05rem; margin-top: 1.8rem; color: #f5f5f5; }
+  code, .kbd {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 0.85em;
+    background: #1a1a1a;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+  pre {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 0.82rem;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 1rem;
+    overflow-x: auto;
+    line-height: 1.45;
+  }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.95rem; }
+  th, td { border: 1px solid #333; padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; }
+  th { background: #161616; color: #f5f5f5; }
+  .aside {
+    border-left: 3px solid #555;
+    padding: 0.1rem 1rem;
+    margin: 1.2rem 0;
+    background: #111;
+    font-size: 0.95rem;
+  }
+  a { color: #7ab3e8; }
+  ul, ol { padding-left: 1.4rem; }
+  li { margin-bottom: 0.35rem; }
+  .small { font-size: 0.88rem; color: #8a8a8a; }
+</style>
+</head>
+<body>
+
+<h1>Zen: V1 plan</h1>
+<p class="small">A Japanese vocabulary app that ships the method in <a href="./LEARNING_SPEC.html">the learning spec</a> as a product: Kaishi 1.5k, FSRS, pass/fail, immersion-first philosophy, none of the setup. The app is called Zen everywhere (repo, code, screens); the keyword-heavy App Store title is a release-time decision.</p>
+
+<h2>Scope</h2>
+<p>V1 is one PR. Local-only, no accounts, no server, no purchases. iOS-first: the code stays cross-platform-clean (no iOS-only API without a guard and a plain fallback), but only iOS gets tested and polished. Everything below the "later PRs" line is out.</p>
+
+<h2>1. Features</h2>
+<p class="small">This section is design-agnostic: what the app does, not how it's built.</p>
+
+<h3>The deck</h3>
+<ul>
+  <li>Ships with Kaishi 1.5k built in. No deck browsing, no imports in V1; the deck is the app.</li>
+  <li>New cards are introduced in Kaishi's deck order, which is already frequency-sorted.</li>
+  <li>Kaishi is credited in Settings → About. Before shipping we verify its license permits redistribution inside an app (it's a community deck built on Core/Tango material).</li>
+</ul>
+
+<h3>The review loop</h3>
+<p>Anki semantics, not consumer-app sessions. One daily queue: every due card plus up to N new cards (default 10, user-settable). No review cap. Done means the queue is empty, and the app says so. Cards in learning resurface after their 10-minute step, including within the same sitting.</p>
+<ul>
+  <li>Scheduling is FSRS with desired retention defaulting to 0.90.</li>
+  <li>Grading is binary: pass or fail. No Hard, no Easy, anywhere.</li>
+  <li>The day rolls over at 4am local time, like Anki, so a midnight session doesn't leak tomorrow's cards.</li>
+  <li>A card that lapses 5 times auto-suspends as a leech and shows as "suspended (leech)" in the Words tab. The user can unsuspend it there.</li>
+</ul>
+
+<h3>The card</h3>
+<p>Flashcards should feel like physical cards. The flip is a real 3D rotation, not a crossfade.</p>
+<ul>
+  <li>Front: the word, with its example sentence below in smaller type, target word highlighted.</li>
+  <li>Back: word with furigana reading and an audio play button, meaning, sentence translation with an audio play button. No pitch accent graph, no image.</li>
+  <li>Tap to flip. After flipping: swipe up = pass, swipe down = fail. Swipes are inert before the flip.</li>
+  <li>Left-to-right swipe (like the back gesture) undoes the last grade, one step.</li>
+  <li>Word audio autoplays on flip (toggleable in Settings). Sentence audio is tap-only.</li>
+</ul>
+
+<h3>Screens</h3>
+<p>Four native tabs. The review session itself is a full-screen modal over everything, no tab bar, which also keeps the undo swipe clear of the navigation back gesture.</p>
+<table>
+  <tr><th>Tab</th><th>Contents</th></tr>
+  <tr><td>Home</td><td>Today's queue summary ("12 reviews · 10 new"), a single prominent start button, and the done state when the queue is empty.</td></tr>
+  <tr><td>Words</td><td>All 1,500 words in deck order: word, reading, meaning, status chip (new / learning / young / mature / known / suspended). Search and status filter. Tapping opens a detail view with the full card contents and FSRS stats (next due, interval, lapses), plus per-word actions: suspend, mark known, reset. Multi-select is a later PR.</td></tr>
+  <tr><td>Progress</td><td>Review-activity heatmap, daily/weekly review counts and time spent, a deck progress bar by card status, and true retention % (passes over review-stage answers). No streaks, no XP, no gamification.</td></tr>
+  <tr><td>Settings</td><td>New cards/day (default 10), desired retention slider (0.80–0.95, default 0.90), word-audio autoplay toggle, Japanese font toggle (Mincho / Gothic), About with Kaishi and library credits, and a reset-all-progress button behind a confirmation. FSRS internals (weights, steps, optimizer) stay hidden.</td></tr>
+</table>
+
+<h3>Look and feel</h3>
+<ul>
+  <li>Clean, minimal, modern. Vercel/OpenAI, not Duolingo. Generous whitespace, restrained color, type does the work.</li>
+  <li>Light and dark themes, both first-class, following the system setting.</li>
+  <li>Liquid Glass (via Expo's glass views) on chrome where it earns its place: tab bar, modal headers, overlay controls. Guarded, with a plain fallback for older iOS and Android.</li>
+  <li>Japanese text renders in the user's chosen font: Noto Serif JP (Mincho) or Noto Sans JP (Gothic), bundled.</li>
+</ul>
+
+<h3>Later PRs (noted, not designed)</h3>
+<ul>
+  <li>Import via the share sheet: sharing text to Zen opens a card creator. Other import paths (image) may follow.</li>
+  <li>Word groups (Numbers, Greetings, Family…) with manual drilling.</li>
+  <li>Multi-select in the Words tab to bulk-change status (e.g. mark all greetings known).</li>
+  <li>Android test/polish pass. Backup/sync. FSRS parameter optimization from the user's own review log.</li>
+</ul>
+
+<h2>2. Technical design</h2>
+
+<h3>Stack</h3>
+<table>
+  <tr><th>Concern</th><th>Choice</th><th>Notes</th></tr>
+  <tr><td>Language</td><td>TypeScript</td><td>Strict mode, everywhere including the build script.</td></tr>
+  <tr><td>Framework</td><td>Expo, latest stable SDK</td><td>expo-router with Native Tabs from the start.</td></tr>
+  <tr><td>Styling</td><td>NativeWind (Tailwind)</td><td>Theme tokens defined once so light/dark is a token swap, not per-screen work.</td></tr>
+  <tr><td>Database</td><td>Drizzle ORM + expo-sqlite</td><td>drizzle-kit migrations; Drizzle's live-query hook keeps Words and Progress reactive without a state library.</td></tr>
+  <tr><td>Scheduling</td><td>ts-fsrs</td><td>The open-spaced-repetition TypeScript port. Pure TS, no native module. We only ever submit Again/Good.</td></tr>
+  <tr><td>Animation/gestures</td><td>react-native-reanimated + gesture-handler</td><td>3D flip (perspective + rotateY), swipe grading, undo swipe.</td></tr>
+  <tr><td>Audio</td><td>expo-audio</td><td>Plays bundled files; preload the next card's word audio during review.</td></tr>
+  <tr><td>Session state</td><td>Zustand</td><td>In-flight review session only. Everything durable lives in SQLite.</td></tr>
+  <tr><td>Tests</td><td>Jest</td><td>Scheduler wrapper, queue building, day rollover. No UI/e2e tests in V1.</td></tr>
+  <tr><td>Fonts</td><td>expo-font</td><td>Geist for UI, Noto Serif JP + Noto Sans JP for Japanese text.</td></tr>
+</table>
+
+<h3>Architecture</h3>
+<p>Three layers, with the scheduler as the only place FSRS is spoken:</p>
+<ol>
+  <li><strong>Content pipeline (build time).</strong> <code>scripts/extract-kaishi.ts</code> runs once on a developer machine: unzips the .apkg (it's a zip with a SQLite db inside), reads the 1,500 notes, strips fields we don't ship (pitch accent, pictures), renames audio to <code>word_0001.mp3</code> / <code>sentence_0001.mp3</code>, and emits <code>assets/deck/kaishi.json</code> plus <code>assets/deck/audio/</code>. Output is committed; the script never runs on device or in CI.</li>
+  <li><strong>Data + scheduler (runtime, UI-free).</strong> Drizzle schema, first-launch seeding from the bundled JSON, and a <code>scheduler/</code> module wrapping ts-fsrs. This module owns queue building, grading, undo, the 4am day boundary, and leech auto-suspension. It exposes maybe six functions and is where all the Jest tests live. No React imports allowed in this layer.</li>
+  <li><strong>UI.</strong> expo-router screens and components. Reads via Drizzle live queries, writes via the scheduler module. The review modal holds its session in a Zustand store (current queue, current card, flip state) and commits each grade to SQLite immediately, so killing the app mid-session loses nothing.</li>
+</ol>
+
+<h3>Data model</h3>
+<table>
+  <tr><th>Table</th><th>Columns (essentials)</th></tr>
+  <tr><td><code>words</code></td><td>id, deck_order, word, word_furigana, meaning, sentence, sentence_furigana, sentence_meaning, word_audio, sentence_audio. Immutable content, seeded once.</td></tr>
+  <tr><td><code>cards</code></td><td>word_id, FSRS state (state, due, stability, difficulty, reps, lapses, last_review), suspended (none / manual / leech), known flag. One card per word, created at seed time.</td></tr>
+  <tr><td><code>review_log</code></td><td>id, card_id, rating, previous card state snapshot, reviewed_at, duration_ms. Append-only. Powers undo (restore the snapshot), the heatmap, retention, and future parameter optimization.</td></tr>
+  <tr><td><code>settings</code></td><td>key/value. new_per_day, desired_retention, autoplay, jp_font.</td></tr>
+</table>
+<p>Storing the pre-review snapshot in the log makes undo a one-row restore instead of a scheduler replay, and it means we never lose information FSRS optimization will want later.</p>
+
+<h3>File structure</h3>
+<pre><code>zen/
+├── app/                      # expo-router
+│   ├── _layout.tsx           # root: fonts, theme, db provider
+│   ├── (tabs)/
+│   │   ├── _layout.tsx       # native tabs
+│   │   ├── index.tsx         # Home
+│   │   ├── words/
+│   │   │   ├── index.tsx     # word list
+│   │   │   └── [id].tsx      # word detail
+│   │   ├── progress.tsx
+│   │   └── settings.tsx
+│   └── review.tsx            # full-screen modal session
+├── components/               # Card, FlipCard, StatusChip, Heatmap, ...
+├── db/
+│   ├── schema.ts
+│   ├── migrations/
+│   └── seed.ts               # first-launch import of kaishi.json
+├── scheduler/
+│   ├── index.ts              # buildQueue, grade, undo, dayBoundary, leech
+│   └── __tests__/
+├── stores/
+│   └── session.ts            # zustand review-session store
+├── assets/
+│   ├── deck/                 # kaishi.json + audio/ (committed, generated)
+│   └── fonts/
+├── scripts/
+│   └── extract-kaishi.ts
+└── docs/                     # LEARNING_SPEC.html, PLAN.html
+</code></pre>
+
+<h3>Scheduler details worth writing down</h3>
+<ul>
+  <li>ts-fsrs is configured with a single 10-minute learning step and desired retention from settings. Changing retention in Settings affects future scheduling only; no mass reschedule in V1.</li>
+  <li>"Due today" means <code>due &lt; next 4am local</code>. All queue and stats code goes through one <code>currentStudyDay()</code> helper; nothing else touches dates. This is the most test-worthy code in the app.</li>
+  <li>Queue order: learning cards ready now, then due reviews, then new cards in deck order. New cards stop appearing once the daily count is hit; the count resets at 4am.</li>
+  <li>"Mark known" is its own flag, not a fake review, so stats stay honest.</li>
+</ul>
+
+<div class="aside">
+<p><strong>Known risk: bundle size.</strong> ~3,000 audio clips will land somewhere around 50–150 MB. Phase 0 measures the real number. If the installed app exceeds ~200 MB we switch audio to a first-launch download in this same PR; otherwise we ship bundled and revisit only if App Store friction shows up. The second risk is the Kaishi license check, also Phase 0, because a "no" changes the content pipeline.</p>
+</div>
+
+<h2>3. Action plan</h2>
+<p>One PR, built in phases that each leave the app runnable. Phases 2 and 3 are the ones where correctness matters; everything after is screens.</p>
+
+<h3>Phase 0: content</h3>
+<ul>
+  <li>Verify Kaishi's license for in-app redistribution; record the finding and required attribution.</li>
+  <li>Write <code>scripts/extract-kaishi.ts</code>, generate <code>kaishi.json</code> + audio, commit, and measure total size. Decide bundled vs first-launch download per the risk note.</li>
+</ul>
+
+<h3>Phase 1: skeleton</h3>
+<ul>
+  <li>Scaffold Expo (latest SDK), expo-router with the four native tabs plus the review modal route, NativeWind with light/dark theme tokens, bundled fonts.</li>
+  <li>Placeholder screens that prove navigation, theming, and fonts end to end.</li>
+</ul>
+
+<h3>Phase 2: data and scheduler</h3>
+<ul>
+  <li>Drizzle schema + migrations, first-launch seeding of 1,500 words and cards.</li>
+  <li>Scheduler module over ts-fsrs: buildQueue, grade (pass/fail), undo, 4am boundary, leech auto-suspend.</li>
+  <li>Jest tests: interval sanity against known FSRS behavior, queue composition and ordering, new-card limit reset at 4am, undo round-trip, leech trigger at lapse 5.</li>
+</ul>
+
+<h3>Phase 3: the review session</h3>
+<ul>
+  <li>Card component with the 3D flip, both faces per the card spec, furigana rendering, chosen Japanese font.</li>
+  <li>Gestures: tap to flip, swipe up/down to grade (post-flip only), left-to-right undo. Grade commits to SQLite immediately.</li>
+  <li>Audio: word autoplay on flip, tap-to-play buttons, next-card preload.</li>
+  <li>Session flow: launch from Home, learning cards resurface, queue-empty done state.</li>
+</ul>
+
+<h3>Phase 4: the other screens</h3>
+<ul>
+  <li>Home: live queue counts, start button, done state.</li>
+  <li>Words: list with search and status filter, detail view with FSRS stats, suspend / mark known / reset actions.</li>
+  <li>Progress: heatmap, counts and time, deck status bar, true retention.</li>
+  <li>Settings: the four settings, About with credits, reset-progress with confirmation.</li>
+</ul>
+
+<h3>Phase 5: polish and QA</h3>
+<ul>
+  <li>Glass surfaces where appropriate, haptics on grade, empty and edge states, app icon, both themes swept screen by screen.</li>
+  <li>Manual QA against a checklist: fresh install → seed → first session → force-quit mid-session → relaunch → undo → leech path → reset progress → day rollover (device clock).</li>
+</ul>
+
+<h3>Done means</h3>
+<ul>
+  <li>A fresh install reviews Kaishi correctly for days without touching a network.</li>
+  <li>Scheduler tests green; intervals match what the learning spec's FSRS section predicts for pass/fail patterns.</li>
+  <li>Every V1 feature above exists; every "later PR" item still doesn't.</li>
+</ul>
+
+</body>
+</html>
