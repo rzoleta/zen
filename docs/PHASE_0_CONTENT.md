@@ -48,8 +48,8 @@ pnpm extract:kaishi -- /path/to/Kaishi.1.5k.apkg --output /tmp/zen-kaishi
 
 It reads the 1,500 vocabulary notes in card order, drops the introductory card and unused fields, removes Anki HTML while retaining furigana notation and the exact sentence-highlight offset, and writes deterministic audio filenames. It fails if required text, sentence highlighting, or sentence audio is absent, if referenced audio is not MP3, or if the word count changes. Kaishi v2.4.2 has no word-audio reference for `失礼します`, so that record has `word_audio: null` and the output contains 2,999 audio files.
 
-When permission is documented, run it with the repository output path and commit `assets/deck/kaishi.json`, `assets/deck/extraction-summary.json`, and `assets/deck/audio/`:
+When permission is documented, run it with the mobile runtime output path and commit the generated `kaishi.json`, `audio-assets.ts`, `extraction-summary.json`, and `audio/` directory:
 
 ```sh
-pnpm extract:kaishi -- /path/to/Kaishi.1.5k.apkg --output assets/deck
+pnpm extract:kaishi -- /path/to/Kaishi.1.5k.apkg --output apps/mobile/src/assets/deck --force
 ```

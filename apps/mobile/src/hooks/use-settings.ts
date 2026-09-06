@@ -1,0 +1,30 @@
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+
+import { db } from "@/db/client";
+import { DEFAULT_SETTINGS } from "@/db/seed";
+import { settings } from "@/db/schema";
+
+export type JapaneseFont = "mincho" | "gothic";
+
+export function useSettings() {
+  const { data = [] } = useLiveQuery(db.select().from(settings));
+  const values = Object.fromEntries(data.map((row) => [row.key, row.value]));
+  return {
+    newPerDay: Number(values.new_per_day ?? DEFAULT_SETTINGS.new_per_day),
+    desiredRetention: Number(
+      values.desired_retention ?? DEFAULT_SETTINGS.desired_retention,
+    ),
+    autoplay: (values.autoplay ?? DEFAULT_SETTINGS.autoplay) === "true",
+    jpFont: (values.jp_font ?? DEFAULT_SETTINGS.jp_font) as JapaneseFont,
+  };
+}
+
+export async function updateSetting(
+  key: keyof typeof DEFAULT_SETTINGS,
+  value: string,
+): Promise<void> {
+  await db
+    .insert(settings)
+    .values({ key, value })
+    .onConflictDoUpdate({ target: settings.key, set: { value } });
+}

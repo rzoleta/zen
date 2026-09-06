@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "Zen",
+    "slug": "zen",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "../../icon.png",
+    "scheme": "zen",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "app.zen.japanese",
+      "supportsTablet": true
+    },
+    "android": {
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "../../favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F4F1EA",
+          "image": "../../icon.png",
+          "imageWidth": 96,
+          "dark": {
+            "backgroundColor": "#111311"
+          }
+        }
+      ],
+      "expo-sqlite",
+      "expo-audio",
+      "expo-asset"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}

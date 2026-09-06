@@ -4,7 +4,11 @@
   "packageManager": "pnpm@10.14.0",
   "scripts": {
     "extract:kaishi": "tsx scripts/extract-kaishi.ts",
-    "typecheck": "tsc --noEmit"
+    "dev": "pnpm --filter @zen/mobile start",
+    "ios": "pnpm --filter @zen/mobile ios",
+    "lint": "pnpm --filter @zen/mobile lint",
+    "test": "pnpm --filter @zen/mobile test",
+    "typecheck": "tsc --noEmit && pnpm --filter @zen/mobile typecheck"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

@@ -85,7 +85,7 @@ function usage(): never {
 
 function parseArguments(argv: string[]): Arguments {
   let archivePath: string | undefined;
-  let outputPath = "assets/deck";
+  let outputPath = "apps/mobile/src/assets/deck";
   let force = false;
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -582,6 +582,14 @@ async function extract(args: Arguments): Promise<ExtractionSummary> {
       totalBytes: jsonBytes + audioBytes,
     };
     writeFileSync(join(stagedOutput, "extraction-summary.json"), `${JSON.stringify(summary, null, 2)}\n`);
+    const audioAssetLines = audioFiles.map(
+      (filename) => `  ${JSON.stringify(`audio/${filename}`)}: require(${JSON.stringify(`./audio/${filename}`)}),`,
+    );
+    writeFileSync(
+      join(stagedOutput, "audio-assets.ts"),
+      `declare const require: (path: string) => number;\n\nexport const audioAssets: Readonly<Record<string, number>> = {\n${audioAssetLines.join("\n")}\n};\n`,
+      "utf8",
+    );
 
     if (args.force) rmSync(args.outputPath, { recursive: true, force: true });
     renameSync(stagedOutput, args.outputPath);
