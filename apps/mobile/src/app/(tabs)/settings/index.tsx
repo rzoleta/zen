@@ -204,6 +204,7 @@ function SettingRow({
 function Stepper({ label, onPress }: { label: string; onPress: () => void }) {
   return (
     <Pressable
+      accessibilityRole="button"
       onPress={onPress}
       className="h-9 w-9 items-center justify-center rounded-lg bg-secondary active:opacity-60"
     >

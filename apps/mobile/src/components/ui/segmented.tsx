@@ -1,6 +1,7 @@
 import { Pressable, View } from "react-native";
 
 import { Text } from "@/components/ui/text";
+import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/cn";
 
 export function Segmented<T extends string>({
@@ -14,26 +15,43 @@ export function Segmented<T extends string>({
   onChange: (value: T) => void;
   className?: string;
 }) {
+  const theme = useTheme();
+
   return (
     <View className={cn("flex-row rounded-lg bg-secondary p-0.5", className)}>
-      {options.map((option) => (
-        <Pressable
-          key={option.value}
-          onPress={() => onChange(option.value)}
-          className={cn(
-            "rounded-[7px] px-3 py-1.5",
-            value === option.value && "bg-card shadow-sm",
-          )}
-        >
-          <Text
-            variant="footnote"
-            muted={value !== option.value}
-            className={cn(value === option.value && "font-sans-medium")}
+      {options.map((option) => {
+        const selected = value === option.value;
+
+        return (
+          <Pressable
+            key={option.value}
+            accessibilityRole="button"
+            accessibilityState={{ selected }}
+            onPress={() => onChange(option.value)}
+            className="rounded-[7px] px-3 py-1.5"
+            style={
+              selected
+                ? {
+                    backgroundColor: theme.card,
+                    elevation: 1,
+                    shadowColor: "#000000",
+                    shadowOffset: { width: 0, height: 1 },
+                    shadowOpacity: 0.08,
+                    shadowRadius: 1.5,
+                  }
+                : undefined
+            }
           >
-            {option.label}
-          </Text>
-        </Pressable>
-      ))}
+            <Text
+              variant="footnote"
+              muted={!selected}
+              className={cn(selected && "font-sans-medium")}
+            >
+              {option.label}
+            </Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }

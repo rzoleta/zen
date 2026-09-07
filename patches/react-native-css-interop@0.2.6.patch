@@ -2,7 +2,7 @@ diff --git a/dist/runtime/native/render-component.js b/dist/runtime/native/rende
 index eba25ece1cf3fe3170cd55134df6b70c7aabd70e..054e040aa7b76526c65c53adc2ed92ebbe90b37b 100644
 --- a/dist/runtime/native/render-component.js
 +++ b/dist/runtime/native/render-component.js
-@@ -122,21 +122,39 @@ function printUpgradeWarning(warning, originalProps) {
+@@ -122,21 +122,47 @@ function printUpgradeWarning(warning, originalProps) {
  }
  function stringify(object) {
      const seen = new WeakSet();
@@ -21,35 +21,43 @@ index eba25ece1cf3fe3170cd55134df6b70c7aabd70e..054e040aa7b76526c65c53adc2ed92eb
 -        seen.delete(value);
 -        return newValue;
 -    }, 2);
-+    try {
-+        return JSON.stringify(object, function replace(_, value) {
-+            if (!(value !== null && typeof value === "object")) {
-+                return value;
-+            }
-+            if (seen.has(value)) {
-+                return "[Circular]";
-+            }
-+            seen.add(value);
-+            const newValue = Array.isArray(value) ? [] : {};
-+            let entries;
++    function simplify(value, depth) {
++        if (typeof value === "string") {
++            return value.length > 500 ? `${value.slice(0, 500)}...` : value;
++        }
++        if (typeof value === "function") {
++            return value.name ? `[Function ${value.name}]` : "[Function]";
++        }
++        if (!(value !== null && typeof value === "object")) {
++            return value;
++        }
++        if (seen.has(value)) {
++            return "[Circular]";
++        }
++        if (depth >= 2) {
++            return Array.isArray(value) ? `[Array(${value.length})]` : "[Object]";
++        }
++        seen.add(value);
++        const simplified = Array.isArray(value) ? [] : {};
++        let keys;
++        try {
++            keys = Object.keys(value).slice(0, 20);
++        }
++        catch {
++            return "[unserializable]";
++        }
++        for (const key of keys) {
 +            try {
-+                entries = Object.entries(value);
++                simplified[key] = simplify(value[key], depth + 1);
 +            }
 +            catch {
-+                seen.delete(value);
-+                return "[unserializable]";
++                simplified[key] = "[unserializable]";
 +            }
-+            for (const entry of entries) {
-+                try {
-+                    newValue[entry[0]] = replace(entry[0], entry[1]);
-+                }
-+                catch {
-+                    newValue[entry[0]] = "[unserializable]";
-+                }
-+            }
-+            seen.delete(value);
-+            return newValue;
-+        }, 2);
++        }
++        return simplified;
++    }
++    try {
++        return JSON.stringify(simplify(object, 0), null, 2);
 +    }
 +    catch {
 +        return "[unserializable props]";
