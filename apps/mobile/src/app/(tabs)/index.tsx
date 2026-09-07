@@ -37,7 +37,7 @@ export default function HomeScreen() {
       {queue.length > 0 ? (
         <>
           <View className="flex-1 items-center justify-center">
-            <StudyCardStack count={queue.length} />
+            <StudyCardStack count={queue.length} onPress={start} />
             <Text variant="footnote" muted className="mt-2">
               {reviewCount} due · {newCount} new
             </Text>

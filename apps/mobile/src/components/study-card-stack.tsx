@@ -1,4 +1,4 @@
-import { StyleSheet, useWindowDimensions, View } from "react-native";
+import { Pressable, StyleSheet, useWindowDimensions, View } from "react-native";
 
 import { Text } from "@/components/ui";
 import { useTheme } from "@/hooks/use-theme";
@@ -7,9 +7,10 @@ const CARD_ASPECT_RATIO = 1.36;
 
 type StudyCardStackProps = {
   count: number;
+  onPress: () => void;
 };
 
-export function StudyCardStack({ count }: StudyCardStackProps) {
+export function StudyCardStack({ count, onPress }: StudyCardStackProps) {
   const { width, height } = useWindowDimensions();
   const theme = useTheme();
   const cardWidth = Math.min(width * 0.62, height * 0.34, 250);
@@ -24,10 +25,11 @@ export function StudyCardStack({ count }: StudyCardStackProps) {
   };
 
   return (
-    <View
-      accessible
-      accessibilityLabel={`${count} ${count === 1 ? "card" : "cards"} to study`}
-      className="items-center justify-center"
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Start studying, ${count} ${count === 1 ? "card" : "cards"}`}
+      className="items-center justify-center active:opacity-70"
+      onPress={onPress}
       style={{ width: frameWidth, height: frameHeight }}
     >
       <View
@@ -96,7 +98,7 @@ export function StudyCardStack({ count }: StudyCardStackProps) {
         </Text>
         <Text muted>{count === 1 ? "card" : "cards"} to study</Text>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
