@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { Alert, Pressable, View } from "react-native";
 
 import { StatusChip } from "@/components/status-chip";
@@ -33,7 +33,7 @@ export default function WordDetailScreen() {
   ).data[0];
   if (!detail)
     return (
-      <Screen header>
+      <Screen>
         <Text muted>Loading…</Text>
       </Screen>
     );
@@ -41,8 +41,7 @@ export default function WordDetailScreen() {
   const due =
     card.state === 0 ? "Not introduced" : new Date(card.due).toLocaleString();
   return (
-    <Screen header>
-      <Stack.Screen options={{ title: word.word }} />
+    <Screen>
       <View className="items-start gap-1.5 pt-2">
         <JapaneseText font={jpFont} className="text-[48px] leading-[62px]">
           {word.word}
