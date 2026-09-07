@@ -13,15 +13,26 @@ export default function HomeScreen() {
     begin(queue);
     router.push("/review");
   };
-  const today = new Date().toLocaleDateString("en-US", {
+  const today = new Date();
+  const weekday = today.toLocaleDateString("en-US", {
     weekday: "long",
+  });
+  const date = today.toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
   });
   return (
     <Screen scroll={false} className="flex-1 pb-6">
-      <View className="pt-2">
-        <Text variant="label">{today}</Text>
+      <View className="flex-row items-start justify-between pt-2">
+        <Text variant="largeTitle">前 Zen</Text>
+        <View className="items-end gap-1 pt-1">
+          <Text variant="label" className="text-right">
+            {weekday}
+          </Text>
+          <Text variant="label" className="text-right">
+            {date}
+          </Text>
+        </View>
       </View>
       {queue.length > 0 ? (
         <>
