@@ -1,0 +1,59 @@
+diff --git a/dist/runtime/native/render-component.js b/dist/runtime/native/render-component.js
+index eba25ece1cf3fe3170cd55134df6b70c7aabd70e..054e040aa7b76526c65c53adc2ed92ebbe90b37b 100644
+--- a/dist/runtime/native/render-component.js
++++ b/dist/runtime/native/render-component.js
+@@ -122,21 +122,39 @@ function printUpgradeWarning(warning, originalProps) {
+ }
+ function stringify(object) {
+     const seen = new WeakSet();
+-    return JSON.stringify(object, function replace(_, value) {
+-        if (!(value !== null && typeof value === "object")) {
+-            return value;
+-        }
+-        if (seen.has(value)) {
+-            return "[Circular]";
+-        }
+-        seen.add(value);
+-        const newValue = Array.isArray(value) ? [] : {};
+-        for (const entry of Object.entries(value)) {
+-            newValue[entry[0]] = replace(entry[0], entry[1]);
+-        }
+-        seen.delete(value);
+-        return newValue;
+-    }, 2);
++    try {
++        return JSON.stringify(object, function replace(_, value) {
++            if (!(value !== null && typeof value === "object")) {
++                return value;
++            }
++            if (seen.has(value)) {
++                return "[Circular]";
++            }
++            seen.add(value);
++            const newValue = Array.isArray(value) ? [] : {};
++            let entries;
++            try {
++                entries = Object.entries(value);
++            }
++            catch {
++                seen.delete(value);
++                return "[unserializable]";
++            }
++            for (const entry of entries) {
++                try {
++                    newValue[entry[0]] = replace(entry[0], entry[1]);
++                }
++                catch {
++                    newValue[entry[0]] = "[unserializable]";
++                }
++            }
++            seen.delete(value);
++            return newValue;
++        }, 2);
++    }
++    catch {
++        return "[unserializable props]";
++    }
+ }
+ function getDebugReplacer() {
+     const seen = new WeakSet();
