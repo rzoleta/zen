@@ -1,76 +1,42 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { Tabs } from "expo-router";
+import { NativeTabs } from "expo-router/unstable-native-tabs";
 
-import { Fonts } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 
 export default function TabsLayout() {
   const theme = useTheme();
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: theme.text,
-        tabBarInactiveTintColor: theme.muted,
-        tabBarStyle: {
-          backgroundColor: theme.background,
-          borderTopColor: theme.border,
-        },
-        tabBarLabelStyle: { fontFamily: Fonts.medium },
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "home" : "home-outline"}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="words"
-        options={{
-          title: "Words",
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "book" : "book-outline"}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="progress"
-        options={{
-          title: "Progress",
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "bar-chart" : "bar-chart-outline"}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: "Settings",
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "settings" : "settings-outline"}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-    </Tabs>
+    <NativeTabs tintColor={theme.text}>
+      <NativeTabs.Trigger name="index">
+        <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "house", selected: "house.fill" }}
+          md={{ default: "home", selected: "home" }}
+        />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="words">
+        <NativeTabs.Trigger.Label>Words</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{
+            default: "text.book.closed",
+            selected: "text.book.closed.fill",
+          }}
+          md={{ default: "menu_book", selected: "menu_book" }}
+        />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="progress">
+        <NativeTabs.Trigger.Label>Progress</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "chart.bar", selected: "chart.bar.fill" }}
+          md={{ default: "bar_chart", selected: "bar_chart" }}
+        />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="settings">
+        <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "gearshape", selected: "gearshape.fill" }}
+          md={{ default: "settings", selected: "settings" }}
+        />
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }

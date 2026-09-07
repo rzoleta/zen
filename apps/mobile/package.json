@@ -6,7 +6,6 @@
     "@expo-google-fonts/geist": "^0.4.2",
     "@expo-google-fonts/noto-sans-jp": "^0.4.3",
     "@expo-google-fonts/noto-serif-jp": "^0.4.3",
-    "@expo/vector-icons": "^15.0.2",
     "@expo/ui": "~57.0.16",
     "@react-native-community/slider": "5.2.0",
     "drizzle-orm": "0.45.2",
