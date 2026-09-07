@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { View } from "react-native";
 
+import { StudyCardStack } from "@/components/study-card-stack";
 import { Button, Screen, Text } from "@/components/ui";
 import { useQueue } from "@/hooks/use-deck";
 import { useSessionStore } from "@/stores/session";
@@ -25,10 +26,7 @@ export default function HomeScreen() {
       {queue.length > 0 ? (
         <>
           <View className="flex-1 items-center justify-center">
-            <Text className="font-sans-semibold text-[104px] leading-[112px] tracking-tighter text-foreground">
-              {queue.length}
-            </Text>
-            <Text muted>{queue.length === 1 ? "card" : "cards"} to study</Text>
+            <StudyCardStack count={queue.length} />
             <Text variant="footnote" muted className="mt-2">
               {reviewCount} due · {newCount} new
             </Text>
