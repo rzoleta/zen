@@ -17,10 +17,12 @@ export function Screen({
   scroll = true,
   header = false,
   className,
+  backgroundClassName,
 }: PropsWithChildren<{
   scroll?: boolean;
   header?: boolean;
   className?: string;
+  backgroundClassName?: string;
 }>) {
   const content = (
     <View
@@ -31,7 +33,7 @@ export function Screen({
   );
   const body = scroll ? (
     <ScrollView
-      className="flex-1 bg-background"
+      className={cn("flex-1 bg-background", backgroundClassName)}
       contentInsetAdjustmentBehavior="automatic"
       contentContainerClassName="pb-28"
     >
@@ -41,11 +43,16 @@ export function Screen({
     content
   );
   if (header && scroll) return body;
-  if (header) return <View className="flex-1 bg-background">{body}</View>;
+  if (header)
+    return (
+      <View className={cn("flex-1 bg-background", backgroundClassName)}>
+        {body}
+      </View>
+    );
   return (
     <SafeAreaView
       edges={scroll ? ["top"] : ["top", "bottom"]}
-      className="flex-1 bg-background"
+      className={cn("flex-1 bg-background", backgroundClassName)}
     >
       {body}
     </SafeAreaView>

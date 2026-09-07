@@ -19,6 +19,8 @@ import { cardStatus } from "@/hooks/use-deck";
 import { useSettings } from "@/hooks/use-settings";
 import { resetCard, setKnown, setSuspended } from "@/scheduler";
 
+const modalBackground = "dark:bg-[#171717]";
+
 export default function WordDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { jpFont } = useSettings();
@@ -33,7 +35,7 @@ export default function WordDetailScreen() {
   ).data[0];
   if (!detail)
     return (
-      <Screen>
+      <Screen backgroundClassName={modalBackground}>
         <Text muted>Loading…</Text>
       </Screen>
     );
@@ -41,7 +43,7 @@ export default function WordDetailScreen() {
   const due =
     card.state === 0 ? "Not introduced" : new Date(card.due).toLocaleString();
   return (
-    <Screen>
+    <Screen backgroundClassName={modalBackground}>
       <View className="items-start gap-1.5 pt-2">
         <FuriganaText
           text={word.wordFurigana}
