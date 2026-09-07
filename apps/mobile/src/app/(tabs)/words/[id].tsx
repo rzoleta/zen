@@ -6,7 +6,7 @@ import { Alert, Pressable, View } from "react-native";
 import { StatusChip } from "@/components/status-chip";
 import {
   Card,
-  JapaneseText,
+  FuriganaText,
   Screen,
   SectionTitle,
   Separator,
@@ -43,15 +43,12 @@ export default function WordDetailScreen() {
   return (
     <Screen>
       <View className="items-start gap-1.5 pt-2">
-        <JapaneseText font={jpFont} className="text-[48px] leading-[62px]">
-          {word.word}
-        </JapaneseText>
-        <JapaneseText
+        <FuriganaText
+          text={word.wordFurigana}
           font={jpFont}
-          className="text-[17px] leading-6 text-muted-foreground"
-        >
-          {word.wordFurigana}
-        </JapaneseText>
+          fontSize={48}
+          lineHeight={62}
+        />
         <StatusChip
           status={cardStatus(card)}
           leech={card.suspended === "leech"}
@@ -61,15 +58,12 @@ export default function WordDetailScreen() {
         <Text variant="label">Meaning</Text>
         <Text className="text-[22px] leading-[30px]">{word.meaning}</Text>
         <Separator />
-        <JapaneseText font={jpFont} className="text-[24px] leading-[38px]">
-          {word.sentence}
-        </JapaneseText>
-        <JapaneseText
+        <FuriganaText
+          text={word.sentenceFurigana}
           font={jpFont}
-          className="text-[13px] leading-5 text-muted-foreground"
-        >
-          {word.sentenceFurigana}
-        </JapaneseText>
+          fontSize={24}
+          lineHeight={38}
+        />
         <Text variant="footnote" muted>
           {word.sentenceMeaning}
         </Text>

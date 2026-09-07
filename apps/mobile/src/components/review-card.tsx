@@ -12,7 +12,7 @@ import Animated, {
 import { scheduleOnRN } from "react-native-worklets";
 
 import { audioAssets } from "@/assets/deck/audio-assets";
-import { JapaneseText, Separator, Text } from "@/components/ui";
+import { FuriganaText, JapaneseText, Separator, Text } from "@/components/ui";
 import type { Word } from "@/db/schema";
 import type { JapaneseFont } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
@@ -125,15 +125,12 @@ export function ReviewCard({
         >
           <View className="flex-row items-center justify-between">
             <View className="flex-1">
-              <JapaneseText font={font} className="text-[40px] leading-[54px]">
-                {word.word}
-              </JapaneseText>
-              <JapaneseText
+              <FuriganaText
+                text={word.wordFurigana}
                 font={font}
-                className="text-base leading-6 text-muted-foreground"
-              >
-                {word.wordFurigana}
-              </JapaneseText>
+                fontSize={40}
+                lineHeight={54}
+              />
             </View>
             <AudioButton
               disabled={!wordSource}
@@ -150,12 +147,13 @@ export function ReviewCard({
           </View>
           <View className="gap-2">
             <View className="flex-row items-center gap-3.5">
-              <JapaneseText
+              <FuriganaText
+                text={word.sentenceFurigana}
                 font={font}
-                className="flex-1 text-[24px] leading-[38px]"
-              >
-                {word.sentence}
-              </JapaneseText>
+                fontSize={24}
+                lineHeight={38}
+                style={{ flex: 1 }}
+              />
               <AudioButton
                 disabled={!sentenceSource}
                 onPress={() => {
@@ -164,12 +162,6 @@ export function ReviewCard({
                 }}
               />
             </View>
-            <JapaneseText
-              font={font}
-              className="text-[13px] leading-5 text-muted-foreground"
-            >
-              {word.sentenceFurigana}
-            </JapaneseText>
             <Text variant="footnote" muted>
               {word.sentenceMeaning}
             </Text>

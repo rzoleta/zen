@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { FlatList, Pressable, ScrollView, View } from "react-native";
 
 import { StatusChip } from "@/components/status-chip";
-import { JapaneseText, Text } from "@/components/ui";
+import { FuriganaText, Text } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { cardStatus, type WordStatus, useDeckRows } from "@/hooks/use-deck";
 import { useSettings } from "@/hooks/use-settings";
@@ -105,17 +105,12 @@ export default function WordsScreen() {
               className="flex-row items-center justify-between gap-4 border-b border-border py-4 active:opacity-60"
             >
               <View className="flex-1 gap-1">
-                <View className="flex-row items-baseline gap-2.5">
-                  <JapaneseText
-                    font={jpFont}
-                    className="text-[22px] leading-[30px]"
-                  >
-                    {item.words.word}
-                  </JapaneseText>
-                  <Text variant="footnote" muted>
-                    {item.words.wordFurigana}
-                  </Text>
-                </View>
+                <FuriganaText
+                  text={item.words.wordFurigana}
+                  font={jpFont}
+                  fontSize={22}
+                  lineHeight={30}
+                />
                 <Text variant="footnote" muted numberOfLines={1}>
                   {item.words.meaning}
                 </Text>
