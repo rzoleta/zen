@@ -82,7 +82,7 @@ export function StudyCardStack({ count }: StudyCardStackProps) {
           styles.topCard,
           {
             borderColor: theme.border,
-            shadowColor: theme.text,
+            shadowColor: "#000000",
             transform: [
               { translateX: 3 },
               { translateY: -3 },
