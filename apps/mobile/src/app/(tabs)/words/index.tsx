@@ -41,7 +41,7 @@ export default function WordsScreen() {
     [filter, query, rows],
   );
   return (
-    <View className="flex-1 bg-background">
+    <>
       <Stack.Screen
         options={{
           headerSearchBarOptions: {
@@ -53,6 +53,7 @@ export default function WordsScreen() {
         }}
       />
       <FlatList
+        className="flex-1 bg-background"
         data={data}
         keyExtractor={(item) => String(item.words.id)}
         contentInsetAdjustmentBehavior="automatic"
@@ -127,6 +128,6 @@ export default function WordsScreen() {
           );
         }}
       />
-    </View>
+    </>
   );
 }

@@ -14,7 +14,7 @@ export function useNativeHeaderOptions(): NativeStackNavigationOptions {
   const scheme = useColorScheme();
   if (Platform.OS === "ios") {
     return {
-      headerLargeTitle: true,
+      headerLargeTitleEnabled: true,
       headerTransparent: true,
       headerBlurEffect:
         scheme === "dark" ? "systemChromeMaterialDark" : "systemChromeMaterial",

@@ -31,7 +31,7 @@ export function Screen({
   );
   const body = scroll ? (
     <ScrollView
-      className="flex-1"
+      className="flex-1 bg-background"
       contentInsetAdjustmentBehavior="automatic"
       contentContainerClassName="pb-28"
     >
@@ -40,6 +40,7 @@ export function Screen({
   ) : (
     content
   );
+  if (header && scroll) return body;
   if (header) return <View className="flex-1 bg-background">{body}</View>;
   return (
     <SafeAreaView
