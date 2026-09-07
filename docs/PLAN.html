@@ -197,7 +197,7 @@
 </ul>
 
 <div class="aside">
-<p><strong>Known risk: bundle size.</strong> ~3,000 audio clips will land somewhere around 50–150 MB. Phase 0 measures the real number. If the installed app exceeds ~200 MB we switch audio to a first-launch download in this same PR; otherwise we ship bundled and revisit only if App Store friction shows up. The second risk is the Kaishi license check, also Phase 0, because a "no" changes the content pipeline.</p>
+<p><strong>Known risk: deck redistribution.</strong> The generated deck is 73.40 MiB and an iOS production export is 96 MiB, so V1 bundles it. The official Kaishi repository still has no license file. Redistribution permission must be confirmed before publishing the app.</p>
 </div>
 
 <h2>3. Action plan</h2>
@@ -210,7 +210,7 @@
 </ul>
 
 <div class="aside">
-<p><strong>Phase 0 completed on September 6, 2026.</strong> The extractor is implemented and verified against Kaishi v2.4.2. It produced 1,500 vocabulary records and 2,999 audio files totaling 73.40 MiB, so V1 should bundle the deck if redistribution is approved. The official Kaishi repository has no license, and its content draws from other Core, Tango, and AJT Japanese sources.</p>
+<p><strong>Phase 0 completed on September 7, 2026.</strong> The extractor is implemented and verified against Kaishi v2.4.2. V1 now bundles its 1,500 vocabulary records and 2,999 generated audio files, totaling 73.40 MiB. The official Kaishi repository has no license, and its content draws from other Core, Tango, and AJT Japanese sources, so publishing still requires redistribution approval.</p>
 </div>
 
 <h3>Phase 1: skeleton</h3>
