@@ -151,25 +151,13 @@ export default function SettingsScreen() {
       </View>
       <View className="gap-2">
         <SectionTitle>About</SectionTitle>
-        <Card className="gap-3.5">
+        <Card>
           <View className="gap-0.5">
             <Text variant="headline">Zen</Text>
             <Text variant="footnote" muted>
               Version {Constants.expoConfig?.version ?? "1.0.0"}
             </Text>
           </View>
-          <Separator />
-          <Text variant="footnote" muted>
-            Built around FSRS with pass and fail grading. Uses Expo, Drizzle
-            ORM, ts-fsrs, NativeWind, Zustand, Geist, and Noto Japanese fonts.
-          </Text>
-          <Text variant="caption" muted>
-            Kaishi 1.5k is the intended V1 deck. Its content is not included in
-            this build because the project has no redistribution license. Credit
-            is due to 栗, Tyogin, contributors, AJT Japanese, and the upstream
-            Core and Tango sources once permission and exact attribution are
-            settled.
-          </Text>
         </Card>
       </View>
       <View className="gap-3">
