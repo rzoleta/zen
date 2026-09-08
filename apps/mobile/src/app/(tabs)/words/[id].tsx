@@ -10,7 +10,6 @@ import {
   FuriganaText,
   Screen,
   SectionTitle,
-  Separator,
   Text,
 } from "@/components/ui";
 import { db } from "@/db/client";
@@ -56,20 +55,26 @@ export default function WordDetailScreen() {
           leech={card.suspended === "leech"}
         />
       </View>
-      <Card className="gap-4">
-        <Text variant="label">Meaning</Text>
-        <Text className="text-[22px] leading-[30px]">{word.meaning}</Text>
-        <Separator />
-        <FuriganaText
-          text={word.sentenceFurigana}
-          font={jpFont}
-          fontSize={24}
-          lineHeight={38}
-        />
-        <Text variant="footnote" muted>
-          {word.sentenceMeaning}
-        </Text>
-      </Card>
+      <View className="gap-2">
+        <SectionTitle>Meaning</SectionTitle>
+        <Card>
+          <Text className="text-[22px] leading-[30px]">{word.meaning}</Text>
+        </Card>
+      </View>
+      <View className="gap-2">
+        <SectionTitle>Sentence</SectionTitle>
+        <Card className="gap-4">
+          <FuriganaText
+            text={word.sentenceFurigana}
+            font={jpFont}
+            fontSize={24}
+            lineHeight={38}
+          />
+          <Text variant="footnote" muted>
+            {word.sentenceMeaning}
+          </Text>
+        </Card>
+      </View>
       <View className="gap-2">
         <SectionTitle>Scheduling</SectionTitle>
         <Card className="gap-3.5">
