@@ -34,7 +34,10 @@ export default function WordDetailScreen() {
   ).data[0];
   if (!detail)
     return (
-      <Screen backgroundClassName={modalBackground}>
+      <Screen
+        backgroundClassName={modalBackground}
+        contentContainerClassName="pb-6"
+      >
         <Text muted>Loading…</Text>
       </Screen>
     );
@@ -42,7 +45,10 @@ export default function WordDetailScreen() {
   const due =
     card.state === 0 ? "Not introduced" : new Date(card.due).toLocaleString();
   return (
-    <Screen backgroundClassName={modalBackground}>
+    <Screen
+      backgroundClassName={modalBackground}
+      contentContainerClassName="pb-6"
+    >
       <View className="items-start pt-2">
         <FuriganaText
           text={word.wordFurigana}

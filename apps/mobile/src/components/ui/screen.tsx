@@ -18,11 +18,13 @@ export function Screen({
   header = false,
   className,
   backgroundClassName,
+  contentContainerClassName = "pb-28",
 }: PropsWithChildren<{
   scroll?: boolean;
   header?: boolean;
   className?: string;
   backgroundClassName?: string;
+  contentContainerClassName?: string;
 }>) {
   const content = (
     <View
@@ -35,7 +37,7 @@ export function Screen({
     <ScrollView
       className={cn("flex-1 bg-background", backgroundClassName)}
       contentInsetAdjustmentBehavior="automatic"
-      contentContainerClassName="pb-28"
+      contentContainerClassName={contentContainerClassName}
     >
       {content}
     </ScrollView>
