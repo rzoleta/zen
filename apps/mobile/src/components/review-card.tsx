@@ -1,5 +1,6 @@
 import { useAudioPlayer } from "expo-audio";
 import { SymbolView } from "expo-symbols";
+import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -12,7 +13,13 @@ import Animated, {
 import { scheduleOnRN } from "react-native-worklets";
 
 import { audioAssets } from "@/assets/deck/audio-assets";
-import { FuriganaText, JapaneseText, Separator, Text } from "@/components/ui";
+import {
+  Button,
+  FuriganaText,
+  JapaneseText,
+  Separator,
+  Text,
+} from "@/components/ui";
 import type { Word } from "@/db/schema";
 import type { JapaneseFont } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
@@ -38,8 +45,10 @@ export function ReviewCard({
   onUndo,
   onFlip,
 }: ReviewCardProps) {
+  const [revealed, setRevealed] = useState(false);
   const rotation = useSharedValue(0);
   const isFlipped = useSharedValue(0);
+  const isGrading = useSharedValue(0);
   const offsetY = useSharedValue(0);
   const wordSource = word.wordAudio ? audioAssets[word.wordAudio] : undefined;
   const sentenceSource = word.sentenceAudio
@@ -47,25 +56,47 @@ export function ReviewCard({
     : undefined;
   const wordPlayer = useAudioPlayer(wordSource);
   const sentencePlayer = useAudioPlayer(sentenceSource);
-  const flip = () => {
+  const showAnswer = () => {
+    if (isFlipped.value === 1) return;
+    isFlipped.value = 1;
+    rotation.value = withTiming(180, { duration: 430 });
+    setRevealed(true);
     if (autoplay && wordSource) {
       wordPlayer.seekTo(0);
       wordPlayer.play();
     }
     onFlip();
   };
+  const gradeWithAnimation = (answer: BinaryGrade) => {
+    if (isGrading.value === 1) return;
+    isGrading.value = 1;
+    offsetY.value = withTiming(
+      answer === "pass" ? -700 : 700,
+      {
+        duration: 210,
+      },
+      (finished) => {
+        if (finished) {
+          scheduleOnRN(onGrade, answer);
+        } else {
+          isGrading.value = 0;
+        }
+      },
+    );
+  };
   const tap = Gesture.Tap().onEnd(() => {
     if (isFlipped.value === 0) {
-      isFlipped.value = 1;
-      rotation.value = withTiming(180, { duration: 430 });
-      scheduleOnRN(flip);
+      scheduleOnRN(showAnswer);
     }
   });
   const pan = Gesture.Pan()
     .onUpdate((event) => {
-      if (isFlipped.value === 1) offsetY.value = event.translationY;
+      if (isFlipped.value === 1 && isGrading.value === 0) {
+        offsetY.value = event.translationY;
+      }
     })
     .onEnd((event) => {
+      if (isGrading.value === 1) return;
       const horizontalUndo =
         event.translationX > 85 &&
         Math.abs(event.translationX) > Math.abs(event.translationY);
@@ -75,10 +106,21 @@ export function ReviewCard({
         return;
       }
       if (isFlipped.value === 1 && Math.abs(event.translationY) > 85) {
-        offsetY.value = withTiming(event.translationY < 0 ? -700 : 700, {
-          duration: 210,
-        });
-        scheduleOnRN(onGrade, event.translationY < 0 ? "pass" : "fail");
+        const answer = event.translationY < 0 ? "pass" : "fail";
+        isGrading.value = 1;
+        offsetY.value = withTiming(
+          event.translationY < 0 ? -700 : 700,
+          {
+            duration: 210,
+          },
+          (finished) => {
+            if (finished) {
+              scheduleOnRN(onGrade, answer);
+            } else {
+              isGrading.value = 0;
+            }
+          },
+        );
         return;
       }
       offsetY.value = withSpring(0);
@@ -100,77 +142,120 @@ export function ReviewCard({
     opacity: interpolate(rotation.value, [89, 90], [0, 1]),
   }));
   return (
-    <GestureDetector gesture={Gesture.Exclusive(pan, tap)}>
-      <Animated.View className="w-full max-w-xl flex-1 self-center">
-        <Animated.View
-          className={`${faceClassName} items-center justify-between`}
-          style={[{ backfaceVisibility: "hidden" }, frontStyle]}
-        >
-          <View className="flex-1 items-center justify-center gap-8">
-            <JapaneseText
-              font={font}
-              className="text-center text-[60px] leading-[80px]"
-            >
-              {word.word}
-            </JapaneseText>
-            <HighlightedSentence word={word} font={font} />
-          </View>
-          <Text variant="caption" muted>
-            Tap to reveal
-          </Text>
-        </Animated.View>
-        <Animated.View
-          className={`${faceClassName} justify-between`}
-          style={[{ backfaceVisibility: "hidden" }, backStyle]}
-        >
-          <View
-            className="items-center gap-2"
-            style={{ transform: [{ translateY: 48 }] }}
+    <View className="w-full max-w-xl flex-1 gap-3.5 self-center">
+      <GestureDetector gesture={Gesture.Exclusive(pan, tap)}>
+        <Animated.View className="flex-1">
+          <Animated.View
+            className={`${faceClassName} items-center justify-between`}
+            pointerEvents={revealed ? "none" : "auto"}
+            style={[{ backfaceVisibility: "hidden" }, frontStyle]}
           >
-            <FuriganaText
-              text={word.wordFurigana}
-              font={font}
-              fontSize={40}
-              lineHeight={54}
-              align="center"
-            />
-            <AudioButton
-              disabled={!wordSource}
-              onPress={() => {
-                void wordPlayer.seekTo(0);
-                wordPlayer.play();
-              }}
-            />
-          </View>
-          <Separator />
-          <View className="items-center gap-1.5">
-            <Text variant="label">Meaning</Text>
-            <Text className="text-center text-[22px] leading-[30px]">
-              {word.meaning}
-            </Text>
-          </View>
-          <View className="items-center gap-2">
-            <FuriganaText
-              text={word.sentenceFurigana}
-              font={font}
-              fontSize={24}
-              lineHeight={38}
-              align="center"
-            />
-            <Text variant="footnote" muted className="text-center">
-              {word.sentenceMeaning}
-            </Text>
-            <AudioButton
-              disabled={!sentenceSource}
-              onPress={() => {
-                void sentencePlayer.seekTo(0);
-                sentencePlayer.play();
-              }}
-            />
-          </View>
+            <View className="flex-1 items-center justify-center gap-8">
+              <JapaneseText
+                font={font}
+                className="text-center text-[60px] leading-[80px]"
+              >
+                {word.word}
+              </JapaneseText>
+              <HighlightedSentence word={word} font={font} />
+            </View>
+          </Animated.View>
+          <Animated.View
+            className={`${faceClassName} justify-between`}
+            pointerEvents={revealed ? "auto" : "none"}
+            style={[{ backfaceVisibility: "hidden" }, backStyle]}
+          >
+            <View
+              className="items-center gap-2"
+              style={{ transform: [{ translateY: 48 }] }}
+            >
+              <FuriganaText
+                text={word.wordFurigana}
+                font={font}
+                fontSize={40}
+                lineHeight={54}
+                align="center"
+              />
+              <AudioButton
+                disabled={!wordSource}
+                onPress={() => {
+                  void wordPlayer.seekTo(0);
+                  wordPlayer.play();
+                }}
+              />
+            </View>
+            <Separator />
+            <View className="items-center gap-1.5">
+              <Text variant="label">Meaning</Text>
+              <Text className="text-center text-[22px] leading-[30px]">
+                {word.meaning}
+              </Text>
+            </View>
+            <View className="items-center gap-2">
+              <FuriganaText
+                text={word.sentenceFurigana}
+                font={font}
+                fontSize={24}
+                lineHeight={38}
+                align="center"
+              />
+              <Text variant="footnote" muted className="text-center">
+                {word.sentenceMeaning}
+              </Text>
+              <AudioButton
+                disabled={!sentenceSource}
+                onPress={() => {
+                  void sentencePlayer.seekTo(0);
+                  sentencePlayer.play();
+                }}
+              />
+            </View>
+          </Animated.View>
         </Animated.View>
-      </Animated.View>
-    </GestureDetector>
+      </GestureDetector>
+      {revealed ? (
+        <View className="flex-row gap-3">
+          <Button
+            label="Fail"
+            variant="destructive"
+            className="flex-1"
+            style={{ backgroundColor: "#dc2626" }}
+            icon={
+              <SymbolView
+                name={{
+                  ios: "arrow.down",
+                  android: "arrow_downward",
+                  web: "arrow_downward",
+                }}
+                tintColor="#ffffff"
+                size={16}
+              />
+            }
+            onPress={() => gradeWithAnimation("fail")}
+          />
+          <Button
+            label="Pass"
+            variant="destructive"
+            className="flex-1"
+            style={{ backgroundColor: "#16a34a" }}
+            icon={
+              <SymbolView
+                name={{
+                  ios: "arrow.up",
+                  android: "arrow_upward",
+                  web: "arrow_upward",
+                }}
+                tintColor="#ffffff"
+                size={16}
+              />
+            }
+            onPress={() => gradeWithAnimation("pass")}
+          />
+        </View>
+      ) : (
+        <Button label="Show answer" variant="secondary" onPress={showAnswer} />
+      )}
+    </View>
   );
 }
 
