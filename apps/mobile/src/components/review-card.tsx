@@ -1,4 +1,5 @@
 import { useAudioPlayer } from "expo-audio";
+import * as Haptics from "expo-haptics";
 import { SymbolView } from "expo-symbols";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
@@ -55,6 +56,7 @@ export function ReviewCard({
   const rotation = useSharedValue(0);
   const isFlipped = useSharedValue(0);
   const isGrading = useSharedValue(0);
+  const hasReachedGradingThreshold = useSharedValue(0);
   const swipeIntentValue = useSharedValue(0);
   const offsetY = useSharedValue(0);
   const wordSource = word.wordAudio ? audioAssets[word.wordAudio] : undefined;
@@ -68,6 +70,7 @@ export function ReviewCard({
     isFlipped.value = 1;
     rotation.value = withTiming(180, { duration: 430 });
     setRevealed(true);
+    void Haptics.selectionAsync();
     if (autoplay && wordSource) {
       wordPlayer.seekTo(0);
       wordPlayer.play();
@@ -77,9 +80,18 @@ export function ReviewCard({
   const updateSwipeIntent = (intent: BinaryGrade | null) => {
     setSwipeIntent(intent);
   };
-  const gradeWithAnimation = (answer: BinaryGrade) => {
+  const playSwipeThresholdHaptic = () => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  };
+  const gradeWithAnimation = (
+    answer: BinaryGrade,
+    withButtonHaptic = false,
+  ) => {
     if (isGrading.value === 1) return;
     isGrading.value = 1;
+    if (withButtonHaptic) {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     offsetY.value = withTiming(
       answer === "pass" ? -700 : 700,
       {
@@ -120,6 +132,17 @@ export function ReviewCard({
                 : null,
           );
         }
+        const reachedGradingThreshold =
+          Math.abs(event.translationY) >= gradingThreshold;
+        if (reachedGradingThreshold && hasReachedGradingThreshold.value === 0) {
+          hasReachedGradingThreshold.value = 1;
+          scheduleOnRN(playSwipeThresholdHaptic);
+        } else if (
+          !reachedGradingThreshold &&
+          hasReachedGradingThreshold.value === 1
+        ) {
+          hasReachedGradingThreshold.value = 0;
+        }
       }
     })
     .onEnd((event) => {
@@ -128,6 +151,7 @@ export function ReviewCard({
         event.translationX > 85 &&
         Math.abs(event.translationX) > Math.abs(event.translationY);
       if (horizontalUndo) {
+        hasReachedGradingThreshold.value = 0;
         if (swipeIntentValue.value !== 0) {
           swipeIntentValue.value = 0;
           scheduleOnRN(updateSwipeIntent, null);
@@ -166,12 +190,16 @@ export function ReviewCard({
         swipeIntentValue.value = 0;
         scheduleOnRN(updateSwipeIntent, null);
       }
+      hasReachedGradingThreshold.value = 0;
       offsetY.value = withSpring(0);
     })
     .onFinalize((_event, success) => {
-      if (!success && swipeIntentValue.value !== 0) {
-        swipeIntentValue.value = 0;
-        scheduleOnRN(updateSwipeIntent, null);
+      if (!success) {
+        hasReachedGradingThreshold.value = 0;
+        if (swipeIntentValue.value !== 0) {
+          swipeIntentValue.value = 0;
+          scheduleOnRN(updateSwipeIntent, null);
+        }
       }
     });
   const frontStyle = useAnimatedStyle(() => ({
@@ -287,7 +315,7 @@ export function ReviewCard({
                 size={16}
               />
             }
-            onPress={() => gradeWithAnimation("fail")}
+            onPress={() => gradeWithAnimation("fail", true)}
           />
           <Button
             label="Pass"
@@ -309,7 +337,7 @@ export function ReviewCard({
                 size={16}
               />
             }
-            onPress={() => gradeWithAnimation("pass")}
+            onPress={() => gradeWithAnimation("pass", true)}
           />
         </View>
       ) : (

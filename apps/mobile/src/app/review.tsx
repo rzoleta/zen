@@ -80,11 +80,6 @@ export default function ReviewScreen() {
         answer,
         Date.now() - shownAt.current,
       );
-      void Haptics.impactAsync(
-        answer === "pass"
-          ? Haptics.ImpactFeedbackStyle.Light
-          : Haptics.ImpactFeedbackStyle.Medium,
-      );
       const learning =
         next.state === State.Learning || next.state === State.Relearning
           ? { wordId: next.wordId, kind: "learning" as const, due: next.due }
