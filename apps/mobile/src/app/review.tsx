@@ -188,22 +188,17 @@ export default function ReviewScreen() {
             <Button label="Finish for now" onPress={close} />
           </View>
         ) : current && detail ? (
-          <>
-            <ReviewCard
-              key={`${current.wordId}-${answered}`}
-              word={detail.words}
-              font={settings.jpFont}
-              autoplay={settings.autoplay}
-              onFlip={() => {
-                shownAt.current = Date.now();
-              }}
-              onGrade={(answer) => void onGrade(answer)}
-              onUndo={() => void onUndo()}
-            />
-            <Text variant="caption" muted className="text-center">
-              Tap to flip · swipe up to pass · swipe down to fail
-            </Text>
-          </>
+          <ReviewCard
+            key={`${current.wordId}-${answered}`}
+            word={detail.words}
+            font={settings.jpFont}
+            autoplay={settings.autoplay}
+            onFlip={() => {
+              shownAt.current = Date.now();
+            }}
+            onGrade={(answer) => void onGrade(answer)}
+            onUndo={() => void onUndo()}
+          />
         ) : queue.length === 0 ? (
           <View className="w-full max-w-md flex-1 items-center justify-center gap-4 self-center">
             <Text variant="label">Session complete</Text>

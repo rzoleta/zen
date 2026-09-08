@@ -168,14 +168,6 @@ export function ReviewCard({
               }}
             />
           </View>
-          <View className="flex-row justify-between">
-            <Text variant="caption" className="font-sans-medium">
-              ↑ pass
-            </Text>
-            <Text variant="caption" className="text-destructive">
-              ↓ fail
-            </Text>
-          </View>
         </Animated.View>
       </Animated.View>
     </GestureDetector>
