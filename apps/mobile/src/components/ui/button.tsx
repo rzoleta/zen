@@ -13,7 +13,7 @@ const variants = {
   ghost: { container: "bg-transparent", text: "text-foreground" },
   destructive: {
     container: "bg-destructive",
-    text: "text-destructive-foreground",
+    text: "text-destructive-foreground dark:text-white",
   },
 } as const;
 

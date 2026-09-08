@@ -1,10 +1,11 @@
 import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams } from "expo-router";
-import { Alert, Pressable, View } from "react-native";
+import { Alert, View } from "react-native";
 
 import { StatusChip } from "@/components/status-chip";
 import {
+  Button,
   Card,
   FuriganaText,
   Screen,
@@ -14,7 +15,6 @@ import {
 } from "@/components/ui";
 import { db } from "@/db/client";
 import { cards, words } from "@/db/schema";
-import { cn } from "@/lib/cn";
 import { cardStatus } from "@/hooks/use-deck";
 import { useSettings } from "@/hooks/use-settings";
 import { resetCard, setKnown, setSuspended } from "@/scheduler";
@@ -81,26 +81,17 @@ export default function WordDetailScreen() {
       </View>
       <View className="gap-2">
         <SectionTitle>Actions</SectionTitle>
-        <Card className="py-1">
-          <Action
-            label={card.suspended === "none" ? "Suspend" : "Unsuspend"}
-            onPress={() =>
-              void setSuspended(
-                db,
-                wordId,
-                card.suspended === "none" ? "manual" : "none",
-              )
-            }
-          />
-          <Separator />
-          <Action
+        <View className="gap-2">
+          <Button
+            size="lg"
+            variant="secondary"
             label={card.known ? "Return to study" : "Mark known"}
             onPress={() => void setKnown(db, wordId, !card.known)}
           />
-          <Separator />
-          <Action
+          <Button
+            size="lg"
+            variant="secondary"
             label="Reset card"
-            destructive
             onPress={() =>
               Alert.alert(
                 "Reset this card?",
@@ -116,7 +107,19 @@ export default function WordDetailScreen() {
               )
             }
           />
-        </Card>
+          <Button
+            size="lg"
+            variant="secondary"
+            label={card.suspended === "none" ? "Suspend" : "Unsuspend"}
+            onPress={() =>
+              void setSuspended(
+                db,
+                wordId,
+                card.suspended === "none" ? "manual" : "none",
+              )
+            }
+          />
+        </View>
       </View>
     </Screen>
   );
@@ -130,25 +133,5 @@ function Stat({ label, value }: { label: string; value: string }) {
       </Text>
       <Text variant="footnote">{value}</Text>
     </View>
-  );
-}
-
-function Action({
-  label,
-  onPress,
-  destructive,
-}: {
-  label: string;
-  onPress: () => void;
-  destructive?: boolean;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      className="min-h-[52px] flex-row items-center justify-between active:opacity-60"
-    >
-      <Text className={cn(destructive && "text-destructive")}>{label}</Text>
-      <Text muted>›</Text>
-    </Pressable>
   );
 }
