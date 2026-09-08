@@ -23,9 +23,10 @@ export function cardStatus(card: typeof cards.$inferSelect): WordStatus {
 }
 
 export function useDeckRows() {
+  // useLiveQuery watches the base table, so cards must come first here.
   return (
     useLiveQuery(
-      db.select().from(words).innerJoin(cards, eq(cards.wordId, words.id)),
+      db.select().from(cards).innerJoin(words, eq(words.id, cards.wordId)),
     ).data ?? []
   );
 }

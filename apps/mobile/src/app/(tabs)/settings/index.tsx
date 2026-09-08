@@ -19,10 +19,12 @@ import {
 } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
 import { resetAllProgress } from "@/scheduler";
+import { useSessionStore } from "@/stores/session";
 
 export default function SettingsScreen() {
   const theme = useTheme();
   const values = useSettings();
+  const clearSession = useSessionStore((state) => state.clear);
   const resetProgress = () =>
     Alert.alert(
       "Reset all progress?",
@@ -32,7 +34,7 @@ export default function SettingsScreen() {
         {
           text: "Reset everything",
           style: "destructive",
-          onPress: () => void resetAllProgress(db),
+          onPress: () => void resetAllProgress(db).then(clearSession),
         },
       ],
     );
