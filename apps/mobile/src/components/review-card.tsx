@@ -38,6 +38,8 @@ const faceClassName =
   "absolute inset-0 rounded-3xl border border-border bg-card p-7";
 const wordTextStyle = { fontSize: 60, lineHeight: 80 };
 const sentenceTextStyle = { fontSize: 28, lineHeight: 44 };
+const swipeIntentThreshold = 20;
+const gradingThreshold = 85;
 
 export function ReviewCard({
   word,
@@ -48,9 +50,12 @@ export function ReviewCard({
   onFlip,
 }: ReviewCardProps) {
   const [revealed, setRevealed] = useState(false);
+  const [swipeIntent, setSwipeIntent] = useState<BinaryGrade | null>(null);
+  const theme = useTheme();
   const rotation = useSharedValue(0);
   const isFlipped = useSharedValue(0);
   const isGrading = useSharedValue(0);
+  const swipeIntentValue = useSharedValue(0);
   const offsetY = useSharedValue(0);
   const wordSource = word.wordAudio ? audioAssets[word.wordAudio] : undefined;
   const sentenceSource = word.sentenceAudio
@@ -68,6 +73,9 @@ export function ReviewCard({
       wordPlayer.play();
     }
     onFlip();
+  };
+  const updateSwipeIntent = (intent: BinaryGrade | null) => {
+    setSwipeIntent(intent);
   };
   const gradeWithAnimation = (answer: BinaryGrade) => {
     if (isGrading.value === 1) return;
@@ -95,6 +103,23 @@ export function ReviewCard({
     .onUpdate((event) => {
       if (isFlipped.value === 1 && isGrading.value === 0) {
         offsetY.value = event.translationY;
+        const nextIntentValue =
+          event.translationY < -swipeIntentThreshold
+            ? -1
+            : event.translationY > swipeIntentThreshold
+              ? 1
+              : 0;
+        if (nextIntentValue !== swipeIntentValue.value) {
+          swipeIntentValue.value = nextIntentValue;
+          scheduleOnRN(
+            updateSwipeIntent,
+            nextIntentValue === -1
+              ? "pass"
+              : nextIntentValue === 1
+                ? "fail"
+                : null,
+          );
+        }
       }
     })
     .onEnd((event) => {
@@ -103,12 +128,24 @@ export function ReviewCard({
         event.translationX > 85 &&
         Math.abs(event.translationX) > Math.abs(event.translationY);
       if (horizontalUndo) {
+        if (swipeIntentValue.value !== 0) {
+          swipeIntentValue.value = 0;
+          scheduleOnRN(updateSwipeIntent, null);
+        }
         offsetY.value = withSpring(0);
         scheduleOnRN(onUndo);
         return;
       }
-      if (isFlipped.value === 1 && Math.abs(event.translationY) > 85) {
+      if (
+        isFlipped.value === 1 &&
+        Math.abs(event.translationY) > gradingThreshold
+      ) {
         const answer = event.translationY < 0 ? "pass" : "fail";
+        const answerIntentValue = answer === "pass" ? -1 : 1;
+        if (swipeIntentValue.value !== answerIntentValue) {
+          swipeIntentValue.value = answerIntentValue;
+          scheduleOnRN(updateSwipeIntent, answer);
+        }
         isGrading.value = 1;
         offsetY.value = withTiming(
           event.translationY < 0 ? -700 : 700,
@@ -125,7 +162,17 @@ export function ReviewCard({
         );
         return;
       }
+      if (swipeIntentValue.value !== 0) {
+        swipeIntentValue.value = 0;
+        scheduleOnRN(updateSwipeIntent, null);
+      }
       offsetY.value = withSpring(0);
+    })
+    .onFinalize((_event, success) => {
+      if (!success && swipeIntentValue.value !== 0) {
+        swipeIntentValue.value = 0;
+        scheduleOnRN(updateSwipeIntent, null);
+      }
     });
   const frontStyle = useAnimatedStyle(() => ({
     transform: [
@@ -222,9 +269,13 @@ export function ReviewCard({
         <View className="flex-row gap-3">
           <Button
             label="Fail"
-            variant="destructive"
+            variant={swipeIntent === "pass" ? "secondary" : "destructive"}
             className="flex-1"
-            style={{ backgroundColor: "#dc2626" }}
+            style={
+              swipeIntent === "pass"
+                ? undefined
+                : { backgroundColor: "#dc2626" }
+            }
             icon={
               <SymbolView
                 name={{
@@ -232,7 +283,7 @@ export function ReviewCard({
                   android: "arrow_downward",
                   web: "arrow_downward",
                 }}
-                tintColor="#ffffff"
+                tintColor={swipeIntent === "pass" ? theme.text : "#ffffff"}
                 size={16}
               />
             }
@@ -240,9 +291,13 @@ export function ReviewCard({
           />
           <Button
             label="Pass"
-            variant="destructive"
+            variant={swipeIntent === "fail" ? "secondary" : "destructive"}
             className="flex-1"
-            style={{ backgroundColor: "#16a34a" }}
+            style={
+              swipeIntent === "fail"
+                ? undefined
+                : { backgroundColor: "#16a34a" }
+            }
             icon={
               <SymbolView
                 name={{
@@ -250,7 +305,7 @@ export function ReviewCard({
                   android: "arrow_upward",
                   web: "arrow_upward",
                 }}
-                tintColor="#ffffff"
+                tintColor={swipeIntent === "fail" ? theme.text : "#ffffff"}
                 size={16}
               />
             }
