@@ -43,16 +43,12 @@ export default function WordDetailScreen() {
     card.state === 0 ? "Not introduced" : new Date(card.due).toLocaleString();
   return (
     <Screen backgroundClassName={modalBackground}>
-      <View className="items-start gap-1.5 pt-2">
+      <View className="items-start pt-2">
         <FuriganaText
           text={word.wordFurigana}
           font={jpFont}
           fontSize={48}
           lineHeight={62}
-        />
-        <StatusChip
-          status={cardStatus(card)}
-          leech={card.suspended === "leech"}
         />
       </View>
       <View className="gap-2">
@@ -78,6 +74,15 @@ export default function WordDetailScreen() {
       <View className="gap-2">
         <SectionTitle>Scheduling</SectionTitle>
         <Card className="gap-3.5">
+          <View className="flex-row items-center justify-between gap-4">
+            <Text variant="footnote" muted>
+              Status
+            </Text>
+            <StatusChip
+              status={cardStatus(card)}
+              leech={card.suspended === "leech"}
+            />
+          </View>
           <Stat label="Next due" value={due} />
           <Stat label="Interval" value={`${card.scheduledDays} days`} />
           <Stat label="Reviews" value={String(card.reps)} />
