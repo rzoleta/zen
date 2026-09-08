@@ -36,6 +36,8 @@ interface ReviewCardProps {
 
 const faceClassName =
   "absolute inset-0 rounded-3xl border border-border bg-card p-7";
+const wordTextStyle = { fontSize: 60, lineHeight: 80 };
+const sentenceTextStyle = { fontSize: 28, lineHeight: 44 };
 
 export function ReviewCard({
   word,
@@ -153,7 +155,8 @@ export function ReviewCard({
             <View className="flex-1 items-center justify-center gap-8">
               <JapaneseText
                 font={font}
-                className="text-center text-[60px] leading-[80px]"
+                className="text-center"
+                style={wordTextStyle}
               >
                 {word.word}
               </JapaneseText>
@@ -172,8 +175,8 @@ export function ReviewCard({
               <FuriganaText
                 text={word.wordFurigana}
                 font={font}
-                fontSize={40}
-                lineHeight={54}
+                fontSize={wordTextStyle.fontSize}
+                lineHeight={wordTextStyle.lineHeight}
                 align="center"
               />
               <AudioButton
@@ -196,8 +199,8 @@ export function ReviewCard({
                 <FuriganaText
                   text={word.sentenceFurigana}
                   font={font}
-                  fontSize={24}
-                  lineHeight={38}
+                  fontSize={sentenceTextStyle.fontSize}
+                  lineHeight={sentenceTextStyle.lineHeight}
                   align="center"
                 />
                 <Text variant="footnote" muted className="text-center">
@@ -279,12 +282,14 @@ function HighlightedSentence({
   return (
     <JapaneseText
       font={font}
-      className="text-center text-[22px] leading-[36px] text-muted-foreground"
+      className="text-center text-muted-foreground"
+      style={sentenceTextStyle}
     >
       {before}
       <JapaneseText
         font={font}
-        className="text-[22px] leading-[36px] text-foreground underline"
+        className="text-foreground underline"
+        style={sentenceTextStyle}
       >
         {target}
       </JapaneseText>
