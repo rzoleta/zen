@@ -32,7 +32,7 @@ interface FuriganaTextProps extends Omit<ViewProps, "children"> {
 
 export function FuriganaText({
   text,
-  font = "mincho",
+  font = "gothic",
   fontSize,
   lineHeight,
   furiganaFontSize = Math.max(8, Math.round(fontSize * 0.45)),

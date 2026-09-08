@@ -8,7 +8,7 @@ export const DEFAULT_SETTINGS = {
   new_per_day: "10",
   desired_retention: "0.90",
   autoplay: "true",
-  jp_font: "mincho",
+  jp_font: "gothic",
   theme: "system",
 } as const;
 

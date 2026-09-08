@@ -39,7 +39,7 @@ export function Text({
 export type JapaneseFontFace = "mincho" | "gothic";
 
 export function JapaneseText({
-  font = "mincho",
+  font = "gothic",
   className,
   style,
   ...props

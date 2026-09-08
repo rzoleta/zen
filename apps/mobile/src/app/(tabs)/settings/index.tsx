@@ -63,8 +63,8 @@ export default function SettingsScreen() {
             control={
               <Segmented
                 options={[
-                  { value: "mincho", label: "Mincho" },
                   { value: "gothic", label: "Gothic" },
+                  { value: "mincho", label: "Mincho" },
                 ]}
                 value={values.jpFont}
                 onChange={(value) => void updateSetting("jp_font", value)}
