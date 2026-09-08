@@ -3,6 +3,7 @@ import Constants from "expo-constants";
 import { Alert, Pressable, Switch, View } from "react-native";
 
 import {
+  Button,
   Card,
   Screen,
   SectionTitle,
@@ -11,14 +12,18 @@ import {
   Text,
 } from "@/components/ui";
 import { db } from "@/db/client";
-import { useSettings, updateSetting } from "@/hooks/use-settings";
+import {
+  resetSettings,
+  updateSetting,
+  useSettings,
+} from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
 import { resetAllProgress } from "@/scheduler";
 
 export default function SettingsScreen() {
   const theme = useTheme();
   const values = useSettings();
-  const reset = () =>
+  const resetProgress = () =>
     Alert.alert(
       "Reset all progress?",
       "This removes every review and returns all cards to new. This cannot be undone.",
@@ -167,14 +172,18 @@ export default function SettingsScreen() {
           </Text>
         </Card>
       </View>
-      <Pressable
-        onPress={reset}
-        className="items-center py-3 active:opacity-60"
-      >
-        <Text variant="footnote" className="text-destructive">
-          Reset all progress
-        </Text>
-      </Pressable>
+      <View className="gap-3">
+        <Button
+          label="Reset settings"
+          variant="secondary"
+          onPress={() => void resetSettings()}
+        />
+        <Button
+          label="Reset all progress"
+          variant="destructive"
+          onPress={resetProgress}
+        />
+      </View>
     </Screen>
   );
 }

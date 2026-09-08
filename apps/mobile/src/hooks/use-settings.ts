@@ -30,3 +30,12 @@ export async function updateSetting(
     .values({ key, value })
     .onConflictDoUpdate({ target: settings.key, set: { value } });
 }
+
+export async function resetSettings(): Promise<void> {
+  await db.transaction(async (tx) => {
+    await tx.delete(settings);
+    await tx.insert(settings).values(
+      Object.entries(DEFAULT_SETTINGS).map(([key, value]) => ({ key, value })),
+    );
+  });
+}
