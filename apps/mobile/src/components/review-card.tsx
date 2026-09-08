@@ -161,13 +161,13 @@ export function ReviewCard({
             </View>
           </Animated.View>
           <Animated.View
-            className={`${faceClassName} justify-between`}
+            className={faceClassName}
             pointerEvents={revealed ? "auto" : "none"}
             style={[{ backfaceVisibility: "hidden" }, backStyle]}
           >
             <View
-              className="items-center gap-2"
-              style={{ transform: [{ translateY: 48 }] }}
+              className="items-center justify-center gap-2"
+              style={{ flex: 0.55 }}
             >
               <FuriganaText
                 text={word.wordFurigana}
@@ -185,30 +185,32 @@ export function ReviewCard({
               />
             </View>
             <Separator />
-            <View className="items-center gap-1.5">
-              <Text variant="label">Meaning</Text>
-              <Text className="text-center text-[22px] leading-[30px]">
-                {word.meaning}
-              </Text>
-            </View>
-            <View className="items-center gap-2">
-              <FuriganaText
-                text={word.sentenceFurigana}
-                font={font}
-                fontSize={24}
-                lineHeight={38}
-                align="center"
-              />
-              <Text variant="footnote" muted className="text-center">
-                {word.sentenceMeaning}
-              </Text>
-              <AudioButton
-                disabled={!sentenceSource}
-                onPress={() => {
-                  void sentencePlayer.seekTo(0);
-                  sentencePlayer.play();
-                }}
-              />
+            <View className="flex-1 items-center justify-center gap-14">
+              <View className="items-center gap-1.5">
+                <Text variant="label">Meaning</Text>
+                <Text className="text-center text-[22px] leading-[30px]">
+                  {word.meaning}
+                </Text>
+              </View>
+              <View className="items-center gap-2">
+                <FuriganaText
+                  text={word.sentenceFurigana}
+                  font={font}
+                  fontSize={24}
+                  lineHeight={38}
+                  align="center"
+                />
+                <Text variant="footnote" muted className="text-center">
+                  {word.sentenceMeaning}
+                </Text>
+                <AudioButton
+                  disabled={!sentenceSource}
+                  onPress={() => {
+                    void sentencePlayer.seekTo(0);
+                    sentencePlayer.play();
+                  }}
+                />
+              </View>
             </View>
           </Animated.View>
         </Animated.View>
