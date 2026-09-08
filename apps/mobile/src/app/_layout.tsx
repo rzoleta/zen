@@ -10,11 +10,11 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { colorScheme as nativewindScheme } from "nativewind";
 import { useEffect } from "react";
-import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { Colors } from "@/constants/theme";
 import { DatabaseProvider } from "@/db/client";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useSettings } from "@/hooks/use-settings";
 
 void SplashScreen.preventAutoHideAsync();
@@ -84,7 +84,7 @@ export default function RootLayout() {
               }}
             />
           </Stack>
-          <StatusBar style="auto" />
+          <StatusBar style={scheme === "dark" ? "light" : "dark"} />
         </DatabaseProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

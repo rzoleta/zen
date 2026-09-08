@@ -142,8 +142,8 @@ export default function SettingsScreen() {
                 onValueChange={(value) =>
                   void updateSetting("autoplay", String(value))
                 }
-                trackColor={{ true: theme.primary, false: theme.secondary }}
-                thumbColor={theme.primaryForeground}
+                trackColor={{ true: theme.chartBlue, false: theme.secondary }}
+                ios_backgroundColor={theme.secondary}
               />
             }
           />
