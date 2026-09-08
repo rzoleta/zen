@@ -18,7 +18,7 @@ export function Screen({
   header = false,
   className,
   backgroundClassName,
-  contentContainerClassName = "pb-28",
+  contentContainerClassName = "pb-16",
 }: PropsWithChildren<{
   scroll?: boolean;
   header?: boolean;

@@ -57,7 +57,7 @@ export default function WordsScreen() {
         data={data}
         keyExtractor={(item) => String(item.words.id)}
         contentInsetAdjustmentBehavior="automatic"
-        contentContainerClassName="w-full max-w-3xl self-center px-5 pb-28"
+        contentContainerClassName="w-full max-w-3xl self-center px-5 pb-16"
         ListHeaderComponent={
           <ScrollView
             horizontal
