@@ -139,6 +139,7 @@ export default function SettingsScreen() {
             control={
               <Switch
                 value={values.autoplay}
+                style={{ alignSelf: "center" }}
                 onValueChange={(value) =>
                   void updateSetting("autoplay", String(value))
                 }
