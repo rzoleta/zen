@@ -21,6 +21,7 @@ import {
   buildQueue,
   getWord,
   grade,
+  scheduleGrade,
   undo,
   type BinaryGrade,
   type QueueItem,
@@ -36,26 +37,32 @@ export default function ReviewScreen() {
   const current = queue[0];
   const currentId = current?.wordId ?? -1;
   const nextId = queue[1]?.wordId ?? -1;
-  const detail = useLiveQuery(
+  const currentDetail = useLiveQuery(
     db
       .select()
-      .from(words)
-      .innerJoin(cards, eq(cards.wordId, words.id))
+      .from(cards)
+      .innerJoin(words, eq(words.id, cards.wordId))
       .where(eq(words.id, currentId)),
     [currentId],
-  ).data[0];
-  const nextDetail = useLiveQuery(
+  ).data;
+  const prefetchedDetail = useLiveQuery(
     db
-      .select({ wordAudio: words.wordAudio })
-      .from(words)
+      .select()
+      .from(cards)
+      .innerJoin(words, eq(words.id, cards.wordId))
       .where(eq(words.id, nextId)),
     [nextId],
-  ).data[0];
-  const nextAudio = nextDetail?.wordAudio
-    ? audioAssets[nextDetail.wordAudio]
+  ).data;
+  const detail = [...currentDetail, ...prefetchedDetail].find(
+    (row) => row.words.id === currentId,
+  );
+  const nextDetail = prefetchedDetail.find((row) => row.words.id === nextId);
+  const nextAudio = nextDetail?.words.wordAudio
+    ? audioAssets[nextDetail.words.wordAudio]
     : undefined;
   useAudioPlayer(nextAudio);
   const initialized = useRef(false);
+  const pendingGrades = useRef<Promise<void>>(Promise.resolve());
   const shownAt = useRef(0);
   const [now, setNow] = useState(0);
   useEffect(() => {
@@ -72,24 +79,35 @@ export default function ReviewScreen() {
   }, [currentId]);
   const close = () => router.back();
   const onGrade = useCallback(
-    async (answer: BinaryGrade) => {
-      if (!current) return;
-      const next = await grade(
-        db,
-        current.wordId,
+    (answer: BinaryGrade) => {
+      if (!current || !detail) return;
+      const reviewedAt = new Date();
+      const durationMs = reviewedAt.getTime() - shownAt.current;
+      const next = scheduleGrade(
+        detail.cards,
         answer,
-        Date.now() - shownAt.current,
+        reviewedAt,
+        settings.desiredRetention,
       );
       const learning =
         next.state === State.Learning || next.state === State.Relearning
           ? { wordId: next.wordId, kind: "learning" as const, due: next.due }
           : undefined;
       finishCard(learning);
+
+      pendingGrades.current = pendingGrades.current
+        .then(async () => {
+          await grade(db, current.wordId, answer, durationMs, reviewedAt);
+        })
+        .catch((gradeError: unknown) => {
+          console.error("Failed to save card grade", gradeError);
+        });
     },
-    [current, finishCard],
+    [current, detail, finishCard, settings.desiredRetention],
   );
   const onUndo = useCallback(async () => {
     if (!canUndo) return;
+    await pendingGrades.current;
     const wordId = await undo(db);
     if (wordId === null) return;
     const row = await getWord(db, wordId);
