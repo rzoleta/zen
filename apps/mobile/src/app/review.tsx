@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useAudioPlayer } from "expo-audio";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
@@ -17,11 +17,13 @@ import { db } from "@/db/client";
 import { cards, words } from "@/db/schema";
 import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
+import { formatWait } from "@/lib/format-wait";
 import {
   buildQueue,
   getWord,
   grade,
   scheduleGrade,
+  studyDayBounds,
   undo,
   type BinaryGrade,
   type QueueItem,
@@ -32,7 +34,7 @@ export default function ReviewScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const settings = useSettings();
-  const { queue, answered, startedAt, canUndo, begin, finishCard, restore } =
+  const { queue, answered, canUndo, begin, finishCard, restore } =
     useSessionStore();
   const current = queue[0];
   const currentId = current?.wordId ?? -1;
@@ -60,11 +62,26 @@ export default function ReviewScreen() {
   const nextAudio = nextDetail?.words.wordAudio
     ? audioAssets[nextDetail.words.wordAudio]
     : undefined;
+  const savedLearningCards = useLiveQuery(
+    db
+      .select({ wordId: cards.wordId, due: cards.due })
+      .from(cards)
+      .where(
+        and(
+          or(
+            eq(cards.state, State.Learning),
+            eq(cards.state, State.Relearning),
+          ),
+          eq(cards.suspended, "none"),
+          eq(cards.known, false),
+        ),
+      ),
+  ).data;
   useAudioPlayer(nextAudio);
   const initialized = useRef(false);
   const pendingGrades = useRef<Promise<void>>(Promise.resolve());
   const shownAt = useRef(0);
-  const [now, setNow] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
@@ -90,7 +107,9 @@ export default function ReviewScreen() {
         settings.desiredRetention,
       );
       const learning =
-        next.state === State.Learning || next.state === State.Relearning
+        next.suspended === "none" &&
+        !next.known &&
+        (next.state === State.Learning || next.state === State.Relearning)
           ? { wordId: next.wordId, kind: "learning" as const, due: next.due }
           : undefined;
       finishCard(learning);
@@ -122,6 +141,21 @@ export default function ReviewScreen() {
     void Haptics.selectionAsync();
   }, [canUndo, restore]);
   const waiting = current?.kind === "learning" && current.due > now;
+  const dayEnd = studyDayBounds(new Date(now)).end.getTime();
+  const pendingCards = new Map<number, number>();
+  for (const item of savedLearningCards) {
+    if (item.due > now && item.due < dayEnd) {
+      pendingCards.set(item.wordId, item.due);
+    }
+  }
+  for (const item of queue) {
+    if (item.kind === "learning" && item.due > now && item.due < dayEnd) {
+      pendingCards.set(item.wordId, item.due);
+    }
+  }
+  const pendingCount = pendingCards.size;
+  const nextPendingDue = Math.min(...pendingCards.values());
+  const showingSummary = waiting || queue.length === 0;
   const glass = isLiquidGlassAvailable();
 
   return (
@@ -153,16 +187,20 @@ export default function ReviewScreen() {
           </Pressable>
         </GlassView>
         <View className="flex-1 items-center gap-2">
-          <Text variant="caption" muted>
-            {queue.length} left
-          </Text>
-          <View className="h-1 w-full max-w-[180px] flex-row overflow-hidden rounded-full bg-secondary">
-            <View
-              className="min-w-[2px] bg-primary"
-              style={{ flex: answered }}
-            />
-            <View style={{ flex: queue.length }} />
-          </View>
+          {!showingSummary ? (
+            <>
+              <Text variant="caption" muted>
+                {queue.length} left
+              </Text>
+              <View className="h-1 w-full max-w-[180px] flex-row overflow-hidden rounded-full bg-secondary">
+                <View
+                  className="min-w-[2px] bg-primary"
+                  style={{ flex: answered }}
+                />
+                <View style={{ flex: queue.length }} />
+              </View>
+            </>
+          ) : null}
         </View>
         <GlassView
           glassEffectStyle={glass ? "regular" : "none"}
@@ -191,14 +229,23 @@ export default function ReviewScreen() {
         </GlassView>
       </View>
       <View className="flex-1 gap-3.5 px-5 pt-2">
-        {waiting ? (
+        {showingSummary && pendingCount > 0 ? (
           <View className="w-full max-w-md flex-1 items-center justify-center gap-4 self-center">
-            <Text variant="title">Learning card queued</Text>
+            <Text variant="title">{"You're done for now!"}</Text>
             <Text variant="footnote" muted className="text-center">
-              It will return in {formatWait(current.due - now)}. You can leave
-              and come back when it is ready.
+              You have {pendingCount} {pendingCount === 1 ? "card" : "cards"} to
+              review again today. Come back in{" "}
+              {formatWait(nextPendingDue - now)}.
             </Text>
-            <Button label="Finish for now" onPress={close} />
+            <Button label="Finish review" onPress={close} />
+          </View>
+        ) : showingSummary ? (
+          <View className="w-full max-w-md flex-1 items-center justify-center gap-4 self-center">
+            <Text variant="largeTitle">{"You're done for today!"}</Text>
+            <Text variant="footnote" muted className="text-center">
+              Come back tomorrow to study new words.
+            </Text>
+            <Button label="Finish review" onPress={close} />
           </View>
         ) : current && detail ? (
           <ReviewCard
@@ -212,16 +259,6 @@ export default function ReviewScreen() {
             onGrade={(answer) => void onGrade(answer)}
             onUndo={() => void onUndo()}
           />
-        ) : queue.length === 0 ? (
-          <View className="w-full max-w-md flex-1 items-center justify-center gap-4 self-center">
-            <Text variant="label">Session complete</Text>
-            <Text variant="largeTitle">Done.</Text>
-            <Text variant="footnote" muted className="text-center">
-              {answered} {answered === 1 ? "answer" : "answers"} in{" "}
-              {formatElapsed(now - startedAt)}.
-            </Text>
-            <Button label="Back to home" onPress={close} />
-          </View>
         ) : (
           <View className="flex-1 items-center justify-center">
             <Text variant="footnote" muted>
@@ -232,17 +269,4 @@ export default function ReviewScreen() {
       </View>
     </View>
   );
-}
-
-function formatWait(ms: number) {
-  const seconds = Math.max(0, Math.ceil(ms / 1_000));
-  return seconds >= 60
-    ? `${Math.ceil(seconds / 60)} minutes`
-    : `${seconds} seconds`;
-}
-function formatElapsed(ms: number) {
-  const seconds = Math.max(1, Math.round(ms / 1_000));
-  return seconds < 60
-    ? `${seconds} seconds`
-    : `${Math.round(seconds / 60)} minutes`;
 }

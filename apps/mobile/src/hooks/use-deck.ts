@@ -4,7 +4,11 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { db } from "@/db/client";
 import { cards, reviewLog, words } from "@/db/schema";
 import { useSettings } from "@/hooks/use-settings";
-import { composeQueue, studyDayBounds } from "@/scheduler";
+import {
+  composePendingLearningQueue,
+  composeQueue,
+  studyDayBounds,
+} from "@/scheduler";
 
 export type WordStatus =
   | "new"
@@ -49,14 +53,15 @@ export function useQueue(now = new Date()) {
       )
       .map((log) => log.cardId),
   ).size;
-  const queue = composeQueue(
-    rows.map((row) => ({ ...row.cards, deckOrder: row.words.deckOrder })),
-    introduced,
-    newPerDay,
-    now,
-  );
+  const cardsWithOrder = rows.map((row) => ({
+    ...row.cards,
+    deckOrder: row.words.deckOrder,
+  }));
+  const queue = composeQueue(cardsWithOrder, introduced, newPerDay, now);
+  const pendingQueue = composePendingLearningQueue(cardsWithOrder, now);
   return {
     queue,
+    pendingQueue,
     newCount: queue.filter((item) => item.kind === "new").length,
     reviewCount: queue.filter((item) => item.kind !== "new").length,
   };

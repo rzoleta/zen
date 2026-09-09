@@ -13,6 +13,8 @@ import { seedDatabase } from "@/db/seed";
 import * as schema from "@/db/schema";
 
 const migration = `
+PRAGMA busy_timeout = 5000;
+PRAGMA journal_mode = WAL;
 PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS words (id INTEGER PRIMARY KEY NOT NULL, deck_order INTEGER NOT NULL UNIQUE, word TEXT NOT NULL, word_furigana TEXT NOT NULL, meaning TEXT NOT NULL, sentence TEXT NOT NULL, sentence_target_start INTEGER NOT NULL, sentence_target_length INTEGER NOT NULL, sentence_furigana TEXT NOT NULL, sentence_meaning TEXT NOT NULL, word_audio TEXT, sentence_audio TEXT);
 CREATE TABLE IF NOT EXISTS cards (word_id INTEGER PRIMARY KEY NOT NULL REFERENCES words(id) ON DELETE CASCADE, state INTEGER NOT NULL DEFAULT 0, due INTEGER NOT NULL, stability REAL NOT NULL DEFAULT 0, difficulty REAL NOT NULL DEFAULT 0, elapsed_days INTEGER NOT NULL DEFAULT 0, scheduled_days INTEGER NOT NULL DEFAULT 0, learning_steps INTEGER NOT NULL DEFAULT 0, reps INTEGER NOT NULL DEFAULT 0, lapses INTEGER NOT NULL DEFAULT 0, last_review INTEGER, suspended TEXT NOT NULL DEFAULT 'none', known INTEGER NOT NULL DEFAULT 0);

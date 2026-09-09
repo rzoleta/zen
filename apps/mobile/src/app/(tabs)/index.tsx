@@ -1,19 +1,29 @@
 import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import { View } from "react-native";
 
 import { StudyCardStack } from "@/components/study-card-stack";
 import { Button, Screen, Text } from "@/components/ui";
 import { useQueue } from "@/hooks/use-deck";
+import { formatWait } from "@/lib/format-wait";
 import { useSessionStore } from "@/stores/session";
 
 export default function HomeScreen() {
-  const { queue, newCount, reviewCount } = useQueue();
+  const [now, setNow] = useState(() => Date.now());
+  const { queue, pendingQueue, newCount, reviewCount } = useQueue(
+    new Date(now),
+  );
   const begin = useSessionStore((state) => state.begin);
+  useEffect(() => {
+    if (pendingQueue.length === 0) return;
+    const timer = setInterval(() => setNow(Date.now()), 1_000);
+    return () => clearInterval(timer);
+  }, [pendingQueue.length]);
   const start = () => {
     begin(queue);
     router.push("/review");
   };
-  const today = new Date();
+  const today = new Date(now);
   const weekday = today.toLocaleDateString("en-US", {
     weekday: "long",
   });
@@ -44,11 +54,20 @@ export default function HomeScreen() {
           </View>
           <Button size="lg" label="Start studying" onPress={start} />
         </>
+      ) : pendingQueue.length > 0 ? (
+        <View className="flex-1 items-center justify-center gap-2">
+          <Text variant="title">{"You're done for now!"}</Text>
+          <Text variant="footnote" muted className="text-center">
+            You have {pendingQueue.length}{" "}
+            {pendingQueue.length === 1 ? "card" : "cards"} to review again
+            today. Come back in {formatWait(pendingQueue[0].due - now)}.
+          </Text>
+        </View>
       ) : (
         <View className="flex-1 items-center justify-center gap-2">
-          <Text variant="title">All clear</Text>
+          <Text variant="title">{"You're done for today!"}</Text>
           <Text variant="footnote" muted className="text-center">
-            Nothing left to study today.
+            Come back tomorrow to study new words.
           </Text>
         </View>
       )}

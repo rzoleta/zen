@@ -2,6 +2,7 @@ import { State } from "ts-fsrs";
 
 import type { CardRow } from "@/db/schema";
 import {
+  composePendingLearningQueue,
   composeQueue,
   currentStudyDay,
   scheduleGrade,
@@ -74,6 +75,30 @@ describe("queue composition", () => {
     expect(composeQueue(rows, 1, 2, now).map((item) => item.wordId)).toEqual([
       1,
     ]);
+  });
+
+  test("finds learning cards waiting for later in the same study day", () => {
+    const dayEnd = studyDayBounds(now).end.getTime();
+    const rows = [
+      card({ wordId: 1, state: State.Learning, due: now.getTime() - 1 }),
+      card({ wordId: 2, state: State.Learning, due: now.getTime() + 60_000 }),
+      card({
+        wordId: 3,
+        state: State.Relearning,
+        due: now.getTime() + 120_000,
+      }),
+      card({ wordId: 4, state: State.Learning, due: dayEnd + 1 }),
+      card({
+        wordId: 5,
+        state: State.Learning,
+        due: now.getTime() + 180_000,
+        suspended: "manual",
+      }),
+    ];
+
+    expect(
+      composePendingLearningQueue(rows, now).map((item) => item.wordId),
+    ).toEqual([2, 3]);
   });
 });
 

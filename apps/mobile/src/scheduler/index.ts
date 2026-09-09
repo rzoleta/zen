@@ -79,6 +79,29 @@ export function composeQueue(
   return [...learning, ...reviews, ...newCards];
 }
 
+export function composePendingLearningQueue(
+  rows: (CardRow & { deckOrder: number })[],
+  now: Date,
+): QueueItem[] {
+  const nowMs = now.getTime();
+  const dayEnd = studyDayBounds(now).end.getTime();
+  return rows
+    .filter(
+      (row) =>
+        row.suspended === "none" &&
+        !row.known &&
+        (row.state === State.Learning || row.state === State.Relearning) &&
+        row.due > nowMs &&
+        row.due < dayEnd,
+    )
+    .sort((a, b) => a.due - b.due || a.deckOrder - b.deckOrder)
+    .map((row) => ({
+      wordId: row.wordId,
+      kind: "learning" as const,
+      due: row.due,
+    }));
+}
+
 function toFsrsCard(card: CardRow): Card {
   return {
     due: new Date(card.due),
