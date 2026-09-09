@@ -115,6 +115,36 @@ export default function SettingsScreen() {
             }
           />
           <Separator />
+          <SettingRow
+            title="Leech threshold"
+            description="Lapses before a card is suspended"
+            control={
+              <View className="flex-row items-center gap-2.5">
+                <Stepper
+                  label="−"
+                  onPress={() =>
+                    void updateSetting(
+                      "leech_threshold",
+                      String(Math.max(1, values.leechThreshold - 1)),
+                    )
+                  }
+                />
+                <Text className="min-w-7 text-center font-sans-medium">
+                  {values.leechThreshold}
+                </Text>
+                <Stepper
+                  label="+"
+                  onPress={() =>
+                    void updateSetting(
+                      "leech_threshold",
+                      String(values.leechThreshold + 1),
+                    )
+                  }
+                />
+              </View>
+            }
+          />
+          <Separator />
           <View className="gap-1.5 py-4">
             <View className="flex-row justify-between">
               <Text>Desired retention</Text>

@@ -78,7 +78,7 @@
   <li>Scheduling is FSRS with desired retention defaulting to 0.90.</li>
   <li>Grading is binary: pass or fail. No Hard, no Easy, anywhere.</li>
   <li>The day rolls over at 4am local time, like Anki, so a midnight session doesn't leak tomorrow's cards.</li>
-  <li>A card that lapses 5 times auto-suspends as a leech and shows as "suspended (leech)" in the Words tab. The user can unsuspend it there.</li>
+  <li>A card that lapses 8 times by default auto-suspends as a leech and shows as "suspended (leech)" in the Words tab. The user can unsuspend it there and configure the lapse threshold under Daily review in Settings.</li>
 </ul>
 
 <h3>The card</h3>
@@ -223,7 +223,7 @@
 <ul>
   <li>Drizzle schema + migrations, first-launch seeding of 1,500 words and cards.</li>
   <li>Scheduler module over ts-fsrs: buildQueue, grade (pass/fail), undo, 4am boundary, leech auto-suspend.</li>
-  <li>Jest tests: interval sanity against known FSRS behavior, queue composition and ordering, new-card limit reset at 4am, undo round-trip, leech trigger at lapse 5.</li>
+  <li>Jest tests: interval sanity against known FSRS behavior, queue composition and ordering, new-card limit reset at 4am, undo round-trip, leech trigger at lapse 8 and configurable thresholds.</li>
 </ul>
 
 <h3>Phase 3: the review session</h3>
