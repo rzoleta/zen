@@ -114,18 +114,32 @@ describe("FSRS pass/fail wrapper", () => {
     expect(failed.due - now.getTime()).toBe(10 * 60 * 1000);
   });
 
-  test("the fifth lapse becomes a leech", () => {
-    const review = card({
-      state: State.Review,
-      stability: 10,
-      difficulty: 5,
-      reps: 8,
-      lapses: 4,
-      lastReview: new Date(2026, 7, 20).getTime(),
-      due: now.getTime(),
-    });
-    expect(scheduleGrade(review, "fail", now, 0.9).suspended).toBe("leech");
-  });
+  test.each([
+    [4, undefined, "none"],
+    [6, undefined, "none"],
+    [7, undefined, "leech"],
+    [3, 5, "none"],
+    [4, 5, "leech"],
+    [7, 10, "none"],
+    [9, 10, "leech"],
+    [0, 1, "leech"],
+  ])(
+    "%i prior lapses with threshold %s results in %s",
+    (lapses, threshold, suspended) => {
+      const review = card({
+        state: State.Review,
+        stability: 10,
+        difficulty: 5,
+        reps: 8,
+        lapses,
+        lastReview: new Date(2026, 7, 20).getTime(),
+        due: now.getTime(),
+      });
+      const result = scheduleGrade(review, "fail", now, 0.9, threshold);
+      expect(result.lapses).toBe(lapses + 1);
+      expect(result.suspended).toBe(suspended);
+    },
+  );
 
   test("a snapshot can restore every scheduler field for undo", () => {
     const before = card({

@@ -14,6 +14,9 @@ export function useSettings() {
     desiredRetention: Number(
       values.desired_retention ?? DEFAULT_SETTINGS.desired_retention,
     ),
+    leechThreshold: Number(
+      values.leech_threshold ?? DEFAULT_SETTINGS.leech_threshold,
+    ),
     autoplay: (values.autoplay ?? DEFAULT_SETTINGS.autoplay) === "true",
     jpFont: (values.jp_font ?? DEFAULT_SETTINGS.jp_font) as JapaneseFont,
     theme: (values.theme ?? DEFAULT_SETTINGS.theme) as ThemePreference,

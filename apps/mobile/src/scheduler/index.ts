@@ -123,6 +123,7 @@ export function scheduleGrade(
   grade: BinaryGrade,
   now: Date,
   retention: number,
+  leechThreshold = 8,
 ): CardRow {
   const result = fsrs({
     request_retention: retention,
@@ -146,7 +147,7 @@ export function scheduleGrade(
     reps: result.reps,
     lapses: result.lapses,
     lastReview: result.last_review?.getTime() ?? null,
-    suspended: result.lapses >= 5 ? "leech" : card.suspended,
+    suspended: result.lapses >= leechThreshold ? "leech" : card.suspended,
   };
 }
 
@@ -218,11 +219,17 @@ export async function grade(
     .from(settings)
     .where(eq(settings.key, "desired_retention"))
     .limit(1);
+  const leechSetting = await database
+    .select()
+    .from(settings)
+    .where(eq(settings.key, "leech_threshold"))
+    .limit(1);
   const next = scheduleGrade(
     card,
     answer,
     now,
     Number(retentionSetting[0]?.value ?? 0.9),
+    Number(leechSetting[0]?.value ?? 8),
   );
   database.transaction((tx) => {
     tx.insert(reviewLog)
