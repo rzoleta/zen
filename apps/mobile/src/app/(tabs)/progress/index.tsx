@@ -2,14 +2,13 @@ import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Rating, State } from "ts-fsrs";
 
+import { DeckBreakdown } from "@/components/deck-breakdown";
 import { Heatmap } from "@/components/heatmap";
 import { Card, Screen, SectionTitle, Text } from "@/components/ui";
 import { cardStatus, useDeckRows, useReviewLogs } from "@/hooks/use-deck";
-import { useTheme } from "@/hooks/use-theme";
 import { studyDayBounds } from "@/scheduler";
 
 export default function ProgressScreen() {
-  const theme = useTheme();
   const rows = useDeckRows();
   const logs = useReviewLogs();
   const [now, setNow] = useState(0);
@@ -37,15 +36,7 @@ export default function ProgressScreen() {
     all[key] = (all[key] ?? 0) + 1;
     return all;
   }, {});
-  const total = Math.max(rows.length, 1);
   const time = daily.reduce((sum, log) => sum + log.durationMs, 0);
-  const statusColors: Record<string, string> = {
-    mature: theme.primary,
-    learning: theme.chartAmber,
-    known: theme.chartBlue,
-    suspended: theme.destructive,
-    new: theme.secondary,
-  };
   return (
     <Screen header>
       <View className="flex-row gap-3">
@@ -64,57 +55,7 @@ export default function ProgressScreen() {
       </View>
       <View className="gap-2">
         <SectionTitle>Deck</SectionTitle>
-        <Card className="gap-5">
-          <View className="h-2 flex-row overflow-hidden rounded-full">
-            {(
-              [
-                "mature",
-                "learning",
-                "known",
-                "suspended",
-                "new",
-              ] as const
-            ).map((status) => {
-              const count = statuses[status] ?? 0;
-              if (!count) return null;
-              return (
-                <View
-                  key={status}
-                  style={{
-                    flex: count / total,
-                    backgroundColor: statusColors[status],
-                  }}
-                />
-              );
-            })}
-          </View>
-          <View className="flex-row flex-wrap gap-y-4">
-            {(
-              [
-                "new",
-                "learning",
-                "mature",
-                "known",
-                "suspended",
-              ] as const
-            ).map((status) => (
-              <View key={status} className="w-1/3 gap-0.5">
-                <Text className="font-sans-medium text-[20px] leading-7">
-                  {statuses[status] ?? 0}
-                </Text>
-                <View className="flex-row items-center gap-1.5">
-                  <View
-                    className="h-2 w-2 rounded-full"
-                    style={{ backgroundColor: statusColors[status] }}
-                  />
-                  <Text variant="caption" muted className="capitalize">
-                    {status}
-                  </Text>
-                </View>
-              </View>
-            ))}
-          </View>
-        </Card>
+        <DeckBreakdown counts={statuses} />
       </View>
       <View className="gap-2">
         <SectionTitle>Time</SectionTitle>
