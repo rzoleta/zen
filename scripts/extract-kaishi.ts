@@ -15,6 +15,8 @@ import { tmpdir } from "node:os";
 import { basename, dirname, extname, join, resolve } from "node:path";
 import { execFileSync } from "node:child_process";
 
+import { kanaToRomaji } from "./romaji";
+
 const EXPECTED_WORD_COUNT = 1_500;
 const FIELD_SEPARATOR = "\u001f";
 const KAISHI_NOTETYPE = "Kaishi 1.5k";
@@ -34,6 +36,8 @@ interface SqliteNote {
 interface SourceWord {
   word: string;
   wordFurigana: string;
+  wordReading: string;
+  wordRomaji: string;
   meaning: string;
   sentence: string;
   sentenceTargetStart: number;
@@ -49,6 +53,8 @@ interface DeckWord {
   deck_order: number;
   word: string;
   word_furigana: string;
+  word_reading: string;
+  word_romaji: string;
   meaning: string;
   sentence: string;
   sentence_target_start: number;
@@ -249,10 +255,13 @@ function sourceWord(fields: string[]): SourceWord | undefined {
   }
 
   const sentence = highlightedSentence(fields[5] ?? "", word);
+  const reading = cleanText(fields[1] ?? "");
 
   const result: SourceWord = {
     word,
     wordFurigana: cleanText(fields[3] ?? ""),
+    wordReading: reading,
+    wordRomaji: kanaToRomaji(reading),
     meaning: cleanText(fields[2] ?? ""),
     sentence: sentence.text,
     sentenceTargetStart: sentence.targetStart,
@@ -266,6 +275,8 @@ function sourceWord(fields: string[]): SourceWord | undefined {
   const requiredText: Array<[string, string]> = [
     ["word", result.word],
     ["word_furigana", result.wordFurigana],
+    ["word_reading", result.wordReading],
+    ["word_romaji", result.wordRomaji],
     ["meaning", result.meaning],
     ["sentence", result.sentence],
     ["sentence_furigana", result.sentenceFurigana],
@@ -540,6 +551,8 @@ async function extract(args: Arguments): Promise<ExtractionSummary> {
         deck_order: id,
         word: word.word,
         word_furigana: word.wordFurigana,
+        word_reading: word.wordReading,
+        word_romaji: word.wordRomaji,
         meaning: word.meaning,
         sentence: word.sentence,
         sentence_target_start: word.sentenceTargetStart,
@@ -552,7 +565,7 @@ async function extract(args: Arguments): Promise<ExtractionSummary> {
     });
 
     const deck = {
-      schema_version: 1,
+      schema_version: 2,
       source: {
         name: KAISHI_NOTETYPE,
         version: sourceVersion,

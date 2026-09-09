@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS words (
   deck_order INTEGER NOT NULL UNIQUE,
   word TEXT NOT NULL,
   word_furigana TEXT NOT NULL,
+  word_reading TEXT NOT NULL,
+  word_romaji TEXT NOT NULL,
   meaning TEXT NOT NULL,
   sentence TEXT NOT NULL,
   sentence_target_start INTEGER NOT NULL,
