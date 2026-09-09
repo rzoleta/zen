@@ -18,6 +18,12 @@ export function useNativeHeaderOptions(): NativeStackNavigationOptions {
       headerTransparent: true,
       headerBlurEffect:
         scheme === "dark" ? "systemChromeMaterialDark" : "systemChromeMaterial",
+      scrollEdgeEffects: {
+        top: "hidden",
+        bottom: "hidden",
+        left: "hidden",
+        right: "hidden",
+      },
       headerShadowVisible: false,
       headerLargeTitleShadowVisible: false,
       headerLargeStyle: { backgroundColor: "transparent" },

@@ -125,6 +125,9 @@ export default function ReviewScreen() {
   }, [canUndo, restore]);
   const waiting =
     current?.kind === "learning" && current.due > sessionStartedAt;
+  const remainingCount = queue.filter(
+    (item) => item.kind !== "learning" || item.due <= sessionStartedAt,
+  ).length;
   const sessionFinished = answered > 0 && (waiting || queue.length === 0);
   useEffect(() => {
     if (!sessionFinished) return;
@@ -172,14 +175,14 @@ export default function ReviewScreen() {
         </GlassView>
         <View className="flex-1 items-center gap-2">
           <Text variant="caption" muted>
-            {queue.length} left
+            {remainingCount} left
           </Text>
           <View className="h-1 w-full max-w-[180px] flex-row overflow-hidden rounded-full bg-secondary">
             <View
               className="min-w-[2px] bg-primary"
               style={{ flex: answered }}
             />
-            <View style={{ flex: queue.length }} />
+            <View style={{ flex: remainingCount }} />
           </View>
         </View>
         <GlassView
