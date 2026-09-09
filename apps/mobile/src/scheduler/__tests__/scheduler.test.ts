@@ -96,6 +96,20 @@ describe("queue composition", () => {
       }),
     ];
 
+    rows.push(
+      card({
+        wordId: 6,
+        state: State.Relearning,
+        due: now.getTime() + 60_000,
+        suspended: "leech",
+      }),
+      card({
+        wordId: 7,
+        state: State.Learning,
+        due: now.getTime() + 60_000,
+        known: true,
+      }),
+    );
     expect(
       composePendingLearningQueue(rows, now).map((item) => item.wordId),
     ).toEqual([2, 3]);
@@ -140,6 +154,27 @@ describe("FSRS pass/fail wrapper", () => {
       expect(result.suspended).toBe(suspended);
     },
   );
+
+  test("an early relearning pass uses the updated card history and actual answer time", () => {
+    const previous = card({
+      state: State.Review,
+      stability: 10,
+      difficulty: 5,
+      reps: 8,
+      lapses: 2,
+      lastReview: new Date(2026, 7, 20).getTime(),
+      due: now.getTime(),
+    });
+    const failed = scheduleGrade(previous, "fail", now, 0.9);
+    const retryTime = new Date(now.getTime() + 30_000);
+    expect(failed.due).toBeGreaterThan(retryTime.getTime());
+    const passed = scheduleGrade(failed, "pass", retryTime, 0.9);
+    expect(passed.state).toBe(State.Review);
+    expect(passed.lapses).toBe(3);
+    expect(passed.reps).toBe(10);
+    expect(passed.lastReview).toBe(retryTime.getTime());
+    expect(passed.due).toBeGreaterThan(retryTime.getTime());
+  });
 
   test("a snapshot can restore every scheduler field for undo", () => {
     const before = card({

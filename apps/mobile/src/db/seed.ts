@@ -8,6 +8,7 @@ export const DEFAULT_SETTINGS = {
   new_per_day: "10",
   desired_retention: "0.90",
   leech_threshold: "8",
+  learn_ahead_limit: "20",
   autoplay: "true",
   jp_font: "gothic",
   theme: "system",

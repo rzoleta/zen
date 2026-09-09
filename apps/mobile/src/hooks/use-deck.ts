@@ -9,6 +9,7 @@ import {
   composeQueue,
   studyDayBounds,
 } from "@/scheduler";
+import { isReady } from "@/stores/session";
 
 export type WordStatus =
   | "new"
@@ -48,7 +49,7 @@ export function useReviewLogs() {
 export function useQueue(now = new Date()) {
   const rows = useDeckRows();
   const logs = useReviewLogs();
-  const { newPerDay } = useSettings();
+  const { newPerDay, learnAheadLimit } = useSettings();
   const bounds = studyDayBounds(now);
   const introduced = new Set(
     logs
@@ -67,8 +68,14 @@ export function useQueue(now = new Date()) {
     ...row.cards,
     deckOrder: row.words.deckOrder,
   }));
-  const queue = composeQueue(cardsWithOrder, introduced, newPerDay, now);
-  const pendingQueue = composePendingLearningQueue(cardsWithOrder, now);
+  const pending = composePendingLearningQueue(cardsWithOrder, now);
+  const queue = [
+    ...composeQueue(cardsWithOrder, introduced, newPerDay, now),
+    ...pending.filter((item) => isReady(item, now.getTime(), learnAheadLimit)),
+  ];
+  const pendingQueue = pending.filter(
+    (item) => !isReady(item, now.getTime(), learnAheadLimit),
+  );
   return {
     queue,
     pendingQueue,
