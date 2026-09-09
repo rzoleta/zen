@@ -193,6 +193,7 @@ export default function ReviewScreen() {
       <View className="h-16 flex-row items-center justify-between gap-4 px-5">
         <GlassView
           glassEffectStyle={glass ? "regular" : "none"}
+          isInteractive={glass}
           style={[
             { borderRadius: 22, overflow: "hidden" },
             !glass && { backgroundColor: theme.secondary },
@@ -200,8 +201,12 @@ export default function ReviewScreen() {
         >
           <Pressable
             accessibilityLabel="Close review"
+            accessibilityRole="button"
             onPress={close}
             className="h-11 w-11 items-center justify-center"
+            style={({ pressed }) => ({
+              opacity: !glass && pressed ? 0.5 : 1,
+            })}
           >
             <SymbolView
               name={{ ios: "xmark", android: "close", web: "close" }}
@@ -224,6 +229,7 @@ export default function ReviewScreen() {
         </View>
         <GlassView
           glassEffectStyle={glass ? "regular" : "none"}
+          isInteractive={glass && canUndo}
           style={[
             { borderRadius: 22, overflow: "hidden" },
             !glass && { backgroundColor: theme.secondary },
@@ -232,9 +238,14 @@ export default function ReviewScreen() {
         >
           <Pressable
             accessibilityLabel="Undo last answer"
+            accessibilityRole="button"
+            accessibilityState={{ disabled: !canUndo }}
             disabled={!canUndo}
             onPress={() => void onUndo()}
             className="h-11 w-11 items-center justify-center"
+            style={({ pressed }) => ({
+              opacity: !glass && pressed ? 0.5 : 1,
+            })}
           >
             <SymbolView
               name={{
