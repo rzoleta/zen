@@ -43,7 +43,7 @@ export function DeckBreakdown({
 
   return (
     <Card className="flex-row items-center gap-4 py-3">
-      <View className="min-w-0 gap-3" style={{ flex: 4 }}>
+      <View className="min-w-0 gap-3" style={{ flex: 1 }}>
         {statuses.map((status) => (
           <View key={status} className="flex-row items-center gap-1.5">
             <View
@@ -65,7 +65,7 @@ export function DeckBreakdown({
       </View>
       <View
         className="min-w-0 items-center justify-center"
-        style={{ flex: 6 }}
+        style={{ flex: 1 }}
         onLayout={(event) => setChartWidth(event.nativeEvent.layout.width)}
         accessible
         accessibilityLabel={`Deck total: ${total} cards`}
