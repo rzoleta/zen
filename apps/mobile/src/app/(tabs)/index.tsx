@@ -20,7 +20,7 @@ export default function HomeScreen() {
     return () => clearInterval(timer);
   }, [pendingQueue.length]);
   const start = () => {
-    begin(queue);
+    begin([...queue, ...pendingQueue]);
     router.push("/review");
   };
   const today = new Date(now);
