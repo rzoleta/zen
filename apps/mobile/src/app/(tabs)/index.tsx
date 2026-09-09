@@ -5,6 +5,7 @@ import { View } from "react-native";
 import { StudyCardStack } from "@/components/study-card-stack";
 import { Button, JapaneseText, Screen, Text } from "@/components/ui";
 import { useQueue } from "@/hooks/use-deck";
+import { useSettings } from "@/hooks/use-settings";
 import { formatWait } from "@/lib/format-wait";
 import { useSessionStore } from "@/stores/session";
 
@@ -13,6 +14,7 @@ export default function HomeScreen() {
   const { queue, pendingQueue, newCount, reviewCount } = useQueue(
     new Date(now),
   );
+  const { learnAheadLimit } = useSettings();
   const begin = useSessionStore((state) => state.begin);
   useEffect(() => {
     if (pendingQueue.length === 0) return;
@@ -20,7 +22,7 @@ export default function HomeScreen() {
     return () => clearInterval(timer);
   }, [pendingQueue.length]);
   const start = () => {
-    begin([...queue, ...pendingQueue]);
+    begin([...queue, ...pendingQueue], learnAheadLimit);
     router.push("/review");
   };
   const today = new Date(now);
@@ -49,7 +51,7 @@ export default function HomeScreen() {
           <View className="flex-1 items-center justify-center">
             <StudyCardStack count={queue.length} onPress={start} />
             <Text variant="footnote" muted className="mt-2">
-              {reviewCount} due · {newCount} new
+              {reviewCount} to review · {newCount} new
             </Text>
           </View>
           <Button size="lg" label="Start studying" onPress={start} />
@@ -79,7 +81,7 @@ export default function HomeScreen() {
               variant="footnote"
               className="font-sans-semibold text-foreground"
             >
-              {formatWait(pendingQueue[0].due - now)}
+              {formatWait(pendingQueue[0].due - now - learnAheadLimit * 60_000)}
             </Text>
           </Text>
         </View>

@@ -4,7 +4,7 @@ import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AppState, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { State } from "ts-fsrs";
@@ -21,7 +21,6 @@ import {
   buildQueue,
   getWord,
   grade,
-  scheduleGrade,
   undo,
   type BinaryGrade,
   type QueueItem,
@@ -32,8 +31,18 @@ export default function ReviewScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const settings = useSettings();
-  const { queue, answered, now, canUndo, begin, refresh, finishCard, restore } =
-    useSessionStore();
+  const {
+    queue,
+    answered,
+    completed,
+    learnAheadLimit,
+    now,
+    canUndo,
+    begin,
+    refresh,
+    finishCard,
+    restore,
+  } = useSessionStore();
   const current = queue[0];
   const currentId = current?.wordId ?? -1;
   const nextId = queue[1]?.wordId ?? -1;
@@ -68,6 +77,9 @@ export default function ReviewScreen() {
   const initialized = useRef(false);
   const pendingGrades = useRef<Promise<void>>(Promise.resolve());
   const shownAt = useRef(0);
+  const grading = useRef(false);
+  const [saveError, setSaveError] = useState(false);
+  const [retryVersion, setRetryVersion] = useState(0);
   const hasPendingLearning = queue.some((item) => !isReady(item, now));
   useEffect(() => {
     if (!hasPendingLearning) return;
@@ -84,40 +96,54 @@ export default function ReviewScreen() {
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
-    if (queue.length === 0 && answered === 0) void buildQueue(db).then(begin);
-  }, [answered, begin, queue.length]);
+    if (queue.length === 0 && answered === 0)
+      void buildQueue(db).then((items) =>
+        begin(items, settings.learnAheadLimit),
+      );
+  }, [answered, begin, queue.length, settings.learnAheadLimit]);
   useEffect(() => {
     shownAt.current = Date.now();
-  }, [currentId]);
+  }, [currentId, answered]);
   const close = () => router.back();
   const onGrade = useCallback(
     (answer: BinaryGrade) => {
-      if (!current || !detail) return;
+      if (!current || !detail || grading.current) return;
+      grading.current = true;
+      setSaveError(false);
       const reviewedAt = new Date();
       const durationMs = reviewedAt.getTime() - shownAt.current;
-      const next = scheduleGrade(
-        detail.cards,
-        answer,
-        reviewedAt,
-        settings.desiredRetention,
-      );
-      const learning =
-        next.suspended === "none" &&
-        !next.known &&
-        (next.state === State.Learning || next.state === State.Relearning)
-          ? { wordId: next.wordId, kind: "learning" as const, due: next.due }
-          : undefined;
-      finishCard(learning);
-
+      // Save before advancing: an early retry can immediately show the same card.
       pendingGrades.current = pendingGrades.current
         .then(async () => {
-          await grade(db, current.wordId, answer, durationMs, reviewedAt);
+          const next = await grade(
+            db,
+            current.wordId,
+            answer,
+            durationMs,
+            reviewedAt,
+          );
+          const learning =
+            next.suspended === "none" &&
+            !next.known &&
+            (next.state === State.Learning || next.state === State.Relearning)
+              ? {
+                  wordId: next.wordId,
+                  kind: "learning" as const,
+                  due: next.due,
+                }
+              : undefined;
+          finishCard(learning);
         })
         .catch((gradeError: unknown) => {
           console.error("Failed to save card grade", gradeError);
+          setSaveError(true);
+          setRetryVersion((version) => version + 1);
+        })
+        .finally(() => {
+          grading.current = false;
         });
     },
-    [current, detail, finishCard, settings.desiredRetention],
+    [current, detail, finishCard],
   );
   const onUndo = useCallback(async () => {
     if (!canUndo) return;
@@ -135,7 +161,9 @@ export default function ReviewScreen() {
     restore({ wordId, kind, due: row.cards.due });
     void Haptics.selectionAsync();
   }, [canUndo, restore]);
-  const remainingCount = queue.filter((item) => isReady(item, now)).length;
+  const remainingCount = queue.filter((item) =>
+    isReady(item, now, learnAheadLimit),
+  ).length;
   const sessionFinished =
     remainingCount === 0 && (answered > 0 || queue.length > 0);
   useEffect(() => {
@@ -189,7 +217,7 @@ export default function ReviewScreen() {
           <View className="h-1 w-full max-w-[180px] flex-row overflow-hidden rounded-full bg-secondary">
             <View
               className="min-w-[2px] bg-primary"
-              style={{ flex: answered }}
+              style={{ flex: completed }}
             />
             <View style={{ flex: remainingCount }} />
           </View>
@@ -221,9 +249,14 @@ export default function ReviewScreen() {
         </GlassView>
       </View>
       <View className="flex-1 gap-3.5 px-5 pt-2">
+        {saveError ? (
+          <Text variant="footnote" className="text-destructive">
+            Your answer could not be saved. Please try again.
+          </Text>
+        ) : null}
         {current && detail ? (
           <ReviewCard
-            key={`${current.wordId}-${answered}`}
+            key={`${current.wordId}-${answered}-${retryVersion}`}
             word={detail.words}
             font={settings.jpFont}
             autoplay={settings.autoplay}

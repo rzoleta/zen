@@ -125,6 +125,38 @@ export default function SettingsScreen() {
           />
           <Separator />
           <SettingRow
+            title="Learn ahead limit"
+            description="Review waiting cards early when nothing else is ready. 0 waits the full delay."
+            control={
+              <View className="flex-row items-center gap-2.5">
+                <Stepper
+                  label="−"
+                  accessibilityLabel="Decrease learn ahead limit by 5 minutes"
+                  onPress={() =>
+                    void updateSetting(
+                      "learn_ahead_limit",
+                      String(Math.max(0, values.learnAheadLimit - 5)),
+                    )
+                  }
+                />
+                <Text className="min-w-7 text-center font-sans-medium">
+                  {values.learnAheadLimit}m
+                </Text>
+                <Stepper
+                  label="+"
+                  accessibilityLabel="Increase learn ahead limit by 5 minutes"
+                  onPress={() =>
+                    void updateSetting(
+                      "learn_ahead_limit",
+                      String(values.learnAheadLimit + 5),
+                    )
+                  }
+                />
+              </View>
+            }
+          />
+          <Separator />
+          <SettingRow
             title="Leech threshold"
             description="Lapses before a card is suspended"
             control={
@@ -280,10 +312,19 @@ function SettingRow({
   );
 }
 
-function Stepper({ label, onPress }: { label: string; onPress: () => void }) {
+function Stepper({
+  label,
+  onPress,
+  accessibilityLabel,
+}: {
+  label: string;
+  onPress: () => void;
+  accessibilityLabel?: string;
+}) {
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
       onPress={onPress}
       className="h-9 w-9 items-center justify-center rounded-lg bg-secondary active:opacity-60"
     >

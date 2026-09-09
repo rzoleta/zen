@@ -17,6 +17,9 @@ export function useSettings() {
     leechThreshold: Number(
       values.leech_threshold ?? DEFAULT_SETTINGS.leech_threshold,
     ),
+    learnAheadLimit: Number(
+      values.learn_ahead_limit ?? DEFAULT_SETTINGS.learn_ahead_limit,
+    ),
     autoplay: (values.autoplay ?? DEFAULT_SETTINGS.autoplay) === "true",
     jpFont: (values.jp_font ?? DEFAULT_SETTINGS.jp_font) as JapaneseFont,
     theme: (values.theme ?? DEFAULT_SETTINGS.theme) as ThemePreference,
@@ -36,13 +39,11 @@ export async function updateSetting(
 export async function resetSettings(): Promise<void> {
   await db.transaction(async (tx) => {
     await tx.delete(settings);
-    await tx
-      .insert(settings)
-      .values(
-        Object.entries(DEFAULT_SETTINGS).map(([key, value]) => ({
-          key,
-          value,
-        })),
-      );
+    await tx.insert(settings).values(
+      Object.entries(DEFAULT_SETTINGS).map(([key, value]) => ({
+        key,
+        value,
+      })),
+    );
   });
 }
