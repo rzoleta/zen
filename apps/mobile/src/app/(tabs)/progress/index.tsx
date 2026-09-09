@@ -41,7 +41,6 @@ export default function ProgressScreen() {
   const time = daily.reduce((sum, log) => sum + log.durationMs, 0);
   const statusColors: Record<string, string> = {
     mature: theme.primary,
-    young: theme.muted,
     learning: theme.chartAmber,
     known: theme.chartBlue,
     suspended: theme.destructive,
@@ -70,7 +69,6 @@ export default function ProgressScreen() {
             {(
               [
                 "mature",
-                "young",
                 "learning",
                 "known",
                 "suspended",
@@ -95,7 +93,6 @@ export default function ProgressScreen() {
               [
                 "new",
                 "learning",
-                "young",
                 "mature",
                 "known",
                 "suspended",
