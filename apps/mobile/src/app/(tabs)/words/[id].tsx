@@ -1,5 +1,4 @@
 import { eq } from "drizzle-orm";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams } from "expo-router";
 import { Alert, View } from "react-native";
 
@@ -15,6 +14,7 @@ import {
 import { db } from "@/db/client";
 import { cards, words } from "@/db/schema";
 import { cardStatus } from "@/hooks/use-deck";
+import { useLiveQuery } from "@/hooks/use-live-query";
 import { useSettings } from "@/hooks/use-settings";
 import { resetCard, setKnown, setSuspended } from "@/scheduler";
 
@@ -30,8 +30,9 @@ export default function WordDetailScreen() {
       .from(words)
       .innerJoin(cards, eq(cards.wordId, words.id))
       .where(eq(words.id, wordId)),
+    ["words", "cards"],
     [wordId],
-  ).data[0];
+  ).data?.[0];
   if (!detail)
     return (
       <Screen

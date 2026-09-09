@@ -1,5 +1,4 @@
 import { eq } from "drizzle-orm";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useAudioPlayer } from "expo-audio";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import * as Haptics from "expo-haptics";
@@ -15,6 +14,7 @@ import { ReviewCard } from "@/components/review-card";
 import { Text } from "@/components/ui";
 import { db } from "@/db/client";
 import { cards, words } from "@/db/schema";
+import { useLiveQuery } from "@/hooks/use-live-query";
 import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
 import {
@@ -37,22 +37,26 @@ export default function ReviewScreen() {
   const current = queue[0];
   const currentId = current?.wordId ?? -1;
   const nextId = queue[1]?.wordId ?? -1;
-  const currentDetail = useLiveQuery(
-    db
-      .select()
-      .from(cards)
-      .innerJoin(words, eq(words.id, cards.wordId))
-      .where(eq(words.id, currentId)),
-    [currentId],
-  ).data;
-  const prefetchedDetail = useLiveQuery(
-    db
-      .select()
-      .from(cards)
-      .innerJoin(words, eq(words.id, cards.wordId))
-      .where(eq(words.id, nextId)),
-    [nextId],
-  ).data;
+  const currentDetail =
+    useLiveQuery(
+      db
+        .select()
+        .from(cards)
+        .innerJoin(words, eq(words.id, cards.wordId))
+        .where(eq(words.id, currentId)),
+      ["cards"],
+      [currentId],
+    ).data ?? [];
+  const prefetchedDetail =
+    useLiveQuery(
+      db
+        .select()
+        .from(cards)
+        .innerJoin(words, eq(words.id, cards.wordId))
+        .where(eq(words.id, nextId)),
+      ["cards"],
+      [nextId],
+    ).data ?? [];
   const detail = [...currentDetail, ...prefetchedDetail].find(
     (row) => row.words.id === currentId,
   );

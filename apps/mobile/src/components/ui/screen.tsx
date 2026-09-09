@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from "react";
+import type { PropsWithChildren, Ref } from "react";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { cssInterop } from "nativewind";
@@ -19,12 +19,14 @@ export function Screen({
   className,
   backgroundClassName,
   contentContainerClassName = "pb-16",
+  scrollViewRef,
 }: PropsWithChildren<{
   scroll?: boolean;
   header?: boolean;
   className?: string;
   backgroundClassName?: string;
   contentContainerClassName?: string;
+  scrollViewRef?: Ref<ScrollView>;
 }>) {
   const content = (
     <View
@@ -35,6 +37,7 @@ export function Screen({
   );
   const body = scroll ? (
     <ScrollView
+      ref={scrollViewRef}
       className={cn("flex-1 bg-background", backgroundClassName)}
       contentInsetAdjustmentBehavior="automatic"
       contentContainerClassName={contentContainerClassName}

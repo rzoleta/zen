@@ -1,20 +1,17 @@
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Rating, State } from "ts-fsrs";
 
 import { Heatmap } from "@/components/heatmap";
 import { Card, Screen, SectionTitle, Text } from "@/components/ui";
-import { db } from "@/db/client";
-import { reviewLog } from "@/db/schema";
-import { cardStatus, useDeckRows } from "@/hooks/use-deck";
+import { cardStatus, useDeckRows, useReviewLogs } from "@/hooks/use-deck";
 import { useTheme } from "@/hooks/use-theme";
 import { studyDayBounds } from "@/scheduler";
 
 export default function ProgressScreen() {
   const theme = useTheme();
   const rows = useDeckRows();
-  const logs = useLiveQuery(db.select().from(reviewLog)).data ?? [];
+  const logs = useReviewLogs();
   const [now, setNow] = useState(0);
   useEffect(() => {
     const timer = setTimeout(() => setNow(Date.now()), 0);

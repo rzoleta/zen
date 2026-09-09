@@ -1,6 +1,7 @@
 import Slider from "@react-native-community/slider";
 import Constants from "expo-constants";
-import { Alert, Pressable, Switch, View } from "react-native";
+import { useRef, useState } from "react";
+import { Pressable, type ScrollView, Switch, View } from "react-native";
 
 import {
   Button,
@@ -25,21 +26,27 @@ export default function SettingsScreen() {
   const theme = useTheme();
   const values = useSettings();
   const clearSession = useSessionStore((state) => state.clear);
-  const resetProgress = () =>
-    Alert.alert(
-      "Reset all progress?",
-      "This removes every review and returns all cards to new. This cannot be undone.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Reset everything",
-          style: "destructive",
-          onPress: () => void resetAllProgress(db).then(clearSession),
-        },
-      ],
-    );
+  const [confirmingReset, setConfirmingReset] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [resetError, setResetError] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const resetProgress = async () => {
+    setResetting(true);
+    setResetError(false);
+    try {
+      await resetAllProgress(db);
+      clearSession();
+      setConfirmingReset(false);
+    } catch (error) {
+      console.error("Failed to reset study progress", error);
+      setResetError(true);
+    } finally {
+      setResetting(false);
+    }
+  };
   return (
-    <Screen header>
+    <Screen header scrollViewRef={scrollViewRef}>
       <View className="gap-2">
         <SectionTitle>Appearance</SectionTitle>
         <Card className="py-1">
@@ -169,11 +176,49 @@ export default function SettingsScreen() {
           variant="secondary"
           onPress={() => void resetSettings()}
         />
-        <Button
-          label="Reset all progress"
-          variant="destructive"
-          onPress={resetProgress}
-        />
+        {confirmingReset ? (
+          <Card
+            className="gap-4 border-destructive"
+            onLayout={() =>
+              scrollViewRef.current?.scrollToEnd({ animated: true })
+            }
+          >
+            <View className="gap-1">
+              <Text variant="headline">Reset all progress?</Text>
+              <Text variant="footnote" muted>
+                This removes every review and returns all cards to new. This
+                cannot be undone.
+              </Text>
+              {resetError ? (
+                <Text variant="footnote" className="text-destructive">
+                  Progress could not be reset. Please try again.
+                </Text>
+              ) : null}
+            </View>
+            <View className="flex-row gap-3">
+              <Button
+                className="flex-1"
+                label="Cancel"
+                variant="secondary"
+                disabled={resetting}
+                onPress={() => setConfirmingReset(false)}
+              />
+              <Button
+                className="flex-1"
+                label={resetting ? "Resetting..." : "Reset everything"}
+                variant="destructive"
+                disabled={resetting}
+                onPress={() => void resetProgress()}
+              />
+            </View>
+          </Card>
+        ) : (
+          <Button
+            label="Reset all progress"
+            variant="destructive"
+            onPress={() => setConfirmingReset(true)}
+          />
+        )}
       </View>
     </Screen>
   );

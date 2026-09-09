@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 
 import { db } from "@/db/client";
 import { cards, reviewLog, words } from "@/db/schema";
+import { useLiveQuery } from "@/hooks/use-live-query";
 import { useSettings } from "@/hooks/use-settings";
 import {
   composePendingLearningQueue,
@@ -31,13 +31,23 @@ export function useDeckRows() {
   return (
     useLiveQuery(
       db.select().from(cards).innerJoin(words, eq(words.id, cards.wordId)),
+      ["cards"],
     ).data ?? []
+  );
+}
+
+export function useReviewLogs() {
+  // Reset uses SQLite's truncate optimization, which may not emit row events
+  // for review_log. It always updates cards, so either table refreshes logs.
+  return (
+    useLiveQuery(db.select().from(reviewLog), ["review_log", "cards"]).data ??
+    []
   );
 }
 
 export function useQueue(now = new Date()) {
   const rows = useDeckRows();
-  const logs = useLiveQuery(db.select().from(reviewLog)).data ?? [];
+  const logs = useReviewLogs();
   const { newPerDay } = useSettings();
   const bounds = studyDayBounds(now);
   const introduced = new Set(
