@@ -14,7 +14,6 @@ import { isReady } from "@/stores/session";
 export type WordStatus =
   | "new"
   | "learning"
-  | "young"
   | "mature"
   | "known"
   | "suspended";
@@ -24,7 +23,7 @@ export function cardStatus(card: typeof cards.$inferSelect): WordStatus {
   if (card.suspended !== "none") return "suspended";
   if (card.state === 0) return "new";
   if (card.state === 1 || card.state === 3) return "learning";
-  return card.scheduledDays >= 21 ? "mature" : "young";
+  return card.scheduledDays >= 21 ? "mature" : "learning";
 }
 
 export function useDeckRows() {

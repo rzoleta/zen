@@ -13,7 +13,6 @@ const filters: ("all" | WordStatus)[] = [
   "all",
   "new",
   "learning",
-  "young",
   "mature",
   "known",
   "suspended",
