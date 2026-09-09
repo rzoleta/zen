@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { View } from "react-native";
 
 import { StudyCardStack } from "@/components/study-card-stack";
-import { Button, Screen, Text } from "@/components/ui";
+import { Button, JapaneseText, Screen, Text } from "@/components/ui";
 import { useQueue } from "@/hooks/use-deck";
 import { formatWait } from "@/lib/format-wait";
 import { useSessionStore } from "@/stores/session";
@@ -56,6 +56,14 @@ export default function HomeScreen() {
         </>
       ) : pendingQueue.length > 0 ? (
         <View className="flex-1 items-center justify-center gap-2">
+          <JapaneseText
+            font="mincho"
+            accessible={false}
+            allowFontScaling={false}
+            className="mb-6 text-center text-[200px] leading-[240px] text-muted-foreground/40"
+          >
+            空
+          </JapaneseText>
           <Text variant="title">{"You're done for now!"}</Text>
           <Text variant="footnote" muted className="text-center">
             You have{" "}
@@ -77,6 +85,14 @@ export default function HomeScreen() {
         </View>
       ) : (
         <View className="flex-1 items-center justify-center gap-2">
+          <JapaneseText
+            font="mincho"
+            accessible={false}
+            allowFontScaling={false}
+            className="mb-6 text-center text-[200px] leading-[240px] text-muted-foreground/40"
+          >
+            空
+          </JapaneseText>
           <Text variant="title">{"You're done for today!"}</Text>
           <Text variant="footnote" muted className="text-center">
             Come back tomorrow to study new words.
