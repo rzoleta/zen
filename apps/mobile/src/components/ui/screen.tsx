@@ -1,6 +1,7 @@
 import type { PropsWithChildren, Ref } from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, type ScrollViewProps, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView as NativeSafeAreaView } from "react-native-screens/experimental";
 import { cssInterop } from "nativewind";
 
 import { cn } from "@/lib/cn";
@@ -20,6 +21,8 @@ export function Screen({
   backgroundClassName,
   contentContainerClassName = "pb-16",
   scrollViewRef,
+  onContentSizeChange,
+  bottomSafeArea = false,
 }: PropsWithChildren<{
   scroll?: boolean;
   header?: boolean;
@@ -27,6 +30,8 @@ export function Screen({
   backgroundClassName?: string;
   contentContainerClassName?: string;
   scrollViewRef?: Ref<ScrollView>;
+  onContentSizeChange?: ScrollViewProps["onContentSizeChange"];
+  bottomSafeArea?: boolean;
 }>) {
   const content = (
     <View
@@ -38,6 +43,7 @@ export function Screen({
   const body = scroll ? (
     <ScrollView
       ref={scrollViewRef}
+      onContentSizeChange={onContentSizeChange}
       className={cn("flex-1 bg-background", backgroundClassName)}
       contentInsetAdjustmentBehavior="automatic"
       contentContainerClassName={contentContainerClassName}
@@ -47,7 +53,17 @@ export function Screen({
   ) : (
     content
   );
-  if (header && scroll) return body;
+  if (header && scroll) {
+    // Keep the scroll viewport above native tab bars. scrollToEnd does not
+    // include iOS's automatically adjusted bottom content inset.
+    return bottomSafeArea ? (
+      <NativeSafeAreaView edges={{ bottom: true }}>
+        {body}
+      </NativeSafeAreaView>
+    ) : (
+      body
+    );
+  }
   if (header)
     return (
       <View className={cn("flex-1 bg-background", backgroundClassName)}>

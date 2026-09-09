@@ -46,7 +46,16 @@ export default function SettingsScreen() {
     }
   };
   return (
-    <Screen header scrollViewRef={scrollViewRef}>
+    <Screen
+      header
+      bottomSafeArea
+      scrollViewRef={scrollViewRef}
+      onContentSizeChange={() => {
+        if (confirmingReset) {
+          scrollViewRef.current?.scrollToEnd({ animated: true });
+        }
+      }}
+    >
       <View className="gap-2">
         <SectionTitle>Appearance</SectionTitle>
         <Card className="py-1">
@@ -207,12 +216,7 @@ export default function SettingsScreen() {
           onPress={() => void resetSettings()}
         />
         {confirmingReset ? (
-          <Card
-            className="gap-4 border-destructive"
-            onLayout={() =>
-              scrollViewRef.current?.scrollToEnd({ animated: true })
-            }
-          >
+          <Card className="gap-4 border-destructive">
             <View className="gap-1">
               <Text variant="headline">Reset all progress?</Text>
               <Text variant="footnote" muted>
