@@ -190,12 +190,15 @@ export async function buildQueue(
     .from(settings)
     .where(eq(settings.key, "new_per_day"))
     .limit(1);
-  return composeQueue(
-    all,
-    Number(introduced[0]?.count ?? 0),
-    Number(setting[0]?.value ?? 10),
-    now,
-  );
+  return [
+    ...composeQueue(
+      all,
+      Number(introduced[0]?.count ?? 0),
+      Number(setting[0]?.value ?? 10),
+      now,
+    ),
+    ...composePendingLearningQueue(all, now),
+  ];
 }
 
 export async function grade(

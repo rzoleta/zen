@@ -4,8 +4,8 @@ import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Pressable, View } from "react-native";
+import { useCallback, useEffect, useRef } from "react";
+import { AppState, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { State } from "ts-fsrs";
 
@@ -26,13 +26,13 @@ import {
   type BinaryGrade,
   type QueueItem,
 } from "@/scheduler";
-import { useSessionStore } from "@/stores/session";
+import { isReady, useSessionStore } from "@/stores/session";
 
 export default function ReviewScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const settings = useSettings();
-  const { queue, answered, canUndo, begin, finishCard, restore } =
+  const { queue, answered, now, canUndo, begin, refresh, finishCard, restore } =
     useSessionStore();
   const current = queue[0];
   const currentId = current?.wordId ?? -1;
@@ -68,7 +68,19 @@ export default function ReviewScreen() {
   const initialized = useRef(false);
   const pendingGrades = useRef<Promise<void>>(Promise.resolve());
   const shownAt = useRef(0);
-  const [sessionStartedAt] = useState(() => Date.now());
+  const hasPendingLearning = queue.some((item) => !isReady(item, now));
+  useEffect(() => {
+    if (!hasPendingLearning) return;
+    refresh();
+    const timer = setInterval(refresh, 1_000);
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") refresh();
+    });
+    return () => {
+      clearInterval(timer);
+      subscription.remove();
+    };
+  }, [hasPendingLearning, refresh]);
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
@@ -123,12 +135,9 @@ export default function ReviewScreen() {
     restore({ wordId, kind, due: row.cards.due });
     void Haptics.selectionAsync();
   }, [canUndo, restore]);
-  const waiting =
-    current?.kind === "learning" && current.due > sessionStartedAt;
-  const remainingCount = queue.filter(
-    (item) => item.kind !== "learning" || item.due <= sessionStartedAt,
-  ).length;
-  const sessionFinished = answered > 0 && (waiting || queue.length === 0);
+  const remainingCount = queue.filter((item) => isReady(item, now)).length;
+  const sessionFinished =
+    remainingCount === 0 && (answered > 0 || queue.length > 0);
   useEffect(() => {
     if (!sessionFinished) return;
     let active = true;
