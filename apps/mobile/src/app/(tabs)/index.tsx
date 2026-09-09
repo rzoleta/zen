@@ -58,9 +58,21 @@ export default function HomeScreen() {
         <View className="flex-1 items-center justify-center gap-2">
           <Text variant="title">{"You're done for now!"}</Text>
           <Text variant="footnote" muted className="text-center">
-            You have {pendingQueue.length}{" "}
-            {pendingQueue.length === 1 ? "card" : "cards"} to review again
-            today. Come back in {formatWait(pendingQueue[0].due - now)}.
+            You have{" "}
+            <Text
+              variant="footnote"
+              className="font-sans-semibold text-foreground"
+            >
+              {pendingQueue.length}{" "}
+              {pendingQueue.length === 1 ? "card" : "cards"}
+            </Text>{" "}
+            to review again today{"\n"}Come back in{" "}
+            <Text
+              variant="footnote"
+              className="font-sans-semibold text-foreground"
+            >
+              {formatWait(pendingQueue[0].due - now)}
+            </Text>
           </Text>
         </View>
       ) : (
