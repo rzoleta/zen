@@ -5,6 +5,8 @@ export const words = sqliteTable("words", {
   deckOrder: integer("deck_order").notNull().unique(),
   word: text("word").notNull(),
   wordFurigana: text("word_furigana").notNull(),
+  wordReading: text("word_reading").notNull(),
+  wordRomaji: text("word_romaji").notNull(),
   meaning: text("meaning").notNull(),
   sentence: text("sentence").notNull(),
   sentenceTargetStart: integer("sentence_target_start").notNull(),

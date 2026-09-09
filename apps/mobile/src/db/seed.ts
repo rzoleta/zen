@@ -19,6 +19,8 @@ interface SeedWord {
   deck_order: number;
   word: string;
   word_furigana: string;
+  word_reading: string;
+  word_romaji: string;
   meaning: string;
   sentence: string;
   sentence_target_start: number;
@@ -47,6 +49,8 @@ export async function seedDatabase(db: ZenDatabase): Promise<void> {
           deckOrder: item.deck_order,
           word: item.word,
           wordFurigana: item.word_furigana,
+          wordReading: item.word_reading,
+          wordRomaji: item.word_romaji,
           meaning: item.meaning,
           sentence: item.sentence,
           sentenceTargetStart: item.sentence_target_start,

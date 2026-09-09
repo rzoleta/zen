@@ -5,6 +5,7 @@ import { FlatList, Pressable, ScrollView, View } from "react-native";
 import { StatusChip } from "@/components/status-chip";
 import { FuriganaText, Text } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { matchesWordQuery } from "@/lib/search";
 import { cardStatus, type WordStatus, useDeckRows } from "@/hooks/use-deck";
 import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
@@ -28,13 +29,9 @@ export default function WordsScreen() {
     () =>
       rows.filter((row) => {
         const status = cardStatus(row.cards);
-        const needle = query.trim().toLowerCase();
         return (
           (filter === "all" || filter === status) &&
-          (!needle ||
-            `${row.words.word} ${row.words.wordFurigana} ${row.words.meaning}`
-              .toLowerCase()
-              .includes(needle))
+          matchesWordQuery(row.words, query)
         );
       }),
     [filter, query, rows],
