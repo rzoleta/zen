@@ -274,6 +274,11 @@ export default function ReviewScreen() {
         <MenuView
           actions={[
             {
+              id: "undo",
+              title: "Undo previous",
+              attributes: { disabled: saving || !canUndo },
+            },
+            {
               id: "known",
               title: "Mark known",
               attributes: { disabled: saving || !detail },
@@ -281,12 +286,7 @@ export default function ReviewScreen() {
             {
               id: "suspend",
               title: "Suspend",
-              attributes: { disabled: saving || !detail },
-            },
-            {
-              id: "undo",
-              title: "Undo previous",
-              attributes: { disabled: saving || !canUndo },
+              attributes: { disabled: saving || !detail, destructive: true },
             },
           ]}
           onPressAction={({ nativeEvent }) => {
