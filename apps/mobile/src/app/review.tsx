@@ -29,6 +29,7 @@ import {
   type QueueItem,
 } from "@/scheduler";
 import { isReady, useSessionStore } from "@/stores/session";
+import { useToastStore } from "@/stores/toast";
 
 export default function ReviewScreen() {
   const theme = useTheme();
@@ -162,6 +163,13 @@ export default function ReviewScreen() {
         .then(async () => {
           if (action === "known") await setKnown(db, current.wordId, true);
           else await setSuspended(db, current.wordId, "manual");
+          useToastStore
+            .getState()
+            .show(
+              action === "known"
+                ? `Marked ${detail.words.word} as known`
+                : `Suspended ${detail.words.word}`,
+            );
           dismissCard(current.wordId);
           void Haptics.selectionAsync();
         })
