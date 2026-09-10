@@ -174,7 +174,8 @@ export default function ReviewScreen() {
             action === "known"
               ? `Marked ${detail.words.word} as known`
               : `Suspended ${detail.words.word}`;
-          toast.success(message);
+          if (action === "known") toast.success(message);
+          else toast.info(message);
           // Sonner supplies Android's live region; VoiceOver needs an announcement.
           if (Platform.OS === "ios")
             AccessibilityInfo.announceForAccessibility(message);
