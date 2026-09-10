@@ -93,8 +93,7 @@ export default function RootLayout() {
           </Stack>
           <Toaster
             theme={scheme === "dark" ? "dark" : "light"}
-            position="bottom-center"
-            offset={80}
+            position="top-center"
             duration={3_000}
             visibleToasts={1}
           />
