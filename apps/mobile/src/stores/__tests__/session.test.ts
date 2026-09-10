@@ -24,6 +24,52 @@ describe("live review queue", () => {
 
   afterEach(() => jest.useRealTimers());
 
+  test("dismissing the last card finishes progress without recording an answer", () => {
+    begin([card(1)]);
+    session().dismissCard(1);
+    expect(ids()).toEqual([]);
+    expect(remaining()).toBe(0);
+    expect(session().completed).toBe(1);
+    expect(session().answered).toBe(0);
+    expect(session().canUndo).toBe(false);
+    session().dismissCard(1);
+    expect(session().completed).toBe(1);
+  });
+
+  test("dismissing a different card preserves undo and its progress bookkeeping", () => {
+    begin([card(1), card(2), card(3)]);
+    session().finishCard();
+    session().dismissCard(2);
+    expect(ids()).toEqual([3]);
+    expect(session().answered).toBe(1);
+    expect(session().completed).toBe(2);
+    expect(session().canUndo).toBe(true);
+    session().restore(card(1));
+    expect(ids()).toEqual([1, 3]);
+    expect(session().answered).toBe(0);
+    expect(session().completed).toBe(1);
+  });
+
+  test("dismissing after a failure preserves the failed answer's undo bookkeeping", () => {
+    begin([card(1), card(2), card(3)]);
+    session().finishCard(card(1, "learning", Date.now() + TEN_MINUTES));
+    session().dismissCard(2);
+    session().restore(card(1));
+    expect(ids()).toEqual([1, 3]);
+    expect(session().completed).toBe(1);
+    expect(session().answered).toBe(0);
+  });
+
+  test("dismissing an immediate retry prevents undo from restoring its old status", () => {
+    session().begin([card(1)]);
+    session().finishCard(card(1, "learning", Date.now() + TEN_MINUTES));
+    session().dismissCard(1);
+    expect(ids()).toEqual([]);
+    expect(session().answered).toBe(1);
+    expect(session().completed).toBe(1);
+    expect(session().canUndo).toBe(false);
+  });
+
   test("a failed card becomes next when due without replacing the current card", () => {
     begin([card(1), card(2), card(3)]);
     const due = Date.now() + TEN_MINUTES;
