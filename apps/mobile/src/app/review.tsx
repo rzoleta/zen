@@ -6,8 +6,16 @@ import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Alert, AppState, Pressable, View } from "react-native";
+import {
+  AccessibilityInfo,
+  Alert,
+  AppState,
+  Platform,
+  Pressable,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { toast } from "sonner-native";
 import { State } from "ts-fsrs";
 
 import { audioAssets } from "@/assets/deck/audio-assets";
@@ -29,7 +37,6 @@ import {
   type QueueItem,
 } from "@/scheduler";
 import { isReady, useSessionStore } from "@/stores/session";
-import { useToastStore } from "@/stores/toast";
 
 export default function ReviewScreen() {
   const theme = useTheme();
@@ -163,13 +170,14 @@ export default function ReviewScreen() {
         .then(async () => {
           if (action === "known") await setKnown(db, current.wordId, true);
           else await setSuspended(db, current.wordId, "manual");
-          useToastStore
-            .getState()
-            .show(
-              action === "known"
-                ? `Marked ${detail.words.word} as known`
-                : `Suspended ${detail.words.word}`,
-            );
+          const message =
+            action === "known"
+              ? `Marked ${detail.words.word} as known`
+              : `Suspended ${detail.words.word}`;
+          toast.success(message);
+          // Sonner supplies Android's live region; VoiceOver needs an announcement.
+          if (Platform.OS === "ios")
+            AccessibilityInfo.announceForAccessibility(message);
           dismissCard(current.wordId);
           void Haptics.selectionAsync();
         })

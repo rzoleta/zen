@@ -12,8 +12,8 @@ import { StatusBar } from "expo-status-bar";
 import { colorScheme as nativewindScheme } from "nativewind";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Toaster } from "sonner-native";
 
-import { Toast } from "@/components/toast";
 import { Colors } from "@/constants/theme";
 import { DatabaseProvider } from "@/db/client";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -91,7 +91,13 @@ export default function RootLayout() {
               }}
             />
           </Stack>
-          <Toast />
+          <Toaster
+            theme={scheme === "dark" ? "dark" : "light"}
+            position="bottom-center"
+            offset={80}
+            duration={3_000}
+            visibleToasts={1}
+          />
           <StatusBar style={scheme === "dark" ? "light" : "dark"} />
         </DatabaseProvider>
       </ThemeProvider>
