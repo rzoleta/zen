@@ -1,3 +1,4 @@
+import { MenuView } from "@expo/ui/community/menu";
 import { eq } from "drizzle-orm";
 import { useAudioPlayer } from "expo-audio";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
@@ -5,8 +6,16 @@ import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AppState, Pressable, View } from "react-native";
+import {
+  AccessibilityInfo,
+  Alert,
+  AppState,
+  Platform,
+  Pressable,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { toast } from "sonner-native";
 import { State } from "ts-fsrs";
 
 import { audioAssets } from "@/assets/deck/audio-assets";
@@ -21,6 +30,8 @@ import {
   buildQueue,
   getWord,
   grade,
+  setKnown,
+  setSuspended,
   undo,
   type BinaryGrade,
   type QueueItem,
@@ -41,6 +52,7 @@ export default function ReviewScreen() {
     begin,
     refresh,
     finishCard,
+    dismissCard,
     restore,
   } = useSessionStore();
   const current = queue[0];
@@ -79,6 +91,7 @@ export default function ReviewScreen() {
   const shownAt = useRef(0);
   const grading = useRef(false);
   const [saveError, setSaveError] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [retryVersion, setRetryVersion] = useState(0);
   const hasPendingLearning = queue.some((item) => !isReady(item, now));
   useEffect(() => {
@@ -109,6 +122,7 @@ export default function ReviewScreen() {
     (answer: BinaryGrade) => {
       if (!current || !detail || grading.current) return;
       grading.current = true;
+      setSaving(true);
       setSaveError(false);
       const reviewedAt = new Date();
       const durationMs = reviewedAt.getTime() - shownAt.current;
@@ -141,31 +155,101 @@ export default function ReviewScreen() {
         })
         .finally(() => {
           grading.current = false;
+          setSaving(false);
         });
     },
     [current, detail, finishCard],
   );
-  const onUndo = useCallback(async () => {
-    if (!canUndo) return;
-    await pendingGrades.current;
-    const wordId = await undo(db);
-    if (wordId === null) return;
-    const row = await getWord(db, wordId);
-    if (!row) return;
-    const kind: QueueItem["kind"] =
-      row.cards.state === State.New
-        ? "new"
-        : row.cards.state === State.Review
-          ? "review"
-          : "learning";
-    restore({ wordId, kind, due: row.cards.due });
-    void Haptics.selectionAsync();
+  const onDismiss = useCallback(
+    (action: "known" | "suspend") => {
+      if (!current || !detail || grading.current) return;
+      grading.current = true;
+      setSaving(true);
+      setSaveError(false);
+      pendingGrades.current = pendingGrades.current
+        .then(async () => {
+          if (action === "known") await setKnown(db, current.wordId, true);
+          else await setSuspended(db, current.wordId, "manual");
+          const message =
+            action === "known"
+              ? `Marked ${detail.words.word} as known`
+              : `Suspended ${detail.words.word}`;
+          if (action === "known") toast.success(message);
+          else toast.info(message);
+          // Sonner supplies Android's live region; VoiceOver needs an announcement.
+          if (Platform.OS === "ios")
+            AccessibilityInfo.announceForAccessibility(message);
+          dismissCard(current.wordId);
+          void Haptics.selectionAsync();
+        })
+        .catch((error: unknown) => {
+          console.error("Failed to update card status", error);
+          setSaveError(true);
+        })
+        .finally(() => {
+          grading.current = false;
+          setSaving(false);
+        });
+    },
+    [current, detail, dismissCard],
+  );
+  const confirmDismiss = (action: "known" | "suspend") => {
+    if (!current || !detail || grading.current) return;
+    const isSuspend = action === "suspend";
+    Alert.alert(
+      isSuspend ? "Suspend this word?" : "Mark this word as known?",
+      isSuspend
+        ? "This word will be excluded from reviews until you unsuspend it from the Words tab."
+        : "This word will be marked as known and excluded from reviews. You can change this from the Words tab.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: isSuspend ? "Suspend" : "Mark known",
+          style: isSuspend ? "destructive" : "default",
+          onPress: () => {
+            if (useSessionStore.getState().queue[0]?.wordId !== current.wordId)
+              return;
+            onDismiss(action);
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
+  const onUndo = useCallback(() => {
+    if (!canUndo || grading.current) return;
+    grading.current = true;
+    setSaving(true);
+    setSaveError(false);
+    pendingGrades.current = pendingGrades.current
+      .then(async () => {
+        const wordId = await undo(db);
+        if (wordId === null) return;
+        const row = await getWord(db, wordId);
+        if (!row) return;
+        const kind: QueueItem["kind"] =
+          row.cards.state === State.New
+            ? "new"
+            : row.cards.state === State.Review
+              ? "review"
+              : "learning";
+        restore({ wordId, kind, due: row.cards.due });
+        void Haptics.selectionAsync();
+      })
+      .catch((error: unknown) => {
+        console.error("Failed to undo previous answer", error);
+        setSaveError(true);
+      })
+      .finally(() => {
+        grading.current = false;
+        setSaving(false);
+      });
   }, [canUndo, restore]);
   const remainingCount = queue.filter((item) =>
     isReady(item, now, learnAheadLimit),
   ).length;
   const sessionFinished =
-    remainingCount === 0 && (answered > 0 || queue.length > 0);
+    remainingCount === 0 && (answered > 0 || completed > 0 || queue.length > 0);
   useEffect(() => {
     if (!sessionFinished) return;
     let active = true;
@@ -227,42 +311,60 @@ export default function ReviewScreen() {
             <View style={{ flex: remainingCount }} />
           </View>
         </View>
-        <GlassView
-          glassEffectStyle={glass ? "regular" : "none"}
-          isInteractive={glass && canUndo}
-          style={[
-            { borderRadius: 22, overflow: "hidden" },
-            !glass && { backgroundColor: theme.secondary },
-            !canUndo && { opacity: 0.35 },
+        <MenuView
+          actions={[
+            {
+              id: "undo",
+              title: "Undo previous",
+              attributes: { disabled: saving || !canUndo },
+            },
+            {
+              id: "known",
+              title: "Mark known",
+              attributes: { disabled: saving || !detail },
+            },
+            {
+              id: "suspend",
+              title: "Suspend",
+              attributes: { disabled: saving || !detail, destructive: true },
+            },
           ]}
+          onPressAction={({ nativeEvent }) => {
+            if (nativeEvent.event === "known") confirmDismiss("known");
+            else if (nativeEvent.event === "suspend") confirmDismiss("suspend");
+            else if (nativeEvent.event === "undo") onUndo();
+          }}
         >
-          <Pressable
-            accessibilityLabel="Undo last answer"
-            accessibilityRole="button"
-            accessibilityState={{ disabled: !canUndo }}
-            disabled={!canUndo}
-            onPress={() => void onUndo()}
-            className="h-11 w-11 items-center justify-center"
-            style={({ pressed }) => ({
-              opacity: !glass && pressed ? 0.5 : 1,
-            })}
+          <GlassView
+            glassEffectStyle={glass ? "regular" : "none"}
+            isInteractive={glass}
+            style={[
+              { borderRadius: 22, overflow: "hidden" },
+              !glass && { backgroundColor: theme.secondary },
+            ]}
           >
-            <SymbolView
-              name={{
-                ios: "arrow.uturn.backward",
-                android: "undo",
-                web: "undo",
-              }}
-              tintColor={theme.text}
-              size={17}
-            />
-          </Pressable>
-        </GlassView>
+            <View
+              accessibilityLabel="Review options"
+              accessibilityRole="button"
+              className="h-11 w-11 items-center justify-center"
+            >
+              <SymbolView
+                name={{
+                  ios: "ellipsis",
+                  android: "more_horiz",
+                  web: "more_horiz",
+                }}
+                tintColor={theme.text}
+                size={17}
+              />
+            </View>
+          </GlassView>
+        </MenuView>
       </View>
       <View className="flex-1 gap-3.5 px-5 pt-2">
         {saveError ? (
           <Text variant="footnote" className="text-destructive">
-            Your answer could not be saved. Please try again.
+            Your change could not be saved. Please try again.
           </Text>
         ) : null}
         {current && detail ? (

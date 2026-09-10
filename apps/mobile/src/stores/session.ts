@@ -26,12 +26,14 @@ interface SessionState {
   answered: number;
   completed: number;
   lastCompleted: boolean;
+  lastReviewedId: number | null;
   learnAheadLimit: number;
   now: number;
   canUndo: boolean;
   begin: (queue: QueueItem[], learnAheadLimit?: number) => void;
   refresh: () => void;
   finishCard: (next?: QueueItem) => void;
+  dismissCard: (wordId: number) => void;
   restore: (item: QueueItem) => void;
   clear: () => void;
 }
@@ -41,6 +43,7 @@ export const useSessionStore = create<SessionState>((set) => ({
   answered: 0,
   completed: 0,
   lastCompleted: false,
+  lastReviewedId: null,
   learnAheadLimit: 20,
   now: Date.now(),
   canUndo: false,
@@ -51,6 +54,7 @@ export const useSessionStore = create<SessionState>((set) => ({
       answered: 0,
       completed: 0,
       lastCompleted: false,
+      lastReviewedId: null,
       learnAheadLimit,
       now,
       canUndo: false,
@@ -79,7 +83,24 @@ export const useSessionStore = create<SessionState>((set) => ({
         answered: state.answered + 1,
         completed: state.completed + (next ? 0 : 1),
         lastCompleted: !next,
+        lastReviewedId: state.queue[0]?.wordId ?? null,
         canUndo: true,
+      };
+    }),
+  dismissCard: (wordId) =>
+    set((state) => {
+      if (!state.queue.some((item) => item.wordId === wordId)) return state;
+      const now = Date.now();
+      return {
+        queue: orderQueue(
+          state.queue.filter((item) => item.wordId !== wordId),
+          now,
+        ),
+        now,
+        completed: state.completed + 1,
+        // Undo restores a full card snapshot. Don't let it overwrite a new
+        // known/suspended status on the same card's immediate retry.
+        canUndo: state.canUndo && state.lastReviewedId !== wordId,
       };
     }),
   restore: (item) =>
@@ -97,6 +118,7 @@ export const useSessionStore = create<SessionState>((set) => ({
         answered: Math.max(0, state.answered - 1),
         completed: Math.max(0, state.completed - (state.lastCompleted ? 1 : 0)),
         lastCompleted: false,
+        lastReviewedId: null,
         canUndo: false,
       };
     }),
@@ -106,6 +128,7 @@ export const useSessionStore = create<SessionState>((set) => ({
       answered: 0,
       completed: 0,
       lastCompleted: false,
+      lastReviewedId: null,
       learnAheadLimit: 20,
       now: Date.now(),
       canUndo: false,
