@@ -1,6 +1,5 @@
-import { MenuView } from "@expo/ui/community/menu";
 import * as Haptics from "expo-haptics";
-import { Stack, router } from "expo-router";
+import { Stack } from "expo-router";
 import { useMemo, useRef, useState } from "react";
 import {
   AccessibilityInfo,
@@ -13,8 +12,8 @@ import {
 } from "react-native";
 import { toast } from "sonner-native";
 
-import { StatusChip } from "@/components/status-chip";
-import { FuriganaText, Text } from "@/components/ui";
+import { Text } from "@/components/ui";
+import { WordRow } from "@/components/word-row";
 import { db } from "@/db/client";
 import { setKnown, setSuspended } from "@/scheduler";
 import { cn } from "@/lib/cn";
@@ -120,12 +119,13 @@ export default function WordsScreen() {
         data={data}
         keyExtractor={(item) => String(item.words.id)}
         contentInsetAdjustmentBehavior="automatic"
-        contentContainerClassName="w-full max-w-3xl self-center px-5 pb-16"
+        contentContainerClassName="w-full max-w-3xl self-center pb-16"
+        ItemSeparatorComponent={WordSeparator}
         ListHeaderComponent={
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerClassName="gap-2 py-3"
+            contentContainerClassName="gap-2 px-5 py-3"
           >
             {filters.map((item) => (
               <Pressable
@@ -160,59 +160,19 @@ export default function WordsScreen() {
             </Text>
           </View>
         }
-        renderItem={({ item }) => {
-          const status = cardStatus(item.cards);
-          return (
-            <MenuView
-              shouldOpenOnLongPress
-              actions={[
-                {
-                  id: "known",
-                  title: "Mark known",
-                  attributes: { disabled: isSaving || status === "known" },
-                },
-                {
-                  id: "suspend",
-                  title: "Suspend",
-                  attributes: {
-                    disabled: isSaving || item.cards.suspended !== "none",
-                    destructive: true,
-                  },
-                },
-              ]}
-              onPressAction={({ nativeEvent }) => {
-                if (nativeEvent.event === "known")
-                  confirmStatus(item.words, "known");
-                else if (nativeEvent.event === "suspend")
-                  confirmStatus(item.words, "suspend");
-              }}
-            >
-              <Pressable
-                accessibilityRole="button"
-                accessibilityHint="Tap to view word details. Touch and hold for word actions."
-                onPress={() => router.push(`/words/${item.words.id}`)}
-                className="flex-row items-center justify-between gap-4 border-b border-border py-4 active:opacity-60"
-              >
-                <View className="flex-1 gap-1">
-                  <FuriganaText
-                    text={item.words.wordFurigana}
-                    font={jpFont}
-                    fontSize={22}
-                    lineHeight={30}
-                  />
-                  <Text variant="footnote" muted numberOfLines={1}>
-                    {item.words.meaning}
-                  </Text>
-                </View>
-                <StatusChip
-                  status={status}
-                  leech={item.cards.suspended === "leech"}
-                />
-              </Pressable>
-            </MenuView>
-          );
-        }}
+        renderItem={({ item }) => (
+          <WordRow
+            item={item}
+            font={jpFont}
+            saving={isSaving}
+            onAction={(action) => confirmStatus(item.words, action)}
+          />
+        )}
       />
     </>
   );
+}
+
+function WordSeparator() {
+  return <View className="mx-5 h-px bg-border" />;
 }
