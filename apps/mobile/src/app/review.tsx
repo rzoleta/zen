@@ -6,7 +6,7 @@ import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AppState, Pressable, View } from "react-native";
+import { Alert, AppState, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { State } from "ts-fsrs";
 
@@ -176,6 +176,29 @@ export default function ReviewScreen() {
     },
     [current, detail, dismissCard],
   );
+  const confirmDismiss = (action: "known" | "suspend") => {
+    if (!current || !detail || grading.current) return;
+    const isSuspend = action === "suspend";
+    Alert.alert(
+      isSuspend ? "Suspend this word?" : "Mark this word as known?",
+      isSuspend
+        ? "This word will be excluded from reviews until you unsuspend it from its word details."
+        : "This word will be marked as known and excluded from reviews. You can change this from its word details.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: isSuspend ? "Suspend" : "Mark known",
+          style: isSuspend ? "destructive" : "default",
+          onPress: () => {
+            if (useSessionStore.getState().queue[0]?.wordId !== current.wordId)
+              return;
+            onDismiss(action);
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
   const onUndo = useCallback(() => {
     if (!canUndo || grading.current) return;
     grading.current = true;
@@ -290,8 +313,8 @@ export default function ReviewScreen() {
             },
           ]}
           onPressAction={({ nativeEvent }) => {
-            if (nativeEvent.event === "known") onDismiss("known");
-            else if (nativeEvent.event === "suspend") onDismiss("suspend");
+            if (nativeEvent.event === "known") confirmDismiss("known");
+            else if (nativeEvent.event === "suspend") confirmDismiss("suspend");
             else if (nativeEvent.event === "undo") onUndo();
           }}
         >
