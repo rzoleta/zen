@@ -182,8 +182,8 @@ export default function ReviewScreen() {
     Alert.alert(
       isSuspend ? "Suspend this word?" : "Mark this word as known?",
       isSuspend
-        ? "This word will be excluded from reviews until you unsuspend it from its word details."
-        : "This word will be marked as known and excluded from reviews. You can change this from its word details.",
+        ? "This word will be excluded from reviews until you unsuspend it from the Words tab."
+        : "This word will be marked as known and excluded from reviews. You can change this from the Words tab.",
       [
         { text: "Cancel", style: "cancel" },
         {
