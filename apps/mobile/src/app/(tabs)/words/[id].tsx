@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { useLocalSearchParams } from "expo-router";
-import { Alert, View } from "react-native";
+import { View } from "react-native";
 
 import { StatusChip } from "@/components/status-chip";
 import {
@@ -17,6 +17,7 @@ import { cards, words } from "@/db/schema";
 import { cardStatus } from "@/hooks/use-deck";
 import { useLiveQuery } from "@/hooks/use-live-query";
 import { useSettings } from "@/hooks/use-settings";
+import { confirmWordAction } from "@/lib/confirm-word-action";
 import { resetCard, setKnown, setSuspended } from "@/scheduler";
 
 const modalBackground = "dark:bg-[#171717]";
@@ -130,7 +131,12 @@ export default function WordDetailScreen() {
           size="lg"
           variant="outline"
           label={card.known ? "Return to study" : "Mark known"}
-          onPress={() => void setKnown(db, wordId, !card.known)}
+          onPress={() =>
+            confirmWordAction(
+              card.known ? "return-to-study" : "mark-known",
+              () => void setKnown(db, wordId, !card.known),
+            )
+          }
         />
         <View className="flex-row gap-2">
           <Button
@@ -139,18 +145,7 @@ export default function WordDetailScreen() {
             label="Reset card"
             className="flex-1"
             onPress={() =>
-              Alert.alert(
-                "Reset this card?",
-                "Its review history and scheduling will be removed.",
-                [
-                  { text: "Cancel", style: "cancel" },
-                  {
-                    text: "Reset",
-                    style: "destructive",
-                    onPress: () => void resetCard(db, wordId),
-                  },
-                ],
-              )
+              confirmWordAction("reset", () => void resetCard(db, wordId))
             }
           />
           <Button
@@ -158,13 +153,12 @@ export default function WordDetailScreen() {
             variant="outline"
             label={card.suspended === "none" ? "Suspend" : "Unsuspend"}
             className="flex-1"
-            onPress={() =>
-              void setSuspended(
-                db,
-                wordId,
-                card.suspended === "none" ? "manual" : "none",
-              )
-            }
+            onPress={() => {
+              const suspended = card.suspended !== "none";
+              confirmWordAction(suspended ? "unsuspend" : "suspend", () =>
+                void setSuspended(db, wordId, suspended ? "none" : "manual"),
+              );
+            }}
           />
         </View>
       </View>

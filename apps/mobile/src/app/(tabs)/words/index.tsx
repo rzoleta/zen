@@ -21,6 +21,7 @@ import { matchesWordQuery } from "@/lib/search";
 import { cardStatus, type WordStatus, useDeckRows } from "@/hooks/use-deck";
 import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
+import { confirmWordAction } from "@/lib/confirm-word-action";
 
 const filters: ("all" | WordStatus)[] = [
   "all",
@@ -85,21 +86,9 @@ export default function WordsScreen() {
     action: "known" | "suspend",
   ) => {
     if (saving.current) return;
-    const isSuspend = action === "suspend";
-    Alert.alert(
-      isSuspend ? "Suspend this word?" : "Mark this word as known?",
-      isSuspend
-        ? "This word will be excluded from reviews until you unsuspend it from the Words tab."
-        : "This word will be marked as known and excluded from reviews. You can change this from the Words tab.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: isSuspend ? "Suspend" : "Mark known",
-          style: isSuspend ? "destructive" : "default",
-          onPress: () => void updateStatus(word, action),
-        },
-      ],
-      { cancelable: true },
+    confirmWordAction(
+      action === "known" ? "mark-known" : "suspend",
+      () => void updateStatus(word, action),
     );
   };
   return (

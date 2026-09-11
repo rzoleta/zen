@@ -8,7 +8,6 @@ import { SymbolView } from "expo-symbols";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AccessibilityInfo,
-  Alert,
   AppState,
   Platform,
   Pressable,
@@ -26,6 +25,7 @@ import { cards, words } from "@/db/schema";
 import { useLiveQuery } from "@/hooks/use-live-query";
 import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
+import { confirmWordAction } from "@/lib/confirm-word-action";
 import {
   buildQueue,
   getWord,
@@ -195,25 +195,13 @@ export default function ReviewScreen() {
   );
   const confirmDismiss = (action: "known" | "suspend") => {
     if (!current || !detail || grading.current) return;
-    const isSuspend = action === "suspend";
-    Alert.alert(
-      isSuspend ? "Suspend this word?" : "Mark this word as known?",
-      isSuspend
-        ? "This word will be excluded from reviews until you unsuspend it from the Words tab."
-        : "This word will be marked as known and excluded from reviews. You can change this from the Words tab.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: isSuspend ? "Suspend" : "Mark known",
-          style: isSuspend ? "destructive" : "default",
-          onPress: () => {
-            if (useSessionStore.getState().queue[0]?.wordId !== current.wordId)
-              return;
-            onDismiss(action);
-          },
-        },
-      ],
-      { cancelable: true },
+    confirmWordAction(
+      action === "known" ? "mark-known" : "suspend",
+      () => {
+        if (useSessionStore.getState().queue[0]?.wordId !== current.wordId)
+          return;
+        onDismiss(action);
+      },
     );
   };
   const onUndo = useCallback(() => {
