@@ -251,7 +251,7 @@ export function ReviewCard({
                 lineHeight={wordTextStyle.lineHeight}
                 align="center"
               />
-              <Text muted className="text-center text-[22px] leading-[30px]">
+              <Text muted className="text-center text-2xl">
                 {word.meaning}
               </Text>
               <AudioButton
@@ -271,7 +271,7 @@ export function ReviewCard({
                 lineHeight={sentenceTextStyle.lineHeight}
                 align="center"
               />
-              <Text muted className="text-center text-[22px] leading-[30px]">
+              <Text muted className="text-center text-2xl">
                 {word.sentenceMeaning}
               </Text>
               <AudioButton
@@ -289,6 +289,7 @@ export function ReviewCard({
         <View className="flex-row gap-3">
           <Button
             label="Fail"
+            size="lg"
             haptic={false}
             variant={swipeIntent === "pass" ? "secondary" : "destructive"}
             className="flex-1"
@@ -312,6 +313,7 @@ export function ReviewCard({
           />
           <Button
             label="Pass"
+            size="lg"
             haptic={false}
             variant={swipeIntent === "fail" ? "secondary" : "destructive"}
             className="flex-1"
@@ -337,6 +339,7 @@ export function ReviewCard({
       ) : (
         <Button
           label="Show answer"
+          size="lg"
           variant="secondary"
           haptic={false}
           onPress={showAnswer}

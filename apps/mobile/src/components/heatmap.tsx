@@ -97,7 +97,8 @@ export function Heatmap({
                   }}
                   className="h-[15px] w-[15px] rounded"
                   style={{
-                    backgroundColor: count > 0 ? theme.primary : theme.secondary,
+                    backgroundColor:
+                      count > 0 ? theme.primary : theme.secondary,
                     borderColor: isSelected ? theme.muted : "transparent",
                     borderWidth: isSelected ? 2 : 0,
                   }}
@@ -140,7 +141,7 @@ export function Heatmap({
               <Text className="text-center" variant="headline">
                 {formatDisplayDate(selectedDay.date)}
               </Text>
-              <Text className="text-center" variant="footnote" muted>
+              <Text className="text-center" muted>
                 {reviewCountLabel(selectedDay.count)}
               </Text>
             </View>

@@ -104,9 +104,8 @@ export function Segmented<T extends string>({
             style={{ zIndex: 1 }}
           >
             <Text
-              variant="footnote"
               muted={!selected}
-              className={cn(selected && "font-sans-medium")}
+              className={cn("text-sm", selected && "font-sans-medium")}
             >
               {option.label}
             </Text>

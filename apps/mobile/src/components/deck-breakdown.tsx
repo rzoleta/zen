@@ -50,12 +50,11 @@ export function DeckBreakdown({
               className="h-2 w-2 rounded-full"
               style={{ backgroundColor: colors[status] }}
             />
-            <Text variant="caption" muted className="flex-1 capitalize">
+            <Text muted className="flex-1 capitalize">
               {status}
             </Text>
             <Text
-              variant="footnote"
-              className="font-sans-medium"
+              className="font-sans-medium text-sm"
               style={{ fontVariant: ["tabular-nums"] }}
             >
               {(counts[status] ?? 0).toLocaleString()}
@@ -104,12 +103,12 @@ export function DeckBreakdown({
         </Svg>
         <View className="absolute items-center" pointerEvents="none">
           <Text
-            className="font-sans-semibold text-[22px] leading-7"
+            className="font-sans-semibold text-2xl"
             maxFontSizeMultiplier={1.2}
           >
             {total.toLocaleString()}
           </Text>
-          <Text variant="caption" muted maxFontSizeMultiplier={1.2}>
+          <Text className="text-xs" muted maxFontSizeMultiplier={1.2}>
             cards
           </Text>
         </View>

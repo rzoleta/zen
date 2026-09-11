@@ -60,12 +60,10 @@ export default function ProgressScreen() {
       <View className="gap-2">
         <SectionTitle>Time</SectionTitle>
         <Card className="gap-1">
-          <Text className="font-sans-medium text-[28px] leading-9">
+          <Text className="font-sans-medium text-3xl">
             {formatDuration(time)}
           </Text>
-          <Text variant="footnote" muted>
-            Studied today
-          </Text>
+          <Text muted>Studied today</Text>
         </Card>
       </View>
     </Screen>
@@ -75,10 +73,8 @@ export default function ProgressScreen() {
 function Metric({ value, label }: { value: string; label: string }) {
   return (
     <Card className="flex-1 gap-0.5 rounded-xl p-3.5">
-      <Text className="font-sans-medium text-[24px] leading-8">{value}</Text>
-      <Text variant="caption" muted>
-        {label}
-      </Text>
+      <Text className="font-sans-medium text-2xl">{value}</Text>
+      <Text muted>{label}</Text>
     </Card>
   );
 }

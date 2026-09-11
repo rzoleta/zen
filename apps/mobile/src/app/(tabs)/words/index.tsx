@@ -128,9 +128,8 @@ export default function WordsScreen() {
                 )}
               >
                 <Text
-                  variant="footnote"
                   className={cn(
-                    "capitalize",
+                    "capitalize text-sm",
                     filter === item
                       ? "font-sans-medium text-primary-foreground"
                       : "text-muted-foreground",
@@ -144,9 +143,7 @@ export default function WordsScreen() {
         }
         ListEmptyComponent={
           <View className="items-center py-16">
-            <Text variant="footnote" muted>
-              No words match.
-            </Text>
+            <Text muted>No words match.</Text>
           </View>
         }
         renderItem={({ item }) => (

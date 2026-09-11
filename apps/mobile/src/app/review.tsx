@@ -195,14 +195,11 @@ export default function ReviewScreen() {
   );
   const confirmDismiss = (action: "known" | "suspend") => {
     if (!current || !detail || grading.current) return;
-    confirmWordAction(
-      action === "known" ? "mark-known" : "suspend",
-      () => {
-        if (useSessionStore.getState().queue[0]?.wordId !== current.wordId)
-          return;
-        onDismiss(action);
-      },
-    );
+    confirmWordAction(action === "known" ? "mark-known" : "suspend", () => {
+      if (useSessionStore.getState().queue[0]?.wordId !== current.wordId)
+        return;
+      onDismiss(action);
+    });
   };
   const onUndo = useCallback(() => {
     if (!canUndo || grading.current) return;
@@ -288,7 +285,7 @@ export default function ReviewScreen() {
           </Pressable>
         </GlassView>
         <View className="flex-1 items-center gap-2">
-          <Text variant="caption" muted>
+          <Text className="text-xs" muted>
             {remainingCount} left
           </Text>
           <View className="h-1 w-full max-w-[180px] flex-row overflow-hidden rounded-full bg-secondary">
@@ -351,7 +348,7 @@ export default function ReviewScreen() {
       </View>
       <View className="flex-1 gap-3.5 px-5 pt-2">
         {saveError ? (
-          <Text variant="footnote" className="text-destructive">
+          <Text className="text-destructive">
             Your change could not be saved. Please try again.
           </Text>
         ) : null}
@@ -369,9 +366,7 @@ export default function ReviewScreen() {
           />
         ) : (
           <View className="flex-1 items-center justify-center">
-            <Text variant="footnote" muted>
-              Loading card…
-            </Text>
+            <Text muted>Loading card…</Text>
           </View>
         )}
       </View>

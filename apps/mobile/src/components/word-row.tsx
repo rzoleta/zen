@@ -31,7 +31,7 @@ export function WordRow({ item, font, saving, onAction }: WordRowProps) {
           fontSize={22}
           lineHeight={30}
         />
-        <Text variant="footnote" muted numberOfLines={1}>
+        <Text muted numberOfLines={1}>
           {item.words.meaning}
         </Text>
       </View>

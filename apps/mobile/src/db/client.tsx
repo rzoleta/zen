@@ -7,8 +7,9 @@ import {
   useEffect,
   useState,
 } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 
+import { Text } from "@/components/ui";
 import { seedDatabase } from "@/db/seed";
 import * as schema from "@/db/schema";
 
@@ -70,10 +71,12 @@ export function DatabaseProvider({ children }: PropsWithChildren) {
   if (error) {
     return (
       <View style={styles.loading}>
-        <Text style={styles.errorTitle}>
+        <Text className="font-sans-semibold text-lg">
           Zen could not open its local database.
         </Text>
-        <Text style={styles.errorBody}>Close the app and try again.</Text>
+        <Text className="mt-1.5 text-sm" muted>
+          Close the app and try again.
+        </Text>
       </View>
     );
   }
@@ -98,16 +101,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#F4F1EA",
-  },
-  errorTitle: {
-    color: "#1D211C",
-    fontFamily: "Geist_600SemiBold",
-    fontSize: 17,
-  },
-  errorBody: {
-    marginTop: 6,
-    color: "#697565",
-    fontFamily: "Geist_400Regular",
-    fontSize: 14,
   },
 });

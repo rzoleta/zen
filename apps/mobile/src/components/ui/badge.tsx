@@ -30,9 +30,7 @@ export function Badge({
         className,
       )}
     >
-      <Text variant="caption" className={variants[variant].text}>
-        {label}
-      </Text>
+      <Text className={cn("text-xs", variants[variant].text)}>{label}</Text>
     </View>
   );
 }
