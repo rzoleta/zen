@@ -1,4 +1,5 @@
 import * as Haptics from "expo-haptics";
+import { format } from "date-fns";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
@@ -27,13 +28,8 @@ export default function HomeScreen() {
     router.push("/review");
   };
   const today = new Date(now);
-  const weekday = today.toLocaleDateString("en-US", {
-    weekday: "long",
-  });
-  const date = today.toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-  });
+  const weekday = format(today, "EEEE");
+  const date = format(today, "MMMM d");
   return (
     <Screen scroll={false} className="flex-1 pb-6">
       <View className="flex-row items-start justify-between pt-2">

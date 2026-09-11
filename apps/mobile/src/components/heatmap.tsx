@@ -1,4 +1,5 @@
 import * as Haptics from "expo-haptics";
+import { format, isAfter, parse, setHours } from "date-fns";
 import { useRef, useState } from "react";
 import { useCalendars } from "expo-localization";
 import {
@@ -71,7 +72,7 @@ export function Heatmap({
             {week.map((day) => {
               const key = currentStudyDay(day);
               const count = counts[key] ?? 0;
-              const isFuture = day.getTime() > today.getTime();
+              const isFuture = isAfter(day, today);
               const isSelected =
                 popoverVisible && selectedDay
                   ? currentStudyDay(selectedDay.date) === key
@@ -156,20 +157,15 @@ export function Heatmap({
 }
 
 function dateFromStudyDay(studyDay: string): Date {
-  const [year, month, day] = studyDay.split("-").map(Number);
-  return new Date(year, month - 1, day, 12);
+  return setHours(parse(studyDay, "yyyy-MM-dd", new Date()), 12);
 }
 
 function formatDisplayDate(date: Date): string {
-  return new Intl.DateTimeFormat(undefined, {
-    day: "numeric",
-    month: "long",
-    weekday: "long",
-  }).format(date);
+  return format(date, "EEEE, MMMM d");
 }
 
 function formatAccessibleDate(date: Date): string {
-  return new Intl.DateTimeFormat(undefined, { dateStyle: "full" }).format(date);
+  return format(date, "PPPP");
 }
 
 function reviewCountLabel(count: number): string {
