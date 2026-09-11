@@ -103,7 +103,6 @@ export default function SettingsScreen() {
         <Card className="py-1">
           <SettingRow
             title="New cards per day"
-            description="Added after every due review"
             control={
               <View className="flex-row items-center gap-2.5">
                 <Stepper
@@ -133,7 +132,7 @@ export default function SettingsScreen() {
           <Separator />
           <SettingRow
             title="Learn ahead limit"
-            description="Review waiting cards early when nothing else is ready. 0 waits the full delay."
+            description="Upcoming cards within this time limit will be immediately added to the current queue"
             control={
               <View className="flex-row items-center gap-2.5">
                 <Stepper
@@ -212,7 +211,8 @@ export default function SettingsScreen() {
               }
             />
             <Text variant="caption" muted>
-              Applies to future scheduling. Existing due dates do not move.
+              The target % chance you will retain new words. Only change if
+              you know what you're doing.
             </Text>
           </View>
         </Card>
@@ -303,16 +303,18 @@ function SettingRow({
   control,
 }: {
   title: string;
-  description: string;
+  description?: string;
   control: React.ReactNode;
 }) {
   return (
     <View className="min-h-[68px] flex-row items-center justify-between gap-3.5 py-2">
       <View className="flex-1 gap-0.5">
         <Text>{title}</Text>
-        <Text variant="caption" muted>
-          {description}
-        </Text>
+        {description ? (
+          <Text variant="caption" muted>
+            {description}
+          </Text>
+        ) : null}
       </View>
       {control}
     </View>
