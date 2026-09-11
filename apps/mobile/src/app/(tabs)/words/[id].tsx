@@ -7,6 +7,7 @@ import {
   Button,
   Card,
   FuriganaText,
+  JapaneseText,
   Screen,
   SectionTitle,
   Text,
@@ -43,26 +44,44 @@ export default function WordDetailScreen() {
       </Screen>
     );
   const { words: word, cards: card } = detail;
+  const dueDate = new Date(card.due);
   const due =
-    card.state === 0 ? "Not introduced" : new Date(card.due).toLocaleString();
+    card.state === 0
+      ? "Not introduced"
+      : dueDate.toLocaleString(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        });
+  const dueRelative = card.state === 0 ? null : formatRelative(dueDate);
   return (
     <Screen
       backgroundClassName={modalBackground}
       contentContainerClassName="pb-6"
     >
-      <View className="items-start pt-2">
-        <FuriganaText
-          text={word.wordFurigana}
+      <View className="items-center gap-2 pt-2">
+        <JapaneseText
           font={jpFont}
-          fontSize={48}
-          lineHeight={62}
+          className="text-[15px] leading-5 text-muted-foreground"
+        >
+          {word.wordReading}
+        </JapaneseText>
+        <JapaneseText
+          font={jpFont}
+          className="text-center text-[56px] leading-[68px]"
+        >
+          {word.word}
+        </JapaneseText>
+        <Text className="text-center font-sans-medium text-[20px] leading-7">
+          {word.meaning}
+        </Text>
+        <StatusChip
+          status={cardStatus(card)}
+          leech={card.suspended === "leech"}
+          className="mt-4"
         />
-      </View>
-      <View className="gap-2">
-        <SectionTitle>Meaning</SectionTitle>
-        <Card>
-          <Text className="text-[22px] leading-[30px]">{word.meaning}</Text>
-        </Card>
       </View>
       <View className="gap-2">
         <SectionTitle>Sentence</SectionTitle>
@@ -79,36 +98,46 @@ export default function WordDetailScreen() {
         </Card>
       </View>
       <View className="gap-2">
-        <SectionTitle>Scheduling</SectionTitle>
-        <Card className="gap-3.5">
+        <SectionTitle>Schedule</SectionTitle>
+        <Card>
           <View className="flex-row items-center justify-between gap-4">
             <Text variant="footnote" muted>
-              Status
+              Next due
             </Text>
-            <StatusChip
-              status={cardStatus(card)}
-              leech={card.suspended === "leech"}
-            />
+            <View className="items-end gap-0.5">
+              <Text variant="footnote">{due}</Text>
+              {dueRelative ? (
+                <Text variant="caption" muted>
+                  {dueRelative}
+                </Text>
+              ) : null}
+            </View>
           </View>
-          <Stat label="Next due" value={due} />
-          <Stat label="Interval" value={`${card.scheduledDays} days`} />
-          <Stat label="Reviews" value={String(card.reps)} />
-          <Stat label="Lapses" value={String(card.lapses)} />
         </Card>
       </View>
       <View className="gap-2">
-        <SectionTitle>Actions</SectionTitle>
-        <View className="gap-2">
+        <SectionTitle>Review</SectionTitle>
+        <Card>
+          <View className="flex-row gap-4">
+            <Stat value={`${card.scheduledDays} days`} label="Interval" />
+            <Stat value={String(card.reps)} label="Reviews" />
+            <Stat value={String(card.lapses)} label="Lapses" />
+          </View>
+        </Card>
+      </View>
+      <View className="gap-2 pt-4">
+        <Button
+          size="lg"
+          variant="outline"
+          label={card.known ? "Return to study" : "Mark known"}
+          onPress={() => void setKnown(db, wordId, !card.known)}
+        />
+        <View className="flex-row gap-2">
           <Button
             size="lg"
-            variant="secondary"
-            label={card.known ? "Return to study" : "Mark known"}
-            onPress={() => void setKnown(db, wordId, !card.known)}
-          />
-          <Button
-            size="lg"
-            variant="secondary"
+            variant="outline"
             label="Reset card"
+            className="flex-1"
             onPress={() =>
               Alert.alert(
                 "Reset this card?",
@@ -126,8 +155,9 @@ export default function WordDetailScreen() {
           />
           <Button
             size="lg"
-            variant="secondary"
+            variant="outline"
             label={card.suspended === "none" ? "Suspend" : "Unsuspend"}
+            className="flex-1"
             onPress={() =>
               void setSuspended(
                 db,
@@ -142,13 +172,30 @@ export default function WordDetailScreen() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ value, label }: { value: string; label: string }) {
   return (
-    <View className="flex-row justify-between gap-4">
-      <Text variant="footnote" muted>
+    <View className="flex-1 items-center gap-1">
+      <Text className="font-sans-semibold text-[17px] leading-[22px]">
+        {value}
+      </Text>
+      <Text variant="caption" muted className="text-center">
         {label}
       </Text>
-      <Text variant="footnote">{value}</Text>
     </View>
   );
+}
+
+function formatRelative(date: Date) {
+  const ms = date.getTime() - Date.now();
+  const past = ms < 0;
+  const minutes = Math.round(Math.abs(ms) / 60_000);
+  const days = Math.floor(minutes / 1_440);
+  const hours = Math.floor((minutes % 1_440) / 60);
+  const mins = minutes % 60;
+  const parts: string[] = [];
+  if (days) parts.push(`${days} ${days === 1 ? "day" : "days"}`);
+  if (hours) parts.push(`${hours} ${hours === 1 ? "hour" : "hours"}`);
+  if (!days && !hours) parts.push(`${mins} ${mins === 1 ? "minute" : "minutes"}`);
+  const joined = parts.slice(0, 2).join(" ");
+  return past ? `${joined} ago` : `In ${joined}`;
 }
