@@ -96,7 +96,7 @@ export function Heatmap({
                   className="h-[15px] w-[15px] rounded"
                   style={{
                     backgroundColor: count > 0 ? theme.primary : theme.secondary,
-                    borderColor: isSelected ? theme.chartBlue : "transparent",
+                    borderColor: isSelected ? theme.muted : "transparent",
                     borderWidth: isSelected ? 2 : 0,
                   }}
                 />
