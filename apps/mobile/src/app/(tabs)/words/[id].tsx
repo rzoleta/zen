@@ -17,6 +17,7 @@ import { cardStatus } from "@/hooks/use-deck";
 import { useLiveQuery } from "@/hooks/use-live-query";
 import { useSettings } from "@/hooks/use-settings";
 import { confirmWordAction } from "@/lib/confirm-word-action";
+import { formatDueDate, formatRelativeDueDate } from "@/lib/schedule-date";
 import { resetCard, setKnown, setSuspended } from "@/scheduler";
 
 const modalBackground = "dark:bg-[#171717]";
@@ -48,14 +49,9 @@ export default function WordDetailScreen() {
   const due =
     card.state === 0
       ? "Not introduced"
-      : dueDate.toLocaleString(undefined, {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-          hour: "numeric",
-          minute: "2-digit",
-        });
-  const dueRelative = card.state === 0 ? null : formatRelative(dueDate);
+      : formatDueDate(dueDate);
+  const dueRelative =
+    card.state === 0 ? null : formatRelativeDueDate(dueDate);
   return (
     <Screen
       backgroundClassName={modalBackground}
@@ -168,20 +164,4 @@ function Stat({ value, label }: { value: string; label: string }) {
       </Text>
     </View>
   );
-}
-
-function formatRelative(date: Date) {
-  const ms = date.getTime() - Date.now();
-  const past = ms < 0;
-  const minutes = Math.round(Math.abs(ms) / 60_000);
-  const days = Math.floor(minutes / 1_440);
-  const hours = Math.floor((minutes % 1_440) / 60);
-  const mins = minutes % 60;
-  const parts: string[] = [];
-  if (days) parts.push(`${days} ${days === 1 ? "day" : "days"}`);
-  if (hours) parts.push(`${hours} ${hours === 1 ? "hour" : "hours"}`);
-  if (!days && !hours)
-    parts.push(`${mins} ${mins === 1 ? "minute" : "minutes"}`);
-  const joined = parts.slice(0, 2).join(" ");
-  return past ? `${joined} ago` : `In ${joined}`;
 }

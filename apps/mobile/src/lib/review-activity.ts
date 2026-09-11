@@ -1,21 +1,17 @@
+import { addDays, setHours, startOfWeek, subWeeks } from "date-fns";
+
 const WEEK_COUNT = 24;
 
 export function calendarWeeks(today: Date, firstDay: number): Date[][] {
-  const currentWeekStart = new Date(today);
-  currentWeekStart.setDate(
-    currentWeekStart.getDate() -
-      ((currentWeekStart.getDay() - firstDay + 7) % 7),
+  const currentWeekStart = setHours(
+    startOfWeek(today, { weekStartsOn: firstDay as 0 | 1 | 2 | 3 | 4 | 5 | 6 }),
+    12,
   );
-  currentWeekStart.setHours(12, 0, 0, 0);
-
-  const graphStart = new Date(currentWeekStart);
-  graphStart.setDate(graphStart.getDate() - (WEEK_COUNT - 1) * 7);
+  const graphStart = subWeeks(currentWeekStart, WEEK_COUNT - 1);
 
   return Array.from({ length: WEEK_COUNT }, (_, weekIndex) =>
     Array.from({ length: 7 }, (_, dayIndex) => {
-      const date = new Date(graphStart);
-      date.setDate(date.getDate() + weekIndex * 7 + dayIndex);
-      return date;
+      return addDays(graphStart, weekIndex * 7 + dayIndex);
     }),
   );
 }

@@ -1,4 +1,5 @@
 import { and, eq, gte, lt, sql } from "drizzle-orm";
+import { addDays, format, setHours, startOfDay, subHours } from "date-fns";
 import { fsrs, Rating, State, type Card } from "ts-fsrs";
 
 import type { ZenDatabase } from "@/db/client";
@@ -13,31 +14,14 @@ export interface QueueItem {
 }
 
 export function currentStudyDay(now: Date): string {
-  const shifted = new Date(now.getTime());
-  shifted.setHours(shifted.getHours() - 4);
-  const year = shifted.getFullYear();
-  const month = String(shifted.getMonth() + 1).padStart(2, "0");
-  const day = String(shifted.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return format(subHours(now, 4), "yyyy-MM-dd");
 }
 
 export function studyDayBounds(now: Date): { start: Date; end: Date } {
-  const shifted = new Date(now.getTime());
-  shifted.setHours(shifted.getHours() - 4);
-  const start = new Date(
-    shifted.getFullYear(),
-    shifted.getMonth(),
-    shifted.getDate(),
-    4,
-  );
+  const start = setHours(startOfDay(subHours(now, 4)), 4);
   return {
     start,
-    end: new Date(
-      start.getFullYear(),
-      start.getMonth(),
-      start.getDate() + 1,
-      4,
-    ),
+    end: addDays(start, 1),
   };
 }
 

@@ -1,3 +1,4 @@
+import { subDays } from "date-fns";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Rating, State } from "ts-fsrs";
@@ -17,7 +18,7 @@ export default function ProgressScreen() {
     return () => clearTimeout(timer);
   }, []);
   const today = studyDayBounds(new Date(now));
-  const weekStart = now - 7 * 86_400_000;
+  const weekStart = subDays(new Date(now), 7).getTime();
   const daily = logs.filter((log) => log.reviewedAt >= today.start.getTime());
   const weekly = logs.filter((log) => log.reviewedAt >= weekStart);
   const reviewAnswers = logs.filter(
