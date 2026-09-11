@@ -2,6 +2,7 @@
   "expo": {
     "name": "Zen",
     "slug": "zen",
+    "platforms": ["ios", "android"],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "../../icon.png",
@@ -22,10 +23,6 @@
         "android.permission.FOREGROUND_SERVICE",
         "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
       ]
-    },
-    "web": {
-      "output": "single",
-      "favicon": "../../favicon.png"
     },
     "plugins": [
       "expo-router",

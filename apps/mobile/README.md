@@ -11,16 +11,11 @@ pnpm ios
 
 Run `pnpm test`, `pnpm lint`, and `pnpm typecheck` before opening a pull request.
 
-## Web rendering
+## Supported platforms
 
-Keep `expo.web.output` set to `single`. Zen loads its data from local SQLite
-after mounting, so its web app renders on the client. Static rendering currently
-makes Expo's server bundle fail with `Worker chunk not found` for the SQLite web
-worker, including when a web request reaches Metro during Expo Go development.
-Restart Metro after changing this setting.
-
-Web hosting must serve `index.html` for app routes such as `/words/1` and preserve
-the SQLite isolation headers configured in `metro.config.js`.
+Zen targets iOS and Android only. `expo.platforms` excludes web so browser requests
+to Metro do not render the app or bundle SQLite's web worker. Restart Metro after
+changing the platform configuration.
 
 ## Deck content
 
