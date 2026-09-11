@@ -95,18 +95,20 @@ export default function WordDetailScreen() {
       </View>
       <View className="gap-2">
         <SectionTitle>Schedule</SectionTitle>
-        <Card className="gap-0.5">
+        <Card>
           <View className="flex-row items-center justify-between gap-4">
             <Text variant="footnote" muted>
               Next due
             </Text>
-            <Text variant="footnote">{due}</Text>
+            <View className="items-end gap-0.5">
+              <Text variant="footnote">{due}</Text>
+              {dueRelative ? (
+                <Text variant="caption" muted>
+                  {dueRelative}
+                </Text>
+              ) : null}
+            </View>
           </View>
-          {dueRelative ? (
-            <Text variant="caption" muted className="text-right">
-              {dueRelative}
-            </Text>
-          ) : null}
         </Card>
       </View>
       <View className="gap-2">
