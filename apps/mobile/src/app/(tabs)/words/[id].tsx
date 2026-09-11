@@ -20,7 +20,7 @@ import { confirmWordAction } from "@/lib/confirm-word-action";
 import { formatDueDate, formatRelativeDueDate } from "@/lib/schedule-date";
 import { resetCard, setKnown, setSuspended } from "@/scheduler";
 
-const modalBackground = "bg-card";
+const modalBackground = "bg-background";
 
 export default function WordDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -115,9 +115,8 @@ export default function WordDetailScreen() {
       </View>
       <View className="gap-2 pt-4">
         <Button
-          size="lg"
           variant="outline"
-          label={card.known ? "Return to study" : "Mark known"}
+          label={card.known ? "Return to Study" : "Mark Known"}
           onPress={() =>
             confirmWordAction(
               card.known ? "return-to-study" : "mark-known",
@@ -127,16 +126,14 @@ export default function WordDetailScreen() {
         />
         <View className="flex-row gap-2">
           <Button
-            size="lg"
             variant="outline"
-            label="Reset card"
+            label="Reset Card"
             className="flex-1"
             onPress={() =>
               confirmWordAction("reset", () => void resetCard(db, wordId))
             }
           />
           <Button
-            size="lg"
             variant="outline"
             label={card.suspended === "none" ? "Suspend" : "Unsuspend"}
             className="flex-1"

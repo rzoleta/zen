@@ -6,9 +6,9 @@ import { cn } from "@/lib/cn";
 
 const variants = {
   default: { container: "bg-primary", text: "text-primary-foreground" },
-  secondary: { container: "bg-secondary", text: "text-secondary-foreground" },
+  secondary: { container: "bg-input", text: "text-secondary-foreground" },
   outline: {
-    container: "border border-border bg-transparent",
+    container: "border border-border bg-muted",
     text: "text-foreground",
   },
   ghost: { container: "bg-transparent", text: "text-foreground" },
@@ -19,9 +19,9 @@ const variants = {
 } as const;
 
 const sizes = {
-  default: { container: "min-h-12 rounded-xl px-5 py-3", text: "text-sm" },
-  lg: { container: "min-h-14 rounded-2xl px-6 py-4", text: "text-base" },
-  sm: { container: "min-h-9 rounded-lg px-3 py-2", text: "text-xs" },
+  default: { container: "min-h-12 rounded-xl px-5 py-3", text: "text-base" },
+  lg: { container: "min-h-14 rounded-2xl px-6 py-4", text: "text-lg" },
+  sm: { container: "min-h-9 rounded-lg px-3 py-2", text: "text-sm" },
 } as const;
 
 export function Button({
