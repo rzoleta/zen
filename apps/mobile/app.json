@@ -8,7 +8,7 @@
     "scheme": "zen",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "app.zen.japanese",
+      "bundleIdentifier": "com.ryanzoleta.zen",
       "supportsTablet": true
     },
     "android": {
