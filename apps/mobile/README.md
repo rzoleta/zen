@@ -11,6 +11,12 @@ pnpm ios
 
 Run `pnpm test`, `pnpm lint`, and `pnpm typecheck` before opening a pull request.
 
+## Supported platforms
+
+Zen targets iOS and Android only. `expo.platforms` excludes web so browser requests
+to Metro do not render the app or bundle SQLite's web worker. Restart Metro after
+changing the platform configuration.
+
 ## Deck content
 
 The app bundles all 1,500 cards and the word and sentence audio extracted from
