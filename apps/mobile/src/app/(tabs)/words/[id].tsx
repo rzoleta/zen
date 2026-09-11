@@ -7,7 +7,6 @@ import {
   Button,
   Card,
   FuriganaText,
-  JapaneseText,
   Screen,
   SectionTitle,
   Text,
@@ -63,15 +62,13 @@ export default function WordDetailScreen() {
       contentContainerClassName="pb-6"
     >
       <View className="items-center gap-2 pt-2">
-        <JapaneseText font={jpFont} className="text-sm text-muted-foreground">
-          {word.wordReading}
-        </JapaneseText>
-        <JapaneseText
+        <FuriganaText
+          text={word.wordFurigana}
           font={jpFont}
-          className="text-center text-6xl leading-tight"
-        >
-          {word.word}
-        </JapaneseText>
+          fontSize={60}
+          lineHeight={75}
+          align="center"
+        />
         <Text className="text-center font-sans-medium text-xl">
           {word.meaning}
         </Text>
