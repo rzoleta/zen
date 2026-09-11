@@ -70,6 +70,9 @@ export function Heatmap({
               const key = currentStudyDay(day);
               const count = counts[key] ?? 0;
               const isFuture = day.getTime() > today.getTime();
+              const isSelected = selectedDay
+                ? currentStudyDay(selectedDay.date) === key
+                : false;
 
               if (isFuture) {
                 return <View key={key} className="h-[15px] w-[15px]" />;
@@ -80,6 +83,7 @@ export function Heatmap({
                   key={key}
                   accessibilityLabel={`${formatAccessibleDate(day)}: ${reviewCountLabel(count)}`}
                   accessibilityRole="button"
+                  accessibilityState={{ selected: isSelected }}
                   hitSlop={2}
                   onPress={(event) => {
                     setSelectedDay({
@@ -92,6 +96,8 @@ export function Heatmap({
                   className="h-[15px] w-[15px] rounded"
                   style={{
                     backgroundColor: count > 0 ? theme.primary : theme.secondary,
+                    borderColor: isSelected ? theme.chartBlue : "transparent",
+                    borderWidth: isSelected ? 2 : 0,
                   }}
                 />
               );
