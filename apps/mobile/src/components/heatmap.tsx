@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useCalendars } from "expo-localization";
 import {
   Modal,
   Pressable,
+  ScrollView,
   useWindowDimensions,
   View,
 } from "react-native";
@@ -34,6 +35,8 @@ export function Heatmap({
   const theme = useTheme();
   const [{ firstWeekday }] = useCalendars();
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+  const scrollView = useRef<ScrollView>(null);
+  const [graphWidth, setGraphWidth] = useState(0);
   const [selectedDay, setSelectedDay] = useState<SelectedDay | null>(null);
   const counts = timestamps.reduce<Record<string, number>>((all, timestamp) => {
     const key = currentStudyDay(new Date(timestamp));
@@ -45,7 +48,22 @@ export function Heatmap({
 
   return (
     <>
-      <View className="flex-row justify-center gap-[5px]">
+      <ScrollView
+        ref={scrollView}
+        className="w-full"
+        contentContainerStyle={{
+          columnGap: 5,
+          justifyContent: "space-between",
+          minWidth: graphWidth,
+        }}
+        directionalLockEnabled
+        horizontal
+        onContentSizeChange={() =>
+          scrollView.current?.scrollToEnd({ animated: false })
+        }
+        onLayout={(event) => setGraphWidth(event.nativeEvent.layout.width)}
+        showsHorizontalScrollIndicator={false}
+      >
         {weeks.map((week, weekIndex) => (
           <View key={weekIndex} className="gap-[5px]">
             {week.map((day) => {
@@ -80,7 +98,7 @@ export function Heatmap({
             })}
           </View>
         ))}
-      </View>
+      </ScrollView>
       <Modal
         animationType="fade"
         onRequestClose={() => setSelectedDay(null)}

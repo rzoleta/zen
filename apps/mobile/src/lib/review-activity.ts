@@ -1,4 +1,4 @@
-const WEEK_COUNT = 12;
+const WEEK_COUNT = 24;
 
 export function calendarWeeks(today: Date, firstDay: number): Date[][] {
   const currentWeekStart = new Date(today);
