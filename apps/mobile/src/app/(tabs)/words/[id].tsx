@@ -67,7 +67,7 @@ export default function WordDetailScreen() {
           font={jpFont}
           fontSize={60}
           lineHeight={75}
-          furiganaFontSize={13.5}
+          furiganaFontSize={16}
           align="center"
         />
         <Text className="text-center font-sans-medium text-xl">
