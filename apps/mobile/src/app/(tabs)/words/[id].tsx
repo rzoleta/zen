@@ -63,19 +63,16 @@ export default function WordDetailScreen() {
       contentContainerClassName="pb-6"
     >
       <View className="items-center gap-2 pt-2">
-        <JapaneseText
-          font={jpFont}
-          className="text-[15px] leading-5 text-muted-foreground"
-        >
+        <JapaneseText font={jpFont} className="text-sm text-muted-foreground">
           {word.wordReading}
         </JapaneseText>
         <JapaneseText
           font={jpFont}
-          className="text-center text-[56px] leading-[68px]"
+          className="text-center text-6xl leading-tight"
         >
           {word.word}
         </JapaneseText>
-        <Text className="text-center font-sans-medium text-[20px] leading-7">
+        <Text className="text-center font-sans-medium text-xl">
           {word.meaning}
         </Text>
         <StatusChip
@@ -93,22 +90,18 @@ export default function WordDetailScreen() {
             fontSize={24}
             lineHeight={38}
           />
-          <Text variant="footnote" muted>
-            {word.sentenceMeaning}
-          </Text>
+          <Text muted>{word.sentenceMeaning}</Text>
         </Card>
       </View>
       <View className="gap-2">
         <SectionTitle>Schedule</SectionTitle>
         <Card>
           <View className="flex-row items-center justify-between gap-4">
-            <Text variant="footnote" muted>
-              Next due
-            </Text>
+            <Text muted>Next due</Text>
             <View className="items-end gap-0.5">
-              <Text variant="footnote">{due}</Text>
+              <Text>{due}</Text>
               {dueRelative ? (
-                <Text variant="caption" muted>
+                <Text className="text-xs" muted>
                   {dueRelative}
                 </Text>
               ) : null}
@@ -155,8 +148,10 @@ export default function WordDetailScreen() {
             className="flex-1"
             onPress={() => {
               const suspended = card.suspended !== "none";
-              confirmWordAction(suspended ? "unsuspend" : "suspend", () =>
-                void setSuspended(db, wordId, suspended ? "none" : "manual"),
+              confirmWordAction(
+                suspended ? "unsuspend" : "suspend",
+                () =>
+                  void setSuspended(db, wordId, suspended ? "none" : "manual"),
               );
             }}
           />
@@ -169,10 +164,8 @@ export default function WordDetailScreen() {
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <View className="flex-1 items-center gap-1">
-      <Text className="font-sans-semibold text-[17px] leading-[22px]">
-        {value}
-      </Text>
-      <Text variant="caption" muted className="text-center">
+      <Text className="font-sans-semibold text-lg">{value}</Text>
+      <Text muted className="text-center text-xs">
         {label}
       </Text>
     </View>
@@ -189,7 +182,8 @@ function formatRelative(date: Date) {
   const parts: string[] = [];
   if (days) parts.push(`${days} ${days === 1 ? "day" : "days"}`);
   if (hours) parts.push(`${hours} ${hours === 1 ? "hour" : "hours"}`);
-  if (!days && !hours) parts.push(`${mins} ${mins === 1 ? "minute" : "minutes"}`);
+  if (!days && !hours)
+    parts.push(`${mins} ${mins === 1 ? "minute" : "minutes"}`);
   const joined = parts.slice(0, 2).join(" ");
   return past ? `${joined} ago` : `In ${joined}`;
 }

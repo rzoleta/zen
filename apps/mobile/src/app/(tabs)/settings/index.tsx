@@ -210,9 +210,9 @@ export default function SettingsScreen() {
                 void updateSetting("desired_retention", value.toFixed(2))
               }
             />
-            <Text variant="caption" muted>
-              The target % chance you will retain new words. Only change if
-              you know what you're doing.
+            <Text className="text-xs" muted>
+              The target % chance you will retain new words. Only change if you
+              know what you are doing.
             </Text>
           </View>
         </Card>
@@ -243,7 +243,7 @@ export default function SettingsScreen() {
         <Card>
           <View className="gap-0.5">
             <Text variant="headline">Zen</Text>
-            <Text variant="footnote" muted>
+            <Text muted>
               Version {Constants.expoConfig?.version ?? "1.0.0"}
             </Text>
           </View>
@@ -259,12 +259,12 @@ export default function SettingsScreen() {
           <Card className="gap-4 border-destructive">
             <View className="gap-1">
               <Text variant="headline">Reset all progress?</Text>
-              <Text variant="footnote" muted>
+              <Text muted>
                 This removes every review and returns all cards to new. This
                 cannot be undone.
               </Text>
               {resetError ? (
-                <Text variant="footnote" className="text-destructive">
+                <Text className="text-destructive">
                   Progress could not be reset. Please try again.
                 </Text>
               ) : null}
@@ -311,7 +311,7 @@ function SettingRow({
       <View className="flex-1 gap-0.5">
         <Text>{title}</Text>
         {description ? (
-          <Text variant="caption" muted>
+          <Text className="text-xs" muted>
             {description}
           </Text>
         ) : null}

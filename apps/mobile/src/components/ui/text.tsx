@@ -4,14 +4,9 @@ import { Fonts } from "@/constants/theme";
 import { cn } from "@/lib/cn";
 
 const variants = {
-  largeTitle:
-    "font-sans-semibold text-[34px] leading-[41px] tracking-tight text-foreground",
-  title:
-    "font-sans-semibold text-[28px] leading-[34px] tracking-tight text-foreground",
-  headline: "font-sans-semibold text-[17px] leading-[22px] text-foreground",
-  body: "font-sans text-[17px] leading-6 text-foreground",
-  footnote: "font-sans text-[13px] leading-[18px] text-foreground",
-  caption: "font-sans text-xs leading-4 text-foreground",
+  largeTitle: "font-sans-semibold text-4xl tracking-tight",
+  title: "font-sans-semibold text-3xl tracking-tight",
+  headline: "font-sans-semibold text-lg",
   label:
     "font-sans-medium text-xs uppercase tracking-widest text-muted-foreground",
 } as const;
@@ -19,7 +14,7 @@ const variants = {
 export type TextVariant = keyof typeof variants;
 
 export function Text({
-  variant = "body",
+  variant,
   muted,
   className,
   ...props
@@ -28,7 +23,8 @@ export function Text({
     <RNText
       {...props}
       className={cn(
-        variants[variant],
+        "font-sans text-base text-foreground",
+        variant && variants[variant],
         muted && "text-muted-foreground",
         className,
       )}

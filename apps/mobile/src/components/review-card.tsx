@@ -251,7 +251,7 @@ export function ReviewCard({
                 lineHeight={wordTextStyle.lineHeight}
                 align="center"
               />
-              <Text muted className="text-center text-[22px] leading-[30px]">
+              <Text muted className="text-center text-2xl">
                 {word.meaning}
               </Text>
               <AudioButton
@@ -271,7 +271,7 @@ export function ReviewCard({
                 lineHeight={sentenceTextStyle.lineHeight}
                 align="center"
               />
-              <Text muted className="text-center text-[22px] leading-[30px]">
+              <Text muted className="text-center text-2xl">
                 {word.sentenceMeaning}
               </Text>
               <AudioButton

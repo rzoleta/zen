@@ -57,7 +57,7 @@ export default function HomeScreen() {
                 start();
               }}
             />
-            <Text variant="footnote" muted className="mt-2">
+            <Text muted className="mt-2">
               {reviewCount} to review · {newCount} new
             </Text>
           </View>
@@ -79,20 +79,14 @@ export default function HomeScreen() {
             空
           </JapaneseText>
           <Text variant="title">{"You're done for now!"}</Text>
-          <Text variant="footnote" muted className="text-center">
+          <Text muted className="text-center">
             You have{" "}
-            <Text
-              variant="footnote"
-              className="font-sans-semibold text-foreground"
-            >
+            <Text className="font-sans-semibold text-foreground">
               {pendingQueue.length}{" "}
               {pendingQueue.length === 1 ? "card" : "cards"}
             </Text>{" "}
             to review again today{"\n"}Come back in{" "}
-            <Text
-              variant="footnote"
-              className="font-sans-semibold text-foreground"
-            >
+            <Text className="font-sans-semibold text-foreground">
               {formatWait(pendingQueue[0].due - now - learnAheadLimit * 60_000)}
             </Text>
           </Text>
@@ -108,7 +102,7 @@ export default function HomeScreen() {
             空
           </JapaneseText>
           <Text variant="title">{"You're done for today!"}</Text>
-          <Text variant="footnote" muted className="text-center">
+          <Text muted className="text-center">
             Come back tomorrow to study new words.
           </Text>
         </View>
