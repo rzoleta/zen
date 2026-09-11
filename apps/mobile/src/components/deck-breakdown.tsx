@@ -42,10 +42,10 @@ export function DeckBreakdown({
   const size = Math.min(chartWidth, 144);
 
   return (
-    <Card className="flex-row items-center gap-4 py-3">
-      <View className="min-w-0 gap-3" style={{ flex: 1 }}>
+    <Card className="flex-row items-center gap-4">
+      <View className="min-w-0 gap-2" style={{ flex: 1 }}>
         {statuses.map((status) => (
-          <View key={status} className="flex-row items-center gap-1.5">
+          <View key={status} className="flex-row items-center gap-3">
             <View
               className="h-2 w-2 rounded-full"
               style={{ backgroundColor: colors[status] }}
