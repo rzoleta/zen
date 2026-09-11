@@ -1,3 +1,5 @@
+import { sql } from "drizzle-orm";
+
 import { db } from "@/db/client";
 import { DEFAULT_SETTINGS } from "@/db/seed";
 import { settings } from "@/db/schema";
@@ -22,6 +24,7 @@ export function useSettings() {
       values.learn_ahead_limit ?? DEFAULT_SETTINGS.learn_ahead_limit,
     ),
     autoplay: (values.autoplay ?? DEFAULT_SETTINGS.autoplay) === "true",
+    wordAudio: (values.word_audio ?? DEFAULT_SETTINGS.word_audio) === "true",
     highlightWord:
       (values.highlight_word ?? DEFAULT_SETTINGS.highlight_word) === "true",
     cardFront: (values.card_front ??
@@ -36,10 +39,19 @@ export async function updateSetting(
   key: keyof typeof DEFAULT_SETTINGS,
   value: string,
 ): Promise<void> {
+  const updates = [{ key, value }];
+  if (key === "word_audio" && value === "false") {
+    updates.push({ key: "autoplay", value: "false" });
+  } else if (key === "autoplay" && value === "true") {
+    updates.push({ key: "word_audio", value: "true" });
+  }
   await db
     .insert(settings)
-    .values({ key, value })
-    .onConflictDoUpdate({ target: settings.key, set: { value } });
+    .values(updates)
+    .onConflictDoUpdate({
+      target: settings.key,
+      set: { value: sql`excluded.value` },
+    });
 }
 
 export async function resetSettings(): Promise<void> {

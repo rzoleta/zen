@@ -276,11 +276,28 @@ export default function SettingsScreen() {
           />
           <Separator />
           <SettingRow
+            title="Word audio"
+            control={
+              <Switch
+                accessibilityLabel="Word audio"
+                value={values.wordAudio}
+                style={{ alignSelf: "center" }}
+                onValueChange={(value) => {
+                  void Haptics.selectionAsync();
+                  void updateSetting("word_audio", String(value));
+                }}
+                trackColor={{ true: theme.chartBlue, false: theme.secondary }}
+                ios_backgroundColor={theme.secondary}
+              />
+            }
+          />
+          <Separator />
+          <SettingRow
             title="Autoplay word audio"
-            description="Plays after the card flips"
             control={
               <Switch
                 value={values.autoplay}
+                accessibilityLabel="Autoplay word audio"
                 style={{ alignSelf: "center" }}
                 onValueChange={(value) => {
                   void Haptics.selectionAsync();

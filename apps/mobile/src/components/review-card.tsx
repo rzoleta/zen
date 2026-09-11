@@ -30,6 +30,7 @@ interface ReviewCardProps {
   word: Word;
   font: JapaneseFont;
   autoplay: boolean;
+  wordAudio: boolean;
   highlightWord: boolean;
   front: CardContent;
   back: CardContent;
@@ -49,6 +50,7 @@ export function ReviewCard({
   word,
   font,
   autoplay,
+  wordAudio,
   highlightWord,
   front,
   back,
@@ -77,7 +79,7 @@ export function ReviewCard({
     rotation.value = withTiming(180, { duration: 430 });
     setRevealed(true);
     void Haptics.selectionAsync();
-    if (autoplay && wordSource) {
+    if (wordAudio && autoplay && wordSource) {
       wordPlayer.seekTo(0);
       wordPlayer.play();
     }
@@ -269,13 +271,15 @@ export function ReviewCard({
                 <Text muted className="text-center text-2xl">
                   {word.meaning}
                 </Text>
-                <AudioButton
-                  disabled={!wordSource}
-                  onPress={() => {
-                    void wordPlayer.seekTo(0);
-                    wordPlayer.play();
-                  }}
-                />
+                {wordAudio ? (
+                  <AudioButton
+                    disabled={!wordSource}
+                    onPress={() => {
+                      void wordPlayer.seekTo(0);
+                      wordPlayer.play();
+                    }}
+                  />
+                ) : null}
               </View>
             ) : null}
             {back === "word_sentence" ? <Separator /> : null}
@@ -299,13 +303,15 @@ export function ReviewCard({
                 <Text muted className="text-center text-2xl">
                   {word.sentenceMeaning}
                 </Text>
-                <AudioButton
-                  disabled={!sentenceSource}
-                  onPress={() => {
-                    void sentencePlayer.seekTo(0);
-                    sentencePlayer.play();
-                  }}
-                />
+                {wordAudio ? (
+                  <AudioButton
+                    disabled={!sentenceSource}
+                    onPress={() => {
+                      void sentencePlayer.seekTo(0);
+                      sentencePlayer.play();
+                    }}
+                  />
+                ) : null}
               </View>
             ) : null}
           </Animated.View>

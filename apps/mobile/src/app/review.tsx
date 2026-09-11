@@ -358,6 +358,7 @@ export default function ReviewScreen() {
             word={detail.words}
             font={settings.jpFont}
             autoplay={settings.autoplay}
+            wordAudio={settings.wordAudio}
             highlightWord={settings.highlightWord}
             front={settings.cardFront}
             back={settings.cardBack}
