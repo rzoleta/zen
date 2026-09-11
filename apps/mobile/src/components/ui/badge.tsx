@@ -25,7 +25,7 @@ export function Badge({
     <View
       {...props}
       className={cn(
-        "self-start rounded-full px-2.5 py-1",
+        "rounded-full px-2.5 py-1",
         variants[variant].container,
         className,
       )}
