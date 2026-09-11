@@ -130,6 +130,7 @@ export default function WordDetailScreen() {
         />
         <View className="flex-row gap-2">
           <Button
+            size="lg"
             variant="outline"
             label="Reset card"
             className="flex-1"
@@ -149,6 +150,7 @@ export default function WordDetailScreen() {
             }
           />
           <Button
+            size="lg"
             variant="outline"
             label={card.suspended === "none" ? "Suspend" : "Unsuspend"}
             className="flex-1"
