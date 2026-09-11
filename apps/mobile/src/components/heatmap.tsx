@@ -45,7 +45,7 @@ export function Heatmap({
 
   return (
     <>
-      <View className="flex-row flex-wrap gap-[5px]">
+      <View className="flex-row justify-center gap-[5px]">
         {weeks.map((week, weekIndex) => (
           <View key={weekIndex} className="gap-[5px]">
             {week.map((day) => {
