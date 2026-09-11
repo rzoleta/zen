@@ -1,3 +1,4 @@
+import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
@@ -49,12 +50,23 @@ export default function HomeScreen() {
       {queue.length > 0 ? (
         <>
           <View className="flex-1 items-center justify-center">
-            <StudyCardStack count={queue.length} onPress={start} />
+            <StudyCardStack
+              count={queue.length}
+              onPress={() => {
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                start();
+              }}
+            />
             <Text variant="footnote" muted className="mt-2">
               {reviewCount} to review · {newCount} new
             </Text>
           </View>
-          <Button size="lg" label="Start studying" onPress={start} />
+          <Button
+            size="lg"
+            label="Start studying"
+            haptic={Haptics.ImpactFeedbackStyle.Medium}
+            onPress={start}
+          />
         </>
       ) : pendingQueue.length > 0 ? (
         <View className="flex-1 items-center justify-center gap-2">
