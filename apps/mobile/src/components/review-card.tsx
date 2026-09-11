@@ -370,7 +370,13 @@ function HighlightedSentence({
       className="text-center text-muted-foreground"
       style={sentenceTextStyle}
     >
-      {before}
+      <JapaneseText
+        font={font}
+        className="text-muted-foreground opacity-80"
+        style={sentenceTextStyle}
+      >
+        {before}
+      </JapaneseText>
       <JapaneseText
         font={font}
         className="text-foreground"
@@ -378,7 +384,13 @@ function HighlightedSentence({
       >
         {target}
       </JapaneseText>
-      {after}
+      <JapaneseText
+        font={font}
+        className="text-muted-foreground opacity-80"
+        style={sentenceTextStyle}
+      >
+        {after}
+      </JapaneseText>
     </JapaneseText>
   );
 }
