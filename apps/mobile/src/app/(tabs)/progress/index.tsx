@@ -74,9 +74,7 @@ function Metric({ value, label }: { value: string; label: string }) {
   return (
     <Card className="flex-1 gap-0.5 rounded-xl p-3.5">
       <Text className="font-sans-medium text-2xl">{value}</Text>
-      <Text className="text-xs" muted>
-        {label}
-      </Text>
+      <Text muted>{label}</Text>
     </Card>
   );
 }

@@ -50,7 +50,7 @@ export function DeckBreakdown({
               className="h-2 w-2 rounded-full"
               style={{ backgroundColor: colors[status] }}
             />
-            <Text muted className="flex-1 text-xs capitalize">
+            <Text muted className="flex-1 capitalize">
               {status}
             </Text>
             <Text

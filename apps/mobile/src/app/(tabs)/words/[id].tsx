@@ -165,7 +165,7 @@ function Stat({ value, label }: { value: string; label: string }) {
   return (
     <View className="flex-1 items-center gap-1">
       <Text className="font-sans-semibold text-lg">{value}</Text>
-      <Text muted className="text-center text-xs">
+      <Text muted className="text-center">
         {label}
       </Text>
     </View>
