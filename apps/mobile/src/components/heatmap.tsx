@@ -130,10 +130,10 @@ export function Heatmap({
                 width: POPOVER_WIDTH,
               }}
             >
-              <Text variant="headline">
+              <Text className="text-center" variant="headline">
                 {formatDisplayDate(selectedDay.date)}
               </Text>
-              <Text variant="footnote" muted>
+              <Text className="text-center" variant="footnote" muted>
                 {reviewCountLabel(selectedDay.count)}
               </Text>
             </View>
