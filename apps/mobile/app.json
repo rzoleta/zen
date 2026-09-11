@@ -8,11 +8,20 @@
     "scheme": "zen",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "app.zen.japanese",
-      "supportsTablet": true
+      "bundleIdentifier": "com.ryanzoleta.zen",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ]
     },
     "web": {
       "output": "static",
@@ -39,6 +48,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3292c7bd-36f1-4bb2-8fcf-febc986f4b8b"
+      }
     }
   }
 }

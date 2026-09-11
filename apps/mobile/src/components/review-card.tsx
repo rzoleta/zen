@@ -289,6 +289,7 @@ export function ReviewCard({
         <View className="flex-row gap-3">
           <Button
             label="Fail"
+            haptic={false}
             variant={swipeIntent === "pass" ? "secondary" : "destructive"}
             className="flex-1"
             style={
@@ -311,6 +312,7 @@ export function ReviewCard({
           />
           <Button
             label="Pass"
+            haptic={false}
             variant={swipeIntent === "fail" ? "secondary" : "destructive"}
             className="flex-1"
             style={
@@ -333,7 +335,12 @@ export function ReviewCard({
           />
         </View>
       ) : (
-        <Button label="Show answer" variant="secondary" onPress={showAnswer} />
+        <Button
+          label="Show answer"
+          variant="secondary"
+          haptic={false}
+          onPress={showAnswer}
+        />
       )}
     </View>
   );

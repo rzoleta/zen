@@ -1,5 +1,6 @@
 import Slider from "@react-native-community/slider";
 import Constants from "expo-constants";
+import * as Haptics from "expo-haptics";
 import { useRef, useState } from "react";
 import { Pressable, type ScrollView, Switch, View } from "react-native";
 
@@ -70,7 +71,10 @@ export default function SettingsScreen() {
                   { value: "dark", label: "Dark" },
                 ]}
                 value={values.theme}
-                onChange={(value) => void updateSetting("theme", value)}
+                onChange={(value) => {
+                  void Haptics.selectionAsync();
+                  void updateSetting("theme", value);
+                }}
               />
             }
           />
@@ -85,7 +89,10 @@ export default function SettingsScreen() {
                   { value: "mincho", label: "Mincho" },
                 ]}
                 value={values.jpFont}
-                onChange={(value) => void updateSetting("jp_font", value)}
+                onChange={(value) => {
+                  void Haptics.selectionAsync();
+                  void updateSetting("jp_font", value);
+                }}
               />
             }
           />
@@ -220,9 +227,10 @@ export default function SettingsScreen() {
               <Switch
                 value={values.autoplay}
                 style={{ alignSelf: "center" }}
-                onValueChange={(value) =>
-                  void updateSetting("autoplay", String(value))
-                }
+                onValueChange={(value) => {
+                  void Haptics.selectionAsync();
+                  void updateSetting("autoplay", String(value));
+                }}
                 trackColor={{ true: theme.chartBlue, false: theme.secondary }}
                 ios_backgroundColor={theme.secondary}
               />
@@ -273,6 +281,7 @@ export default function SettingsScreen() {
                 className="flex-1"
                 label={resetting ? "Resetting..." : "Reset everything"}
                 variant="destructive"
+                haptic={Haptics.ImpactFeedbackStyle.Medium}
                 disabled={resetting}
                 onPress={() => void resetProgress()}
               />
@@ -325,7 +334,10 @@ function Stepper({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      onPress={onPress}
+      onPress={() => {
+        void Haptics.selectionAsync();
+        onPress();
+      }}
       className="h-9 w-9 items-center justify-center rounded-lg bg-secondary active:opacity-60"
     >
       <Text className="font-sans-medium">{label}</Text>

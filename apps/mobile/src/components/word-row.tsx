@@ -1,3 +1,4 @@
+import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
@@ -41,7 +42,10 @@ export function WordRow({ item, font, saving, onAction }: WordRowProps) {
     <Pressable
       accessibilityRole="button"
       accessibilityHint="Tap to view word details. Touch and hold for word actions."
-      onPress={() => router.push(`/words/${item.words.id}`)}
+      onPress={() => {
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        router.push(`/words/${item.words.id}`);
+      }}
       className="flex-row items-center gap-4 px-5 py-4"
       style={({ pressed }) => ({
         width: width || undefined,

@@ -1,3 +1,4 @@
+import * as Haptics from "expo-haptics";
 import { useRef, useState } from "react";
 import { useCalendars } from "expo-localization";
 import {
@@ -86,6 +87,7 @@ export function Heatmap({
                   accessibilityState={{ selected: isSelected }}
                   hitSlop={2}
                   onPress={(event) => {
+                    void Haptics.selectionAsync();
                     setSelectedDay({
                       count,
                       date: day,

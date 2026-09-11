@@ -1,3 +1,4 @@
+import * as Haptics from "expo-haptics";
 import type { ReactNode } from "react";
 import { Pressable, type PressableProps, Text } from "react-native";
 
@@ -30,17 +31,24 @@ export function Button({
   icon,
   className,
   disabled,
+  onPress,
+  haptic = Haptics.ImpactFeedbackStyle.Light,
   ...props
 }: Omit<PressableProps, "children"> & {
   label: string;
   variant?: keyof typeof variants;
   size?: keyof typeof sizes;
   icon?: ReactNode;
+  haptic?: Haptics.ImpactFeedbackStyle | false;
 }) {
   return (
     <Pressable
       {...props}
       disabled={disabled}
+      onPress={(event) => {
+        if (haptic !== false) void Haptics.impactAsync(haptic);
+        onPress?.(event);
+      }}
       className={cn(
         "flex-row items-center justify-center gap-2 active:opacity-70",
         variants[variant].container,
