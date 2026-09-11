@@ -373,7 +373,7 @@ function HighlightedSentence({
       {before}
       <JapaneseText
         font={font}
-        className="text-foreground underline"
+        className="text-foreground"
         style={sentenceTextStyle}
       >
         {target}
