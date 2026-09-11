@@ -117,11 +117,16 @@ export function Heatmap({
               accessibilityViewIsModal
               className="absolute gap-1 rounded-xl border border-border bg-card px-4 py-3"
               style={{
+                elevation: 8,
                 left: clamp(
                   selectedDay.pageX - POPOVER_WIDTH / 2,
                   POPOVER_MARGIN,
                   windowWidth - POPOVER_WIDTH - POPOVER_MARGIN,
                 ),
+                shadowColor: "#000000",
+                shadowOffset: { width: 0, height: 8 },
+                shadowOpacity: 0.16,
+                shadowRadius: 12,
                 top: clamp(
                   selectedDay.pageY + CELL_SIZE,
                   POPOVER_MARGIN,
