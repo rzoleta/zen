@@ -52,24 +52,19 @@ export default function WordDetailScreen() {
       backgroundClassName={modalBackground}
       contentContainerClassName="pb-6"
     >
-      <View className="items-center gap-3 pt-2">
-        <View className="items-center gap-1">
-          <JapaneseText
-            font={jpFont}
-            className="text-[15px] leading-5 text-muted-foreground"
-          >
-            {word.wordReading}
-          </JapaneseText>
-          <JapaneseText
-            font={jpFont}
-            className="text-[56px] leading-[68px]"
-          >
-            {word.word}
-          </JapaneseText>
-          <Text className="font-sans-medium text-[20px] leading-7">
-            {word.meaning}
-          </Text>
-        </View>
+      <View className="items-center gap-2 pt-2">
+        <JapaneseText
+          font={jpFont}
+          className="text-[15px] leading-5 text-muted-foreground"
+        >
+          {word.wordReading}
+        </JapaneseText>
+        <JapaneseText font={jpFont} className="text-[56px] leading-[68px]">
+          {word.word}
+        </JapaneseText>
+        <Text className="font-sans-medium text-[20px] leading-7">
+          {word.meaning}
+        </Text>
         <StatusChip
           status={cardStatus(card)}
           leech={card.suspended === "leech"}
@@ -152,11 +147,11 @@ export default function WordDetailScreen() {
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
-    <View className="flex-1 gap-1">
+    <View className="flex-1 items-center gap-1">
       <Text className="font-sans-semibold text-[17px] leading-[22px]">
         {value}
       </Text>
-      <Text variant="caption" muted>
+      <Text variant="caption" muted className="text-center">
         {label}
       </Text>
     </View>
