@@ -24,7 +24,7 @@
       ]
     },
     "web": {
-      "output": "static",
+      "output": "single",
       "favicon": "../../favicon.png"
     },
     "plugins": [
