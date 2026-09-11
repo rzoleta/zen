@@ -39,6 +39,7 @@ export function Heatmap({
   const scrollView = useRef<ScrollView>(null);
   const [graphWidth, setGraphWidth] = useState(0);
   const [selectedDay, setSelectedDay] = useState<SelectedDay | null>(null);
+  const [popoverVisible, setPopoverVisible] = useState(false);
   const counts = timestamps.reduce<Record<string, number>>((all, timestamp) => {
     const key = currentStudyDay(new Date(timestamp));
     all[key] = (all[key] ?? 0) + 1;
@@ -71,9 +72,10 @@ export function Heatmap({
               const key = currentStudyDay(day);
               const count = counts[key] ?? 0;
               const isFuture = day.getTime() > today.getTime();
-              const isSelected = selectedDay
-                ? currentStudyDay(selectedDay.date) === key
-                : false;
+              const isSelected =
+                popoverVisible && selectedDay
+                  ? currentStudyDay(selectedDay.date) === key
+                  : false;
 
               if (isFuture) {
                 return <View key={key} className="h-[15px] w-[15px]" />;
@@ -94,6 +96,7 @@ export function Heatmap({
                       pageX: event.nativeEvent.pageX,
                       pageY: event.nativeEvent.pageY,
                     });
+                    setPopoverVisible(true);
                   }}
                   className="h-[15px] w-[15px] rounded"
                   style={{
@@ -110,11 +113,11 @@ export function Heatmap({
       </ScrollView>
       <Modal
         animationType="fade"
-        onRequestClose={() => setSelectedDay(null)}
+        onRequestClose={() => setPopoverVisible(false)}
         transparent
-        visible={selectedDay !== null}
+        visible={popoverVisible}
       >
-        <Pressable className="flex-1" onPress={() => setSelectedDay(null)}>
+        <Pressable className="flex-1" onPress={() => setPopoverVisible(false)}>
           {selectedDay ? (
             <View
               accessibilityViewIsModal
