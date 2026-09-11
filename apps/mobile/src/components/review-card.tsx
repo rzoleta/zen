@@ -266,6 +266,10 @@ export function ReviewCard({
             <View className="flex-1 items-center justify-center gap-2">
               <FuriganaText
                 text={word.sentenceFurigana}
+                highlightRange={{
+                  start: word.sentenceTargetStart,
+                  length: word.sentenceTargetLength,
+                }}
                 font={font}
                 fontSize={sentenceTextStyle.fontSize}
                 lineHeight={sentenceTextStyle.lineHeight}
@@ -370,15 +374,27 @@ function HighlightedSentence({
       className="text-center text-muted-foreground"
       style={sentenceTextStyle}
     >
-      {before}
       <JapaneseText
         font={font}
-        className="text-foreground underline"
+        className="text-muted-foreground opacity-80"
+        style={sentenceTextStyle}
+      >
+        {before}
+      </JapaneseText>
+      <JapaneseText
+        font={font}
+        className="text-foreground"
         style={sentenceTextStyle}
       >
         {target}
       </JapaneseText>
-      {after}
+      <JapaneseText
+        font={font}
+        className="text-muted-foreground opacity-80"
+        style={sentenceTextStyle}
+      >
+        {after}
+      </JapaneseText>
     </JapaneseText>
   );
 }
