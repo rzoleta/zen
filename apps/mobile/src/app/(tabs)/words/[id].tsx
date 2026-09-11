@@ -10,7 +10,6 @@ import {
   JapaneseText,
   Screen,
   SectionTitle,
-  Separator,
   Text,
 } from "@/components/ui";
 import { db } from "@/db/client";
@@ -86,14 +85,18 @@ export default function WordDetailScreen() {
       </View>
       <View className="gap-2">
         <SectionTitle>Scheduling</SectionTitle>
-        <Card className="gap-4">
+        <Card>
           <View className="flex-row items-center justify-between gap-4">
             <Text variant="footnote" muted>
               Next due
             </Text>
             <Text variant="footnote">{due}</Text>
           </View>
-          <Separator />
+        </Card>
+      </View>
+      <View className="gap-2">
+        <SectionTitle>History</SectionTitle>
+        <Card>
           <View className="flex-row gap-4">
             <Stat value={`${card.scheduledDays} days`} label="Interval" />
             <Stat value={String(card.reps)} label="Reviews" />
