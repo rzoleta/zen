@@ -77,7 +77,7 @@ export default function WordDetailScreen() {
         <StatusChip
           status={cardStatus(card)}
           leech={card.suspended === "leech"}
-          className="mt-2"
+          className="mt-4"
         />
       </View>
       <View className="gap-2">
