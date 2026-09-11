@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import {
   StyleSheet,
+  Text as NativeText,
   View,
   type StyleProp,
   type TextStyle,
@@ -28,6 +29,7 @@ interface FuriganaTextProps extends Omit<ViewProps, "children"> {
   align?: "left" | "center";
   style?: StyleProp<ViewStyle>;
   baseStyle?: StyleProp<TextStyle>;
+  highlightRange?: { start: number; length: number };
 }
 
 export function FuriganaText({
@@ -41,6 +43,7 @@ export function FuriganaText({
   align = "left",
   style,
   baseStyle,
+  highlightRange,
   accessibilityLabel,
   ...props
 }: FuriganaTextProps) {
@@ -75,35 +78,20 @@ export function FuriganaText({
               align === "center" ? styles.centerLine : styles.leftLine,
             ]}
           >
-            {line.flatMap((segment, segmentIndex) =>
-              segment.reading
-                ? [
-                    <RubySegment
-                      key={`${segmentIndex}-${segment.text}`}
-                      segment={segment}
-                      baseStyle={[baseTextStyle, baseStyle]}
-                      furiganaStyle={{
-                        color: furiganaColor ?? theme.muted,
-                        fontFamily: baseTextStyle.fontFamily,
-                        fontSize: furiganaFontSize,
-                        lineHeight: Math.ceil(furiganaFontSize * 1.2),
-                      }}
-                    />,
-                  ]
-                : splitPlainText(segment.text).map((part, partIndex) => (
-                    <RubySegment
-                      key={`${segmentIndex}-${partIndex}-${part}`}
-                      segment={{ text: part }}
-                      baseStyle={[baseTextStyle, baseStyle]}
-                      furiganaStyle={{
-                        color: furiganaColor ?? theme.muted,
-                        fontFamily: baseTextStyle.fontFamily,
-                        fontSize: furiganaFontSize,
-                        lineHeight: Math.ceil(furiganaFontSize * 1.2),
-                      }}
-                    />
-                  )),
-            )}
+            {line.map((segment, segmentIndex) => (
+              <RubySegment
+                key={`${segmentIndex}-${segment.text}`}
+                segment={segment}
+                baseStyle={[baseTextStyle, baseStyle]}
+                highlightRange={highlightRange}
+                furiganaStyle={{
+                  color: furiganaColor ?? theme.muted,
+                  fontFamily: baseTextStyle.fontFamily,
+                  fontSize: furiganaFontSize,
+                  lineHeight: Math.ceil(furiganaFontSize * 1.2),
+                }}
+              />
+            ))}
           </View>
         ))
       ) : (
@@ -116,7 +104,11 @@ export function FuriganaText({
             align === "center" && styles.textCenter,
           ]}
         >
-          {plainText}
+          <HighlightedBaseText
+            text={plainText}
+            start={0}
+            highlightRange={highlightRange}
+          />
         </JapaneseText>
       )}
     </View>
@@ -127,10 +119,12 @@ function RubySegment({
   segment,
   baseStyle,
   furiganaStyle,
+  highlightRange,
 }: {
-  segment: FuriganaSegment;
+  segment: FuriganaSegment & { start: number };
   baseStyle: StyleProp<TextStyle>;
   furiganaStyle: StyleProp<TextStyle>;
+  highlightRange?: FuriganaTextProps["highlightRange"];
 }) {
   return (
     <View accessible={false} style={styles.segment}>
@@ -138,22 +132,68 @@ function RubySegment({
         {segment.reading ?? "\u00a0"}
       </JapaneseText>
       <JapaneseText accessible={false} style={baseStyle}>
-        {segment.text}
+        <HighlightedBaseText
+          text={segment.text}
+          start={segment.start}
+          highlightRange={highlightRange}
+        />
       </JapaneseText>
     </View>
   );
 }
 
-function splitLines(segments: FuriganaSegment[]): FuriganaSegment[][] {
-  const lines: FuriganaSegment[][] = [[]];
+function HighlightedBaseText({
+  text,
+  start,
+  highlightRange,
+}: {
+  text: string;
+  start: number;
+  highlightRange?: FuriganaTextProps["highlightRange"];
+}) {
+  const theme = useTheme();
+  if (!highlightRange) return text;
+
+  const from = Math.max(0, Math.min(text.length, highlightRange.start - start));
+  const to = Math.max(
+    from,
+    Math.min(text.length, highlightRange.start + highlightRange.length - start),
+  );
+  return (
+    <>
+      <NativeText style={{ color: theme.muted, opacity: 0.8 }}>
+        {text.slice(0, from)}
+      </NativeText>
+      <NativeText style={{ color: theme.text }}>{text.slice(from, to)}</NativeText>
+      <NativeText style={{ color: theme.muted, opacity: 0.8 }}>
+        {text.slice(to)}
+      </NativeText>
+    </>
+  );
+}
+
+function splitLines(segments: FuriganaSegment[]) {
+  const lines: (FuriganaSegment & { start: number })[][] = [[]];
+  let offset = 0;
 
   for (const segment of segments) {
     const parts = segment.text.split("\n");
     parts.forEach((part, index) => {
-      if (part) {
-        lines.at(-1)?.push({ text: part, reading: segment.reading });
+      const chunks = segment.reading ? [part] : splitPlainText(part);
+      for (const chunk of chunks) {
+        if (chunk) {
+          lines.at(-1)?.push({
+            text: chunk,
+            reading: segment.reading,
+            start: offset,
+          });
+        }
+        offset += chunk.length;
       }
-      if (index < parts.length - 1) lines.push([]);
+      if (index < parts.length - 1) {
+        lines.push([]);
+        offset += 1;
+      }
     });
   }
 
