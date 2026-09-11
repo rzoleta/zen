@@ -93,7 +93,7 @@ export function StudyCardStack({ count, onPress }: StudyCardStackProps) {
           },
         ]}
       >
-        <Text className="font-sans-semibold text-8xl tracking-tighter">
+        <Text className="font-sans-semibold text-8xl leading-tight tracking-tighter">
           {count}
         </Text>
         <Text muted>{count === 1 ? "card" : "cards"} to study</Text>
