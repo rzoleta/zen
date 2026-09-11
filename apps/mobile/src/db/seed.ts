@@ -10,6 +10,9 @@ export const DEFAULT_SETTINGS = {
   leech_threshold: "8",
   learn_ahead_limit: "20",
   autoplay: "true",
+  highlight_word: "true",
+  card_front: "word_sentence",
+  card_back: "word_sentence",
   jp_font: "gothic",
   theme: "system",
 } as const;

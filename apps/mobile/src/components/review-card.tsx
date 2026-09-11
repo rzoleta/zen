@@ -22,7 +22,7 @@ import {
   Text,
 } from "@/components/ui";
 import type { Word } from "@/db/schema";
-import type { JapaneseFont } from "@/hooks/use-settings";
+import type { CardContent, JapaneseFont } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
 import type { BinaryGrade } from "@/scheduler";
 
@@ -30,6 +30,9 @@ interface ReviewCardProps {
   word: Word;
   font: JapaneseFont;
   autoplay: boolean;
+  highlightWord: boolean;
+  front: CardContent;
+  back: CardContent;
   onGrade: (grade: BinaryGrade) => void;
   onUndo: () => void;
   onFlip: () => void;
@@ -46,6 +49,9 @@ export function ReviewCard({
   word,
   font,
   autoplay,
+  highlightWord,
+  front,
+  back,
   onGrade,
   onUndo,
   onFlip,
@@ -228,14 +234,22 @@ export function ReviewCard({
             style={[{ backfaceVisibility: "hidden" }, frontStyle]}
           >
             <View className="flex-1 items-center justify-center gap-8">
-              <JapaneseText
-                font={font}
-                className="text-center"
-                style={wordTextStyle}
-              >
-                {word.word}
-              </JapaneseText>
-              <HighlightedSentence word={word} font={font} />
+              {front !== "sentence" ? (
+                <JapaneseText
+                  font={font}
+                  className="text-center"
+                  style={wordTextStyle}
+                >
+                  {word.word}
+                </JapaneseText>
+              ) : null}
+              {front !== "word" ? (
+                <HighlightedSentence
+                  word={word}
+                  font={font}
+                  highlight={highlightWord}
+                />
+              ) : null}
             </View>
           </Animated.View>
           <Animated.View
@@ -243,49 +257,57 @@ export function ReviewCard({
             pointerEvents={revealed ? "auto" : "none"}
             style={[{ backfaceVisibility: "hidden" }, backStyle]}
           >
-            <View className="flex-1 items-center justify-center gap-2">
-              <FuriganaText
-                text={word.wordFurigana}
-                font={font}
-                fontSize={wordTextStyle.fontSize}
-                lineHeight={wordTextStyle.lineHeight}
-                align="center"
-              />
-              <Text muted className="text-center text-2xl">
-                {word.meaning}
-              </Text>
-              <AudioButton
-                disabled={!wordSource}
-                onPress={() => {
-                  void wordPlayer.seekTo(0);
-                  wordPlayer.play();
-                }}
-              />
-            </View>
-            <Separator />
-            <View className="flex-1 items-center justify-center gap-2">
-              <FuriganaText
-                text={word.sentenceFurigana}
-                highlightRange={{
-                  start: word.sentenceTargetStart,
-                  length: word.sentenceTargetLength,
-                }}
-                font={font}
-                fontSize={sentenceTextStyle.fontSize}
-                lineHeight={sentenceTextStyle.lineHeight}
-                align="center"
-              />
-              <Text muted className="text-center text-2xl">
-                {word.sentenceMeaning}
-              </Text>
-              <AudioButton
-                disabled={!sentenceSource}
-                onPress={() => {
-                  void sentencePlayer.seekTo(0);
-                  sentencePlayer.play();
-                }}
-              />
-            </View>
+            {back !== "sentence" ? (
+              <View className="flex-1 items-center justify-center gap-2">
+                <FuriganaText
+                  text={word.wordFurigana}
+                  font={font}
+                  fontSize={wordTextStyle.fontSize}
+                  lineHeight={wordTextStyle.lineHeight}
+                  align="center"
+                />
+                <Text muted className="text-center text-2xl">
+                  {word.meaning}
+                </Text>
+                <AudioButton
+                  disabled={!wordSource}
+                  onPress={() => {
+                    void wordPlayer.seekTo(0);
+                    wordPlayer.play();
+                  }}
+                />
+              </View>
+            ) : null}
+            {back === "word_sentence" ? <Separator /> : null}
+            {back !== "word" ? (
+              <View className="flex-1 items-center justify-center gap-2">
+                <FuriganaText
+                  text={word.sentenceFurigana}
+                  highlightRange={
+                    highlightWord
+                      ? {
+                          start: word.sentenceTargetStart,
+                          length: word.sentenceTargetLength,
+                        }
+                      : undefined
+                  }
+                  font={font}
+                  fontSize={sentenceTextStyle.fontSize}
+                  lineHeight={sentenceTextStyle.lineHeight}
+                  align="center"
+                />
+                <Text muted className="text-center text-2xl">
+                  {word.sentenceMeaning}
+                </Text>
+                <AudioButton
+                  disabled={!sentenceSource}
+                  onPress={() => {
+                    void sentencePlayer.seekTo(0);
+                    sentencePlayer.play();
+                  }}
+                />
+              </View>
+            ) : null}
           </Animated.View>
         </Animated.View>
       </GestureDetector>
@@ -356,10 +378,23 @@ export function ReviewCard({
 function HighlightedSentence({
   word,
   font,
+  highlight,
 }: {
   word: Word;
   font: JapaneseFont;
+  highlight: boolean;
 }) {
+  if (!highlight) {
+    return (
+      <JapaneseText
+        font={font}
+        className="text-center"
+        style={sentenceTextStyle}
+      >
+        {word.sentence}
+      </JapaneseText>
+    );
+  }
   const before = word.sentence.slice(0, word.sentenceTargetStart);
   const target = word.sentence.slice(
     word.sentenceTargetStart,

@@ -5,6 +5,7 @@ export { FuriganaText } from "@/components/ui/furigana-text";
 export { Screen } from "@/components/ui/screen";
 export { SectionTitle } from "@/components/ui/section-title";
 export { Segmented } from "@/components/ui/segmented";
+export { Select } from "@/components/ui/select";
 export { Separator } from "@/components/ui/separator";
 export {
   JapaneseText,

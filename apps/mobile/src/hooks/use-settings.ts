@@ -5,6 +5,7 @@ import { useLiveQuery } from "@/hooks/use-live-query";
 
 export type JapaneseFont = "mincho" | "gothic";
 export type ThemePreference = "system" | "light" | "dark";
+export type CardContent = "word" | "sentence" | "word_sentence";
 
 export function useSettings() {
   const { data = [] } = useLiveQuery(db.select().from(settings), ["settings"]);
@@ -21,6 +22,11 @@ export function useSettings() {
       values.learn_ahead_limit ?? DEFAULT_SETTINGS.learn_ahead_limit,
     ),
     autoplay: (values.autoplay ?? DEFAULT_SETTINGS.autoplay) === "true",
+    highlightWord:
+      (values.highlight_word ?? DEFAULT_SETTINGS.highlight_word) === "true",
+    cardFront: (values.card_front ??
+      DEFAULT_SETTINGS.card_front) as CardContent,
+    cardBack: (values.card_back ?? DEFAULT_SETTINGS.card_back) as CardContent,
     jpFont: (values.jp_font ?? DEFAULT_SETTINGS.jp_font) as JapaneseFont,
     theme: (values.theme ?? DEFAULT_SETTINGS.theme) as ThemePreference,
   };

@@ -10,6 +10,7 @@ import {
   Screen,
   SectionTitle,
   Segmented,
+  Select,
   Separator,
   Text,
 } from "@/components/ui";
@@ -18,10 +19,17 @@ import {
   resetSettings,
   updateSetting,
   useSettings,
+  type CardContent,
 } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
 import { resetAllProgress } from "@/scheduler";
 import { useSessionStore } from "@/stores/session";
+
+const cardContentOptions: { value: CardContent; label: string }[] = [
+  { value: "word", label: "Word" },
+  { value: "sentence", label: "Sentence" },
+  { value: "word_sentence", label: "Word + Sentence" },
+];
 
 export default function SettingsScreen() {
   const theme = useTheme();
@@ -220,6 +228,53 @@ export default function SettingsScreen() {
       <View className="gap-2">
         <SectionTitle>Card</SectionTitle>
         <Card className="py-1">
+          <SettingRow
+            title="Highlight word in sentence"
+            control={
+              <Switch
+                accessibilityLabel="Highlight word in sentence"
+                value={values.highlightWord}
+                style={{ alignSelf: "center" }}
+                onValueChange={(value) => {
+                  void Haptics.selectionAsync();
+                  void updateSetting("highlight_word", String(value));
+                }}
+                trackColor={{ true: theme.chartBlue, false: theme.secondary }}
+                ios_backgroundColor={theme.secondary}
+              />
+            }
+          />
+          <Separator />
+          <SettingRow
+            title="Card Front"
+            control={
+              <Select
+                label="Card Front"
+                options={cardContentOptions}
+                value={values.cardFront}
+                onChange={(value) => {
+                  void Haptics.selectionAsync();
+                  void updateSetting("card_front", value);
+                }}
+              />
+            }
+          />
+          <Separator />
+          <SettingRow
+            title="Card Back"
+            control={
+              <Select
+                label="Card Back"
+                options={cardContentOptions}
+                value={values.cardBack}
+                onChange={(value) => {
+                  void Haptics.selectionAsync();
+                  void updateSetting("card_back", value);
+                }}
+              />
+            }
+          />
+          <Separator />
           <SettingRow
             title="Autoplay word audio"
             description="Plays after the card flips"

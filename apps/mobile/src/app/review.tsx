@@ -358,6 +358,9 @@ export default function ReviewScreen() {
             word={detail.words}
             font={settings.jpFont}
             autoplay={settings.autoplay}
+            highlightWord={settings.highlightWord}
+            front={settings.cardFront}
+            back={settings.cardBack}
             onFlip={() => {
               shownAt.current = Date.now();
             }}
