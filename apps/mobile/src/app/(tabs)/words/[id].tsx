@@ -20,7 +20,7 @@ import { confirmWordAction } from "@/lib/confirm-word-action";
 import { formatDueDate, formatRelativeDueDate } from "@/lib/schedule-date";
 import { resetCard, setKnown, setSuspended } from "@/scheduler";
 
-const modalBackground = "dark:bg-[#171717]";
+const modalBackground = "bg-card";
 
 export default function WordDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
