@@ -170,7 +170,7 @@ export default function SettingsScreen() {
           <Separator />
           <SettingRow
             title="Learn ahead limit"
-            description="Upcoming cards within this time limit will be immediately added to the current queue"
+            description="Upcoming cards will be added to the current queue"
             control={
               <View className="flex-row items-center gap-2.5">
                 <Stepper
