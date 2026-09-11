@@ -1,5 +1,6 @@
 import { Button, ContextMenu, Host, RNHostView } from "@expo/ui/swift-ui";
 import { disabled } from "@expo/ui/swift-ui/modifiers";
+import { View } from "react-native";
 
 import type { WordContextMenuProps } from "./word-context-menu";
 
@@ -19,7 +20,12 @@ export function WordContextMenu({
     >
       <ContextMenu>
         <ContextMenu.Trigger>
-          <RNHostView matchContents>{children}</RNHostView>
+          <RNHostView matchContents>
+            {/* Give SwiftUI a concrete full-width native view to measure. */}
+            <View collapsable={false} style={{ width }}>
+              {children}
+            </View>
+          </RNHostView>
         </ContextMenu.Trigger>
         {/* Keep the selected row visible after the lift animation finishes. */}
         <ContextMenu.Preview>

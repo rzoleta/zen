@@ -269,16 +269,14 @@ export default function SettingsScreen() {
                 </Text>
               ) : null}
             </View>
-            <View className="flex-row gap-3">
+            <View className="gap-3">
               <Button
-                className="flex-1"
                 label="Cancel"
                 variant="secondary"
                 disabled={resetting}
                 onPress={() => setConfirmingReset(false)}
               />
               <Button
-                className="flex-1"
                 label={resetting ? "Resetting..." : "Reset everything"}
                 variant="destructive"
                 haptic={Haptics.ImpactFeedbackStyle.Medium}

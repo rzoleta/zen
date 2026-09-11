@@ -19,9 +19,9 @@ const variants = {
 } as const;
 
 const sizes = {
-  default: { container: "h-12 rounded-xl px-5", text: "text-[15px]" },
-  lg: { container: "h-14 rounded-2xl px-6", text: "text-base" },
-  sm: { container: "h-9 rounded-lg px-3", text: "text-[13px]" },
+  default: { container: "min-h-12 rounded-xl px-5 py-3", text: "text-[15px]" },
+  lg: { container: "min-h-14 rounded-2xl px-6 py-4", text: "text-base" },
+  sm: { container: "min-h-9 rounded-lg px-3 py-2", text: "text-[13px]" },
 } as const;
 
 export function Button({
@@ -60,7 +60,7 @@ export function Button({
       {icon}
       <Text
         className={cn(
-          "font-sans-semibold",
+          "shrink text-center font-sans-semibold",
           variants[variant].text,
           sizes[size].text,
         )}
