@@ -60,7 +60,7 @@ export function Button({
       {icon}
       <Text
         className={cn(
-          "shrink text-center font-sans-semibold",
+          "shrink text-center font-sans",
           variants[variant].text,
           sizes[size].text,
         )}
