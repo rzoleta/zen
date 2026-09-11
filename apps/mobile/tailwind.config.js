@@ -42,6 +42,7 @@ module.exports = {
         sans: ["Geist_400Regular"],
         "sans-medium": ["Geist_500Medium"],
         "sans-semibold": ["Geist_600SemiBold"],
+        "sans-bold": ["Geist_700Bold"],
       },
     },
   },

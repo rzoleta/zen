@@ -36,6 +36,7 @@ export const Fonts = {
   regular: "Geist_400Regular",
   medium: "Geist_500Medium",
   semibold: "Geist_600SemiBold",
+  bold: "Geist_700Bold",
   mincho: "NotoSerifJP_500Medium",
   gothic: "NotoSansJP_500Medium",
   mono: Platform.select({ ios: "ui-monospace", default: "monospace" }),
