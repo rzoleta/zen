@@ -131,6 +131,36 @@ export default function SettingsScreen() {
           />
           <Separator />
           <SettingRow
+            title="Leech threshold"
+            description="Lapses before a card is suspended"
+            control={
+              <View className="flex-row items-center gap-2.5">
+                <Stepper
+                  label="−"
+                  onPress={() =>
+                    void updateSetting(
+                      "leech_threshold",
+                      String(Math.max(1, values.leechThreshold - 1)),
+                    )
+                  }
+                />
+                <Text className="min-w-7 text-center font-sans-medium">
+                  {values.leechThreshold}
+                </Text>
+                <Stepper
+                  label="+"
+                  onPress={() =>
+                    void updateSetting(
+                      "leech_threshold",
+                      String(values.leechThreshold + 1),
+                    )
+                  }
+                />
+              </View>
+            }
+          />
+          <Separator />
+          <SettingRow
             title="Learn ahead limit"
             description="Upcoming cards within this time limit will be immediately added to the current queue"
             control={
@@ -155,36 +185,6 @@ export default function SettingsScreen() {
                     void updateSetting(
                       "learn_ahead_limit",
                       String(values.learnAheadLimit + 5),
-                    )
-                  }
-                />
-              </View>
-            }
-          />
-          <Separator />
-          <SettingRow
-            title="Leech threshold"
-            description="Lapses before a card is suspended"
-            control={
-              <View className="flex-row items-center gap-2.5">
-                <Stepper
-                  label="−"
-                  onPress={() =>
-                    void updateSetting(
-                      "leech_threshold",
-                      String(Math.max(1, values.leechThreshold - 1)),
-                    )
-                  }
-                />
-                <Text className="min-w-7 text-center font-sans-medium">
-                  {values.leechThreshold}
-                </Text>
-                <Stepper
-                  label="+"
-                  onPress={() =>
-                    void updateSetting(
-                      "leech_threshold",
-                      String(values.leechThreshold + 1),
                     )
                   }
                 />
