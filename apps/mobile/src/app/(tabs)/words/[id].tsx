@@ -71,7 +71,7 @@ export default function WordDetailScreen() {
         <JapaneseText font={jpFont} className="text-[56px] leading-[68px]">
           {word.word}
         </JapaneseText>
-        <Text className="font-sans-medium text-[20px] leading-7">
+        <Text className="text-center font-sans-medium text-[20px] leading-7">
           {word.meaning}
         </Text>
         <StatusChip
