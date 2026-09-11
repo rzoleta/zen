@@ -74,7 +74,7 @@ export default function HomeScreen() {
             font="mincho"
             accessible={false}
             allowFontScaling={false}
-            className="mb-6 text-center text-[200px] leading-[240px] text-muted-foreground/40"
+            className="mb-6 text-center text-[200px] leading-[240px] text-muted-foreground opacity-40"
           >
             空
           </JapaneseText>
@@ -97,7 +97,7 @@ export default function HomeScreen() {
             font="mincho"
             accessible={false}
             allowFontScaling={false}
-            className="mb-6 text-center text-[200px] leading-[240px] text-muted-foreground/40"
+            className="mb-6 text-center text-[200px] leading-[240px] text-muted-foreground opacity-40"
           >
             空
           </JapaneseText>
