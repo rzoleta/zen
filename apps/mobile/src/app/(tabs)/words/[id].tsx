@@ -44,8 +44,18 @@ export default function WordDetailScreen() {
       </Screen>
     );
   const { words: word, cards: card } = detail;
+  const dueDate = new Date(card.due);
   const due =
-    card.state === 0 ? "Not introduced" : new Date(card.due).toLocaleString();
+    card.state === 0
+      ? "Not introduced"
+      : dueDate.toLocaleString(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        });
+  const dueRelative = card.state === 0 ? null : formatRelative(dueDate);
   return (
     <Screen
       backgroundClassName={modalBackground}
@@ -84,18 +94,23 @@ export default function WordDetailScreen() {
         </Card>
       </View>
       <View className="gap-2">
-        <SectionTitle>Scheduling</SectionTitle>
-        <Card>
+        <SectionTitle>Schedule</SectionTitle>
+        <Card className="gap-0.5">
           <View className="flex-row items-center justify-between gap-4">
             <Text variant="footnote" muted>
               Next due
             </Text>
             <Text variant="footnote">{due}</Text>
           </View>
+          {dueRelative ? (
+            <Text variant="caption" muted className="text-right">
+              {dueRelative}
+            </Text>
+          ) : null}
         </Card>
       </View>
       <View className="gap-2">
-        <SectionTitle>History</SectionTitle>
+        <SectionTitle>Review</SectionTitle>
         <Card>
           <View className="flex-row gap-4">
             <Stat value={`${card.scheduledDays} days`} label="Interval" />
@@ -107,6 +122,7 @@ export default function WordDetailScreen() {
       <View className="gap-2 pt-4">
         <Button
           size="lg"
+          variant="outline"
           label={card.known ? "Return to study" : "Mark known"}
           onPress={() => void setKnown(db, wordId, !card.known)}
         />
@@ -159,4 +175,19 @@ function Stat({ value, label }: { value: string; label: string }) {
       </Text>
     </View>
   );
+}
+
+function formatRelative(date: Date) {
+  const ms = date.getTime() - Date.now();
+  const past = ms < 0;
+  const minutes = Math.round(Math.abs(ms) / 60_000);
+  const days = Math.floor(minutes / 1_440);
+  const hours = Math.floor((minutes % 1_440) / 60);
+  const mins = minutes % 60;
+  const parts: string[] = [];
+  if (days) parts.push(`${days} ${days === 1 ? "day" : "days"}`);
+  if (hours) parts.push(`${hours} ${hours === 1 ? "hour" : "hours"}`);
+  if (!days && !hours) parts.push(`${mins} ${mins === 1 ? "minute" : "minutes"}`);
+  const joined = parts.slice(0, 2).join(" ");
+  return past ? `${joined} ago` : `In ${joined}`;
 }
