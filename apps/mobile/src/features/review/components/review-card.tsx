@@ -22,9 +22,10 @@ import {
   Text,
 } from "@/components/ui";
 import type { Word } from "@/db/schema";
+import type { BinaryGrade } from "@/domain/study";
+import { GradeActions } from "@/features/review/components/grade-actions";
 import type { CardContent, JapaneseFont } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
-import type { BinaryGrade } from "@/scheduler";
 
 interface ReviewCardProps {
   word: Word;
@@ -318,56 +319,11 @@ export function ReviewCard({
         </Animated.View>
       </GestureDetector>
       {revealed ? (
-        <View className="flex-row gap-3">
-          <Button
-            label="Fail"
-            size="lg"
-            haptic={false}
-            variant={swipeIntent === "pass" ? "secondary" : "destructive"}
-            className="flex-1"
-            style={
-              swipeIntent === "pass"
-                ? undefined
-                : { backgroundColor: "#dc2626" }
-            }
-            icon={
-              <SymbolView
-                name={{
-                  ios: "arrow.down",
-                  android: "arrow_downward",
-                  web: "arrow_downward",
-                }}
-                tintColor={swipeIntent === "pass" ? theme.text : "#ffffff"}
-                size={16}
-              />
-            }
-            onPress={() => gradeWithAnimation("fail", true)}
-          />
-          <Button
-            label="Pass"
-            size="lg"
-            haptic={false}
-            variant={swipeIntent === "fail" ? "secondary" : "destructive"}
-            className="flex-1"
-            style={
-              swipeIntent === "fail"
-                ? undefined
-                : { backgroundColor: "#16a34a" }
-            }
-            icon={
-              <SymbolView
-                name={{
-                  ios: "arrow.up",
-                  android: "arrow_upward",
-                  web: "arrow_upward",
-                }}
-                tintColor={swipeIntent === "fail" ? theme.text : "#ffffff"}
-                size={16}
-              />
-            }
-            onPress={() => gradeWithAnimation("pass", true)}
-          />
-        </View>
+        <GradeActions
+          swipeIntent={swipeIntent}
+          textColor={theme.text}
+          onGrade={(grade) => gradeWithAnimation(grade, true)}
+        />
       ) : (
         <Button
           label="Show answer"

@@ -1,16 +1,15 @@
-import { sql } from "drizzle-orm";
+import { useQuery } from "@tanstack/react-query";
 
-import { db } from "@/db/client";
-import { DEFAULT_SETTINGS } from "@/db/seed";
-import { settings } from "@/db/schema";
-import { useLiveQuery } from "@/hooks/use-live-query";
+import { settingsQueryOptions } from "@/data/query/queries";
+import { resetSettings, updateSetting } from "@/data/settings-commands";
+import { DEFAULT_SETTINGS } from "@/db/default-settings";
 
 export type JapaneseFont = "mincho" | "gothic";
 export type ThemePreference = "system" | "light" | "dark";
 export type CardContent = "word" | "sentence" | "word_sentence";
 
 export function useSettings() {
-  const { data = [] } = useLiveQuery(db.select().from(settings), ["settings"]);
+  const { data = [] } = useQuery(settingsQueryOptions());
   const values = Object.fromEntries(data.map((row) => [row.key, row.value]));
   return {
     newPerDay: Number(values.new_per_day ?? DEFAULT_SETTINGS.new_per_day),
@@ -35,33 +34,4 @@ export function useSettings() {
   };
 }
 
-export async function updateSetting(
-  key: keyof typeof DEFAULT_SETTINGS,
-  value: string,
-): Promise<void> {
-  const updates = [{ key, value }];
-  if (key === "word_audio" && value === "false") {
-    updates.push({ key: "autoplay", value: "false" });
-  } else if (key === "autoplay" && value === "true") {
-    updates.push({ key: "word_audio", value: "true" });
-  }
-  await db
-    .insert(settings)
-    .values(updates)
-    .onConflictDoUpdate({
-      target: settings.key,
-      set: { value: sql`excluded.value` },
-    });
-}
-
-export async function resetSettings(): Promise<void> {
-  await db.transaction(async (tx) => {
-    await tx.delete(settings);
-    await tx.insert(settings).values(
-      Object.entries(DEFAULT_SETTINGS).map(([key, value]) => ({
-        key,
-        value,
-      })),
-    );
-  });
-}
+export { resetSettings, updateSetting };

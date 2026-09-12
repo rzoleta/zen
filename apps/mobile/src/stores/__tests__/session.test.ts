@@ -1,4 +1,4 @@
-import type { QueueItem } from "@/scheduler";
+import type { QueueItem } from "@/domain/study";
 import { isReady, useSessionStore } from "@/stores/session";
 
 const TEN_MINUTES = 10 * 60 * 1000;

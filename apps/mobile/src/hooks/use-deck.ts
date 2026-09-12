@@ -1,48 +1,33 @@
-import { eq } from "drizzle-orm";
+import { useQuery } from "@tanstack/react-query";
+import { State } from "ts-fsrs";
 
-import { db } from "@/db/client";
-import { cards, reviewLog, words } from "@/db/schema";
-import { useLiveQuery } from "@/hooks/use-live-query";
+import { cards } from "@/db/schema";
+import { deckQueryOptions, reviewLogsQueryOptions } from "@/data/query/queries";
 import { useSettings } from "@/hooks/use-settings";
 import {
   composePendingLearningQueue,
   composeQueue,
   studyDayBounds,
-} from "@/scheduler";
+} from "@/domain/study";
 import { isReady } from "@/stores/session";
 
-export type WordStatus =
-  | "new"
-  | "learning"
-  | "mature"
-  | "known"
-  | "suspended";
+export type WordStatus = "new" | "learning" | "mature" | "known" | "suspended";
 
 export function cardStatus(card: typeof cards.$inferSelect): WordStatus {
   if (card.known) return "known";
   if (card.suspended !== "none") return "suspended";
-  if (card.state === 0) return "new";
-  if (card.state === 1 || card.state === 3) return "learning";
+  if (card.state === State.New) return "new";
+  if (card.state === State.Learning || card.state === State.Relearning)
+    return "learning";
   return card.scheduledDays >= 21 ? "mature" : "learning";
 }
 
 export function useDeckRows() {
-  // useLiveQuery watches the base table, so cards must come first here.
-  return (
-    useLiveQuery(
-      db.select().from(cards).innerJoin(words, eq(words.id, cards.wordId)),
-      ["cards"],
-    ).data ?? []
-  );
+  return useQuery(deckQueryOptions()).data ?? [];
 }
 
 export function useReviewLogs() {
-  // Reset uses SQLite's truncate optimization, which may not emit row events
-  // for review_log. It always updates cards, so either table refreshes logs.
-  return (
-    useLiveQuery(db.select().from(reviewLog), ["review_log", "cards"]).data ??
-    []
-  );
+  return useQuery(reviewLogsQueryOptions()).data ?? [];
 }
 
 export function useQueue(now = new Date()) {
@@ -59,7 +44,8 @@ export function useQueue(now = new Date()) {
       )
       .filter(
         (log) =>
-          (JSON.parse(log.previousCard) as { state?: number }).state === 0,
+          (JSON.parse(log.previousCard) as { state?: number }).state ===
+          State.New,
       )
       .map((log) => log.cardId),
   ).size;

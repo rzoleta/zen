@@ -1,4 +1,5 @@
 PRAGMA foreign_keys = ON;
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS words (
   id INTEGER PRIMARY KEY NOT NULL,
@@ -16,6 +17,7 @@ CREATE TABLE IF NOT EXISTS words (
   word_audio TEXT,
   sentence_audio TEXT
 );
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS cards (
   word_id INTEGER PRIMARY KEY NOT NULL REFERENCES words(id) ON DELETE CASCADE,
@@ -32,6 +34,7 @@ CREATE TABLE IF NOT EXISTS cards (
   suspended TEXT NOT NULL DEFAULT 'none',
   known INTEGER NOT NULL DEFAULT 0
 );
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS review_log (
   id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -41,9 +44,12 @@ CREATE TABLE IF NOT EXISTS review_log (
   reviewed_at INTEGER NOT NULL,
   duration_ms INTEGER NOT NULL
 );
+--> statement-breakpoint
 
 CREATE INDEX IF NOT EXISTS review_log_card_idx ON review_log(card_id);
+--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS review_log_date_idx ON review_log(reviewed_at);
+--> statement-breakpoint
 
 CREATE TABLE IF NOT EXISTS settings (
   key TEXT PRIMARY KEY NOT NULL,

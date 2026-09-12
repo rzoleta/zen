@@ -13,7 +13,7 @@ import {
 import { Text } from "@/components/ui";
 import { useTheme } from "@/hooks/use-theme";
 import { calendarWeeks } from "@/lib/review-activity";
-import { currentStudyDay } from "@/scheduler";
+import { currentStudyDay } from "@/domain/study";
 
 const CELL_SIZE = 15;
 const POPOVER_WIDTH = 220;
