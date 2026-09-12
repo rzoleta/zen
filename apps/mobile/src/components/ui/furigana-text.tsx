@@ -30,6 +30,8 @@ interface FuriganaTextProps extends Omit<ViewProps, "children"> {
   style?: StyleProp<ViewStyle>;
   baseStyle?: StyleProp<TextStyle>;
   highlightRange?: { start: number; length: number };
+  /** Allow long ruby groups to wrap inside a narrow detail sheet. */
+  maxSegmentWidth?: number;
 }
 
 export function FuriganaText({
@@ -44,6 +46,7 @@ export function FuriganaText({
   style,
   baseStyle,
   highlightRange,
+  maxSegmentWidth,
   accessibilityLabel,
   ...props
 }: FuriganaTextProps) {
@@ -84,6 +87,7 @@ export function FuriganaText({
                 segment={segment}
                 baseStyle={[baseTextStyle, baseStyle]}
                 highlightRange={highlightRange}
+                maxWidth={maxSegmentWidth}
                 furiganaStyle={{
                   color: furiganaColor ?? theme.muted,
                   fontFamily: baseTextStyle.fontFamily,
@@ -120,18 +124,20 @@ function RubySegment({
   baseStyle,
   furiganaStyle,
   highlightRange,
+  maxWidth,
 }: {
   segment: FuriganaSegment & { start: number };
   baseStyle: StyleProp<TextStyle>;
   furiganaStyle: StyleProp<TextStyle>;
   highlightRange?: FuriganaTextProps["highlightRange"];
+  maxWidth?: number;
 }) {
   return (
-    <View accessible={false} style={styles.segment}>
-      <JapaneseText accessible={false} style={furiganaStyle}>
+    <View accessible={false} style={[styles.segment, { maxWidth }]}>
+      <JapaneseText accessible={false} style={[furiganaStyle, { maxWidth }]}>
         {segment.reading ?? "\u00a0"}
       </JapaneseText>
-      <JapaneseText accessible={false} style={baseStyle}>
+      <JapaneseText accessible={false} style={[baseStyle, { maxWidth }]}>
         <HighlightedBaseText
           text={segment.text}
           start={segment.start}
@@ -164,7 +170,9 @@ function HighlightedBaseText({
       <NativeText style={{ color: theme.muted, opacity: 0.8 }}>
         {text.slice(0, from)}
       </NativeText>
-      <NativeText style={{ color: theme.text }}>{text.slice(from, to)}</NativeText>
+      <NativeText style={{ color: theme.text }}>
+        {text.slice(from, to)}
+      </NativeText>
       <NativeText style={{ color: theme.muted, opacity: 0.8 }}>
         {text.slice(to)}
       </NativeText>

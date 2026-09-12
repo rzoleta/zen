@@ -1,6 +1,17 @@
 import { cn } from "@/lib/cn";
 
 describe("cn", () => {
+  test("keeps native text color when replacing its semantic size", () => {
+    expect(
+      cn("font-ui text-body text-foreground", "text-content-title font-medium"),
+    ).toBe("font-ui text-foreground text-content-title font-medium");
+    expect(
+      cn(
+        "font-ui text-body text-foreground",
+        "text-subhead text-muted-foreground",
+      ),
+    ).toBe("font-ui text-subhead text-muted-foreground");
+  });
   test("lets the study count override default text styles", () => {
     expect(
       cn(
@@ -22,7 +33,13 @@ describe("cn", () => {
 
   test("preserves independent styles and ignores absent classes", () => {
     expect(
-      cn("text-base text-foreground", false, undefined, null, "text-muted-foreground"),
+      cn(
+        "text-base text-foreground",
+        false,
+        undefined,
+        null,
+        "text-muted-foreground",
+      ),
     ).toBe("text-base text-muted-foreground");
   });
 });

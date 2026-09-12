@@ -12,7 +12,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "@/components/ui/text";
 import { useTheme } from "@/hooks/use-theme";
 
-const itemHeight = 40;
 const itemGap = 4;
 const padding = 4;
 const edge = 8;
@@ -37,6 +36,7 @@ export function Select<T extends string>({
   const [activeValue, setActiveValue] = useState<T | null>(null);
   const theme = useTheme();
   const window = useWindowDimensions();
+  const itemHeight = Math.max(44, 28 * window.fontScale + 16);
   const insets = useSafeAreaInsets();
   const selectedIndex = Math.max(
     0,
@@ -103,9 +103,11 @@ export function Select<T extends string>({
         accessibilityState={{ expanded: anchor !== null }}
         onPress={open}
         hitSlop={6}
-        className="h-10 min-w-48 flex-row items-center justify-between gap-3 rounded-lg border border-border bg-secondary/30 px-3 active:bg-secondary/50"
+        className="min-h-[44px] shrink flex-row items-center justify-between gap-2 px-1 active:opacity-60"
       >
-        <Text className="text-base">{selectedLabel}</Text>
+        <Text native className="shrink">
+          {selectedLabel}
+        </Text>
         <SymbolView
           name={{
             ios: "chevron.down",
@@ -171,7 +173,9 @@ export function Select<T extends string>({
                   style={{ height: itemHeight }}
                   className={`flex-row items-center justify-between gap-2 rounded-md px-3 active:bg-secondary ${option.value === (activeValue ?? value) ? "bg-secondary" : ""}`}
                 >
-                  <Text className="text-base">{option.label}</Text>
+                  <Text native className="shrink">
+                    {option.label}
+                  </Text>
                   {option.value === value ? (
                     <SymbolView
                       name={{
