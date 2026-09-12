@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import type { QueueItem } from "@/scheduler";
+import type { QueueItem } from "@/domain/study";
 
 export function isReady(
   item: QueueItem,

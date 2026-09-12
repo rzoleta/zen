@@ -3,9 +3,9 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 
-import { StatusChip } from "@/components/status-chip";
 import { FuriganaText, Text } from "@/components/ui";
-import { WordContextMenu } from "@/components/word-context-menu";
+import { StatusChip } from "@/features/words/components/status-chip";
+import { WordContextMenu } from "@/features/words/components/word-context-menu";
 import type { JapaneseFontFace } from "@/components/ui/text";
 import { cardStatus, type useDeckRows } from "@/hooks/use-deck";
 

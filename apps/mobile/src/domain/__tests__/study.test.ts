@@ -7,7 +7,7 @@ import {
   currentStudyDay,
   scheduleGrade,
   studyDayBounds,
-} from "@/scheduler";
+} from "@/domain/study";
 
 function card(
   overrides: Partial<CardRow & { deckOrder: number }> = {},

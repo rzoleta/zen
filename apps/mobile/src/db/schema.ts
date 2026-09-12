@@ -1,4 +1,10 @@
-import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+  index,
+  integer,
+  real,
+  sqliteTable,
+  text,
+} from "drizzle-orm/sqlite-core";
 
 export const words = sqliteTable("words", {
   id: integer("id").primaryKey(),
@@ -37,16 +43,23 @@ export const cards = sqliteTable("cards", {
   known: integer("known", { mode: "boolean" }).notNull().default(false),
 });
 
-export const reviewLog = sqliteTable("review_log", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  cardId: integer("card_id")
-    .notNull()
-    .references(() => cards.wordId, { onDelete: "cascade" }),
-  rating: integer("rating").notNull(),
-  previousCard: text("previous_card").notNull(),
-  reviewedAt: integer("reviewed_at").notNull(),
-  durationMs: integer("duration_ms").notNull(),
-});
+export const reviewLog = sqliteTable(
+  "review_log",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    cardId: integer("card_id")
+      .notNull()
+      .references(() => cards.wordId, { onDelete: "cascade" }),
+    rating: integer("rating").notNull(),
+    previousCard: text("previous_card").notNull(),
+    reviewedAt: integer("reviewed_at").notNull(),
+    durationMs: integer("duration_ms").notNull(),
+  },
+  (table) => [
+    index("review_log_card_idx").on(table.cardId),
+    index("review_log_date_idx").on(table.reviewedAt),
+  ],
+);
 
 export const settings = sqliteTable("settings", {
   key: text("key").primaryKey(),
