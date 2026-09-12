@@ -54,7 +54,7 @@ export function SettingsForm({ children }: PropsWithChildren) {
       <Form
         modifiers={[
           scrollContentBackground("hidden"),
-          background(theme.groupedBackground),
+          background(theme.background),
           font({ textStyle: "body" }),
           foregroundStyle(theme.text),
         ]}
@@ -67,6 +67,7 @@ export function SettingsForm({ children }: PropsWithChildren) {
 
 export function SettingsGroup({ title, footer, children }: GroupProps) {
   const theme = useTheme();
+  const scheme = useColorScheme();
   return (
     <Section
       header={
@@ -93,7 +94,11 @@ export function SettingsGroup({ title, footer, children }: GroupProps) {
           </Text>
         ) : undefined
       }
-      modifiers={[listRowBackground(theme.groupedCard)]}
+      modifiers={[
+        listRowBackground(
+          scheme === "dark" ? theme.groupedCard : theme.groupedBackground,
+        ),
+      ]}
     >
       {children}
     </Section>

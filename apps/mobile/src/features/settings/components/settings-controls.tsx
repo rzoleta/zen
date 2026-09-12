@@ -18,7 +18,7 @@ export function SettingsForm({ children }: PropsWithChildren) {
   return (
     <Screen
       header
-      backgroundClassName="bg-muted dark:bg-background"
+      backgroundClassName="bg-background"
       className="gap-8"
       contentContainerClassName="pb-12"
     >
@@ -35,7 +35,7 @@ export function SettingsGroup({ title, footer, children }: GroupProps) {
           {title}
         </Text>
       ) : null}
-      <View className="overflow-hidden rounded-[24px] bg-white dark:bg-secondary">
+      <View className="overflow-hidden rounded-[24px] bg-muted dark:bg-secondary">
         {items.map((child, index) => (
           <Fragment key={index}>
             {index > 0 ? <View className="ml-4 h-px bg-border" /> : null}
