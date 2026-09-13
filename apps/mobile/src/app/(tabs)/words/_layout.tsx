@@ -9,9 +9,20 @@ export default function WordsLayout() {
       <Stack.Screen
         name="[id]"
         options={{
-          headerShown: false,
+          headerShown: true,
+          title: "Word",
+          headerLargeTitleEnabled: false,
+          headerTitleStyle: { fontFamily: undefined },
+          headerBackVisible: false,
           presentation: "modal",
           animation: "slide_from_bottom",
+          // Show the header material even when the scroll view is at the top.
+          scrollEdgeEffects: {
+            top: "hard",
+            bottom: "hidden",
+            left: "hidden",
+            right: "hidden",
+          },
         }}
       />
     </Stack>

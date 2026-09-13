@@ -160,5 +160,5 @@ export default function WordsScreen() {
 }
 
 function WordSeparator() {
-  return <View className="mx-5 h-px bg-border" />;
+  return <View className="mx-5 h-px bg-separator" />;
 }

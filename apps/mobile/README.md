@@ -17,6 +17,21 @@ Zen targets iOS and Android only. `expo.platforms` excludes web so browser reque
 to Metro do not render the app or bundle SQLite's web worker. Restart Metro after
 changing the platform configuration.
 
+## Native settings and typography
+
+Settings shares its routes and persistence logic across platforms. The
+`settings-controls.ios.tsx` implementation uses Expo UI's SwiftUI Form, Picker,
+Toggle, Stepper, and Slider. The default implementation supplies Android controls.
+Use a matching SDK 57 Expo Go runtime; no additional native dependency is required.
+
+For redesigned React Native screens, `<Text native>` selects the platform system
+font and the 17-point `text-body` baseline. Tailwind also defines `text-subhead`,
+`text-footnote`, `text-content-title`, and `text-large-title`. These use explicit
+sizes because changing NativeWind's 14-point rem would also change app spacing.
+SwiftUI controls use Dynamic Type styles. Japanese text keeps the bundled Gothic
+and Mincho fonts; SwiftUI needs their PostScript names from `Fonts`, while React
+Native uses their Expo aliases.
+
 ## Deck content
 
 The app bundles all 1,500 cards and the word and sentence audio extracted from

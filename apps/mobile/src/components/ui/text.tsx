@@ -16,18 +16,23 @@ export type TextVariant = keyof typeof variants;
 export function Text({
   variant,
   muted,
+  native = false,
   className,
+  style,
   ...props
-}: TextProps & { variant?: TextVariant; muted?: boolean }) {
+}: TextProps & { variant?: TextVariant; muted?: boolean; native?: boolean }) {
   return (
     <RNText
       {...props}
       className={cn(
-        "font-sans text-base text-foreground",
+        native
+          ? "font-ui text-body text-foreground"
+          : "font-sans text-base text-foreground",
         variant && variants[variant],
         muted && "text-muted-foreground",
         className,
       )}
+      style={[native && { fontFamily: Fonts.ui }, style]}
     />
   );
 }

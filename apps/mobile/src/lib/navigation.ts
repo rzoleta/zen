@@ -9,7 +9,9 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
  * Native iOS large-title header. Screens under it should use scroll views
  * with `contentInsetAdjustmentBehavior="automatic"`.
  */
-export function useNativeHeaderOptions(): NativeStackNavigationOptions {
+export function useNativeHeaderOptions(
+  systemTypography = false,
+): NativeStackNavigationOptions {
   const theme = useTheme();
   const scheme = useColorScheme();
   if (Platform.OS === "ios") {
@@ -28,14 +30,23 @@ export function useNativeHeaderOptions(): NativeStackNavigationOptions {
       headerLargeTitleShadowVisible: false,
       headerLargeStyle: { backgroundColor: "transparent" },
       headerTintColor: theme.text,
-      headerLargeTitleStyle: { fontFamily: Fonts.semibold, color: theme.text },
-      headerTitleStyle: { fontFamily: Fonts.semibold, color: theme.text },
+      headerLargeTitleStyle: {
+        ...(systemTypography ? {} : { fontFamily: Fonts.semibold }),
+        color: theme.text,
+      },
+      headerTitleStyle: {
+        ...(systemTypography ? {} : { fontFamily: Fonts.semibold }),
+        color: theme.text,
+      },
     };
   }
   return {
     headerStyle: { backgroundColor: theme.background },
     headerShadowVisible: false,
     headerTintColor: theme.text,
-    headerTitleStyle: { fontFamily: Fonts.semibold, color: theme.text },
+    headerTitleStyle: {
+      fontFamily: systemTypography ? Fonts.ui : Fonts.semibold,
+      color: theme.text,
+    },
   };
 }
