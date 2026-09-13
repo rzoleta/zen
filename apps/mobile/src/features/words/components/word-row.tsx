@@ -46,7 +46,12 @@ export function WordRow({
           {item.words.meaning}
         </Text>
       </View>
-      <StatusChip status={status} leech={item.cards.suspended === "leech"} />
+      <View className="self-stretch items-end justify-between">
+        <StatusChip status={status} leech={item.cards.suspended === "leech"} />
+        <Text native muted className="text-footnote">
+          #{item.words.deckOrder}
+        </Text>
+      </View>
     </>
   );
   if (selecting) {
@@ -54,7 +59,7 @@ export function WordRow({
       <Pressable
         accessibilityRole="checkbox"
         accessibilityState={{ checked: selected, disabled: saving }}
-        accessibilityLabel={`${item.words.word}, ${item.words.meaning}`}
+        accessibilityLabel={`Word ${item.words.deckOrder}, ${item.words.word}, ${item.words.meaning}`}
         disabled={saving}
         onPress={onSelect}
         className={cn(
