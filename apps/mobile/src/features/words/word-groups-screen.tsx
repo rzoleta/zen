@@ -1,14 +1,17 @@
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
+import { SymbolView } from "expo-symbols";
 import { Fragment } from "react";
 import { Pressable, View } from "react-native";
 
 import { Screen, Text } from "@/components/ui";
 import { useDeckRows } from "@/hooks/use-deck";
+import { useTheme } from "@/hooks/use-theme";
 import { WORD_GROUPS, wordIsInGroup } from "@/features/words/word-groups";
 
 export default function WordGroupsScreen() {
   const rows = useDeckRows();
+  const theme = useTheme();
 
   return (
     <Screen header className="pt-4" contentContainerClassName="pb-12">
@@ -33,6 +36,13 @@ export default function WordGroupsScreen() {
                 }}
                 className="min-h-[56px] flex-row items-center gap-4 px-4 py-3 active:opacity-60"
               >
+                <SymbolView
+                  name={group.icon}
+                  size={20}
+                  tintColor={theme.muted}
+                  accessible={false}
+                  className="w-6"
+                />
                 <Text native className="flex-1">
                   {group.name}
                 </Text>

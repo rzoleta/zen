@@ -17,6 +17,20 @@ function wordsForGroup(slug: string) {
 }
 
 describe("word groups", () => {
+  it("assigns an SF Symbol to every group", () => {
+    expect(WORD_GROUPS.map(({ icon }) => icon)).toEqual([
+      "books.vertical",
+      "number",
+      "calendar",
+      "figure.arms.open",
+      "person.3",
+      "questionmark.circle",
+      "bubble.left.and.bubble.right",
+      "location.north",
+      "cloud.sun",
+    ]);
+  });
+
   it("keeps All Words first and includes every deck word", () => {
     const allWords = WORD_GROUPS[0];
 
