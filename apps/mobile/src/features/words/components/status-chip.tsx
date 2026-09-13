@@ -19,13 +19,15 @@ export function StatusChip({
     known: theme.chartBlue,
     suspended: theme.destructive,
   };
+  const color = colors[status];
 
   return (
     <Badge
       variant="outline"
       label={leech ? "leech" : status}
       className={className}
-      textStyle={{ color: colors[status] }}
+      style={{ borderColor: color }}
+      textStyle={{ color }}
     />
   );
 }
