@@ -99,10 +99,10 @@ export function Heatmap({
                     });
                     setPopoverVisible(true);
                   }}
-                  className="h-[15px] w-[15px] rounded"
+                  // Empty cells need to read against the grouped container,
+                  // which is bg-secondary in dark mode.
+                  className={`h-[15px] w-[15px] rounded ${count > 0 ? "bg-primary" : "bg-accent"}`}
                   style={{
-                    backgroundColor:
-                      count > 0 ? theme.primary : theme.secondary,
                     borderColor: isSelected ? theme.muted : "transparent",
                     borderWidth: isSelected ? 2 : 0,
                   }}
@@ -142,10 +142,10 @@ export function Heatmap({
                 width: POPOVER_WIDTH,
               }}
             >
-              <Text className="text-center" variant="headline">
+              <Text native className="text-center font-semibold">
                 {formatDisplayDate(selectedDay.date)}
               </Text>
-              <Text className="text-center" muted>
+              <Text native muted className="text-center text-subhead">
                 {reviewCountLabel(selectedDay.count)}
               </Text>
             </View>

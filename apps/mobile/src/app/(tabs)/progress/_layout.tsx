@@ -4,7 +4,7 @@ import { useNativeHeaderOptions } from "@/lib/navigation";
 
 export default function ProgressLayout() {
   return (
-    <Stack screenOptions={useNativeHeaderOptions()}>
+    <Stack screenOptions={useNativeHeaderOptions(true)}>
       <Stack.Screen name="index" options={{ title: "Progress" }} />
     </Stack>
   );

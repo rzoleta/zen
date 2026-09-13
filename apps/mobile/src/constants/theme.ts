@@ -18,6 +18,7 @@ export const Colors = {
     destructive: "#dc2626",
     chartAmber: "#ffae04",
     chartBlue: "#2d62ef",
+    chartNeutral: "#a4a4a4",
   },
   dark: {
     text: "#ffffff",
@@ -33,6 +34,7 @@ export const Colors = {
     destructive: "#dc2626",
     chartAmber: "#ffae04",
     chartBlue: "#2671f4",
+    chartNeutral: "#747474",
   },
 } as const;
 
