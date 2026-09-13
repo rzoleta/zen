@@ -1,4 +1,9 @@
-import { View, type ViewProps } from "react-native";
+import {
+  View,
+  type StyleProp,
+  type TextStyle,
+  type ViewProps,
+} from "react-native";
 
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/cn";
@@ -19,8 +24,13 @@ export function Badge({
   label,
   variant = "outline",
   className,
+  textStyle,
   ...props
-}: ViewProps & { label: string; variant?: keyof typeof variants }) {
+}: ViewProps & {
+  label: string;
+  variant?: keyof typeof variants;
+  textStyle?: StyleProp<TextStyle>;
+}) {
   return (
     <View
       {...props}
@@ -30,7 +40,9 @@ export function Badge({
         className,
       )}
     >
-      <Text className={cn("text-xs", variants[variant].text)}>{label}</Text>
+      <Text className={cn("text-xs", variants[variant].text)} style={textStyle}>
+        {label}
+      </Text>
     </View>
   );
 }
