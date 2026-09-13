@@ -38,7 +38,7 @@ export function SettingsGroup({ title, footer, children }: GroupProps) {
       <View className="overflow-hidden rounded-[24px] bg-muted dark:bg-secondary">
         {items.map((child, index) => (
           <Fragment key={index}>
-            {index > 0 ? <View className="ml-4 h-px bg-border" /> : null}
+            {index > 0 ? <View className="ml-4 h-px bg-separator" /> : null}
             {child}
           </Fragment>
         ))}

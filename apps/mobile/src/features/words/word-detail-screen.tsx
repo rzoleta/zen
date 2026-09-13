@@ -287,7 +287,7 @@ function StudyRow({
   const { fontScale } = useWindowDimensions();
   return (
     <View>
-      {!first ? <View className="ml-4 h-px bg-border" /> : null}
+      {!first ? <View className="ml-4 h-px bg-separator" /> : null}
       <View
         className={`min-h-[52px] gap-3 px-4 py-3 ${fontScale > 1.3 ? "items-start" : "flex-row items-center justify-between"}`}
       >

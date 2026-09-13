@@ -33,6 +33,7 @@ module.exports = {
           foreground: "var(--destructive-foreground)",
         },
         border: "var(--border)",
+        separator: "var(--separator)",
         input: "var(--input)",
         ring: "var(--ring)",
         "chart-1": "var(--chart-1)",
