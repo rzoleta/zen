@@ -153,30 +153,26 @@ export default function WordDetailScreen() {
           </View>
         ) : (
           <>
-            <View
-              className="gap-3"
-              onLayout={(event) =>
-                setEntryWidth(event.nativeEvent.layout.width)
-              }
-            >
-              <FuriganaText
-                text={detail.words.wordFurigana}
-                font={jpFont}
-                fontSize={Math.min(
-                  48,
-                  Math.max(
-                    28,
-                    entryWidth / Math.max(1, detail.words.word.length),
-                  ),
-                )}
-                maxSegmentWidth={entryWidth}
-                lineHeight={64}
-                furiganaFontSize={16}
-              />
+            <View className="gap-3">
               <View className="flex-row items-center gap-4">
-                <Text native className="flex-1 text-content-title font-medium">
-                  {detail.words.meaning}
-                </Text>
+                <FuriganaText
+                  className="flex-1"
+                  text={detail.words.wordFurigana}
+                  font={jpFont}
+                  fontSize={Math.min(
+                    48,
+                    Math.max(
+                      28,
+                      entryWidth / Math.max(1, detail.words.word.length),
+                    ),
+                  )}
+                  maxSegmentWidth={entryWidth}
+                  lineHeight={64}
+                  furiganaFontSize={16}
+                  onLayout={(event) =>
+                    setEntryWidth(event.nativeEvent.layout.width)
+                  }
+                />
                 {wordSource ? (
                   <AudioButton
                     label="Play word pronunciation"
@@ -184,12 +180,24 @@ export default function WordDetailScreen() {
                   />
                 ) : null}
               </View>
+              <Text native className="text-content-title font-medium">
+                {detail.words.meaning}
+              </Text>
             </View>
             <View className="gap-3">
-              <View className="flex-row items-center justify-between">
-                <Text native muted className="text-subhead">
-                  Example
-                </Text>
+              <Text native muted className="text-subhead">
+                Example
+              </Text>
+              <View className="flex-row items-center gap-4">
+                <FuriganaText
+                  className="flex-1"
+                  text={detail.words.sentenceFurigana}
+                  font={jpFont}
+                  fontSize={24}
+                  maxSegmentWidth={entryWidth}
+                  lineHeight={38}
+                  furiganaFontSize={12}
+                />
                 {sentenceSource ? (
                   <AudioButton
                     label="Play example sentence"
@@ -197,14 +205,6 @@ export default function WordDetailScreen() {
                   />
                 ) : null}
               </View>
-              <FuriganaText
-                text={detail.words.sentenceFurigana}
-                font={jpFont}
-                fontSize={24}
-                maxSegmentWidth={entryWidth}
-                lineHeight={38}
-                furiganaFontSize={12}
-              />
               <Text native muted>
                 {detail.words.sentenceMeaning}
               </Text>

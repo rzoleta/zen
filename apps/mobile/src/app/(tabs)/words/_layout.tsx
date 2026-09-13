@@ -16,6 +16,13 @@ export default function WordsLayout() {
           headerBackVisible: false,
           presentation: "modal",
           animation: "slide_from_bottom",
+          // Show the header material even when the scroll view is at the top.
+          scrollEdgeEffects: {
+            top: "hard",
+            bottom: "hidden",
+            left: "hidden",
+            right: "hidden",
+          },
         }}
       />
     </Stack>

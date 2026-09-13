@@ -8,7 +8,6 @@ import {
   Section,
   Slider,
   Spacer,
-  Stepper,
   Text,
   Toggle,
   VStack,
@@ -23,7 +22,10 @@ import {
   disabled,
   font,
   foregroundStyle,
+  frame,
+  glassEffect,
   listRowBackground,
+  monospacedDigit,
   pickerStyle,
   scrollContentBackground,
   tag,
@@ -86,7 +88,7 @@ export function SettingsGroup({ title, footer, children }: GroupProps) {
         footer ? (
           <Text
             modifiers={[
-              font({ textStyle: "subheadline" }),
+              font({ textStyle: "footnote" }),
               foregroundStyle(theme.muted),
             ]}
           >
@@ -184,15 +186,45 @@ export function SettingsNumber({
   unit = "",
   onChange,
 }: NumberProps) {
+  const theme = useTheme();
+  const clamp = (next: number) =>
+    Math.max(min, Math.min(max ?? Number.MAX_SAFE_INTEGER, next));
+  const actions = [
+    {
+      label: `Decrease ${title}`,
+      systemName: "minus",
+      enabled: value > min,
+      next: value - step,
+    },
+    {
+      label: `Increase ${title}`,
+      systemName: "plus",
+      enabled: max === undefined || value < max,
+      next: value + step,
+    },
+  ] as const;
   return (
-    <Stepper
-      label={`${title}: ${value}${unit}`}
-      value={value}
-      min={min}
-      max={max ?? 2147483647}
-      step={step}
-      onValueChange={onChange}
-    />
+    <HStack spacing={12}>
+      <Text modifiers={[monospacedDigit()]}>{`${title}: ${value}${unit}`}</Text>
+      <Spacer />
+      <HStack spacing={4}>
+        {actions.map((action) => (
+          <Button
+            key={action.systemName}
+            onPress={() => onChange(clamp(action.next))}
+            modifiers={[
+              buttonStyle("plain"),
+              disabled(!action.enabled),
+              accessibilityLabel(action.label),
+              frame({ width: 36, height: 36 }),
+              glassEffect({ glass: { variant: "regular", interactive: true } }),
+            ]}
+          >
+            <Image systemName={action.systemName} size={15} color={theme.text} />
+          </Button>
+        ))}
+      </HStack>
+    </HStack>
   );
 }
 

@@ -44,7 +44,7 @@ export function SettingsGroup({ title, footer, children }: GroupProps) {
         ))}
       </View>
       {footer ? (
-        <Text native muted className="px-4 text-subhead">
+        <Text native muted className="px-4 text-footnote">
           {footer}
         </Text>
       ) : null}
@@ -169,7 +169,7 @@ export function SettingsNumber({
                   ),
                 )
               }
-              className="h-[44px] w-[44px] items-center justify-center active:opacity-60 disabled:opacity-30"
+              className="h-[44px] w-[44px] items-center justify-center active:bg-secondary disabled:opacity-30 dark:active:bg-muted"
             >
               <Text native>{direction === -1 ? "−" : "+"}</Text>
             </Pressable>
