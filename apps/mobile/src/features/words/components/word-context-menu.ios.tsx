@@ -11,6 +11,7 @@ export function WordContextMenu({
   knownDisabled,
   suspendDisabled,
   onAction,
+  onSelect,
 }: WordContextMenuProps) {
   return (
     <Host
@@ -43,6 +44,7 @@ export function WordContextMenu({
             modifiers={[disabled(suspendDisabled)]}
             onPress={() => onAction("suspend")}
           />
+          <Button label="Select" onPress={onSelect} />
         </ContextMenu.Items>
       </ContextMenu>
     </Host>

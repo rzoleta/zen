@@ -8,6 +8,7 @@ export interface WordContextMenuProps {
   knownDisabled: boolean;
   suspendDisabled: boolean;
   onAction: (action: "known" | "suspend") => void;
+  onSelect: () => void;
 }
 
 export function WordContextMenu({
@@ -15,6 +16,7 @@ export function WordContextMenu({
   knownDisabled,
   suspendDisabled,
   onAction,
+  onSelect,
 }: WordContextMenuProps) {
   return (
     <MenuView
@@ -30,10 +32,15 @@ export function WordContextMenu({
           title: "Suspend",
           attributes: { disabled: suspendDisabled, destructive: true },
         },
+        {
+          id: "select",
+          title: "Select",
+        },
       ]}
       onPressAction={({ nativeEvent }) => {
         if (nativeEvent.event === "known" || nativeEvent.event === "suspend")
           onAction(nativeEvent.event);
+        else if (nativeEvent.event === "select") onSelect();
       }}
     >
       {children}
