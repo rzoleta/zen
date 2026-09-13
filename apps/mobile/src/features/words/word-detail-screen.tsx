@@ -189,14 +189,11 @@ export default function WordDetailScreen() {
                   />
                 ) : null}
               </View>
-              <Text native className="text-content-title font-medium">
+              <Text native muted>
                 {detail.words.meaning}
               </Text>
             </View>
             <View className="gap-3">
-              <Text native muted className="text-subhead">
-                Example
-              </Text>
               <View className="flex-row items-center gap-4">
                 <FuriganaText
                   className="flex-1"
