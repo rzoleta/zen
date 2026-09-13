@@ -1,5 +1,5 @@
 import * as Haptics from "expo-haptics";
-import { Stack } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { useMemo, useRef, useState } from "react";
 import {
   AccessibilityInfo,
@@ -29,6 +29,7 @@ import { cardStatus, type WordStatus, useDeckRows } from "@/hooks/use-deck";
 import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
 import { confirmWordAction } from "@/lib/confirm-word-action";
+import { getWordGroup, wordIsInGroup } from "@/features/words/word-groups";
 
 const filters: ("all" | WordStatus)[] = [
   "all",
@@ -42,6 +43,8 @@ const filters: ("all" | WordStatus)[] = [
 type BulkAction = "known" | "reset" | "suspend";
 
 export default function WordsScreen() {
+  const { group: groupSlug } = useLocalSearchParams<{ group: string }>();
+  const group = getWordGroup(groupSlug) ?? getWordGroup("all")!;
   const theme = useTheme();
   const { jpFont } = useSettings();
   const rows = useDeckRows();
@@ -54,11 +57,12 @@ export default function WordsScreen() {
       rows.filter((row) => {
         const status = cardStatus(row.cards);
         return (
+          wordIsInGroup(row.words.id, group) &&
           (filter === "all" || filter === status) &&
           matchesWordQuery(row.words, query)
         );
       }),
-    [filter, query, rows],
+    [filter, group, query, rows],
   );
   const saving = useRef(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -202,7 +206,7 @@ export default function WordsScreen() {
     <>
       <Stack.Screen
         options={{
-          title: selecting ? `${selectedIds.size} selected` : "Words",
+          title: selecting ? `${selectedIds.size} selected` : group.name,
           headerSearchBarOptions: {
             placeholder: "Word, reading, or meaning",
             hideWhenScrolling: false,
