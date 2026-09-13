@@ -25,6 +25,10 @@ export function StatusChip({
       variant="outline"
       label={leech ? "leech" : status}
       className={className}
+      style={{
+        borderColor: `${colors[status]}66`,
+        backgroundColor: `${colors[status]}1A`,
+      }}
       textStyle={{ color: colors[status] }}
     />
   );
