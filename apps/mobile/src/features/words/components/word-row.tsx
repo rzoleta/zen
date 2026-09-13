@@ -48,7 +48,7 @@ export function WordRow({
       </View>
       <View className="self-stretch items-end justify-between">
         <StatusChip status={status} leech={item.cards.suspended === "leech"} />
-        <Text native muted className="text-subhead">
+        <Text native muted className="text-footnote">
           #{item.words.deckOrder}
         </Text>
       </View>
