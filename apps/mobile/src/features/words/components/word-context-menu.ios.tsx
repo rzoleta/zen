@@ -9,6 +9,7 @@ export function WordContextMenu({
   preview,
   width,
   knownDisabled,
+  resetDisabled,
   suspendDisabled,
   onAction,
   onSelect,
@@ -38,6 +39,11 @@ export function WordContextMenu({
             label="Mark known"
             modifiers={[disabled(knownDisabled)]}
             onPress={() => onAction("known")}
+          />
+          <Button
+            label="Reset"
+            modifiers={[disabled(resetDisabled)]}
+            onPress={() => onAction("reset")}
           />
           <Button
             label="Suspend"

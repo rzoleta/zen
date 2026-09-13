@@ -16,6 +16,7 @@ import { Text } from "@/components/ui";
 import { WordRow } from "@/features/words/components/word-row";
 import { db } from "@/db/client";
 import {
+  resetCard,
   resetCards,
   setKnown,
   setManyKnown,
@@ -63,20 +64,23 @@ export default function WordsScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const updateStatus = async (
     word: (typeof rows)[number]["words"],
-    action: "known" | "suspend",
+    action: "known" | "reset" | "suspend",
   ) => {
     if (saving.current) return;
     saving.current = true;
     setIsSaving(true);
     try {
       if (action === "known") await setKnown(db, word.id, true);
+      else if (action === "reset") await resetCard(db, word.id);
       else await setSuspended(db, word.id, "manual");
       const message =
         action === "known"
           ? `Marked ${word.word} as known`
-          : `Suspended ${word.word}`;
-      if (action === "known") toast.success(message);
-      else toast.info(message);
+          : action === "reset"
+            ? `Reset ${word.word}`
+            : `Suspended ${word.word}`;
+      if (action === "suspend") toast.info(message);
+      else toast.success(message);
       if (Platform.OS === "ios")
         AccessibilityInfo.announceForAccessibility(message);
       void Haptics.selectionAsync();
@@ -93,11 +97,15 @@ export default function WordsScreen() {
   };
   const confirmStatus = (
     word: (typeof rows)[number]["words"],
-    action: "known" | "suspend",
+    action: "known" | "reset" | "suspend",
   ) => {
     if (saving.current) return;
     confirmWordAction(
-      action === "known" ? "mark-known" : "suspend",
+      action === "known"
+        ? "mark-known"
+        : action === "reset"
+          ? "reset"
+          : "suspend",
       () => void updateStatus(word, action),
     );
   };
@@ -183,7 +191,7 @@ export default function WordsScreen() {
               : action === "reset"
                 ? "Reset study"
                 : "Suspend",
-          style: action === "known" ? "default" : "destructive",
+          style: action === "suspend" ? "destructive" : "default",
           onPress: () => void performBulkAction(action),
         },
       ],
@@ -226,7 +234,6 @@ export default function WordsScreen() {
               Mark known
             </Stack.Toolbar.MenuAction>
             <Stack.Toolbar.MenuAction
-              destructive
               onPress={() => confirmBulkAction("reset")}
             >
               Reset

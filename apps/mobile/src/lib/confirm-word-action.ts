@@ -24,7 +24,7 @@ const confirmations: Record<
   reset: {
     title: "Reset this card?",
     message: "Its review history and scheduling will be removed.",
-    confirmButton: { text: "Reset", style: "destructive" },
+    confirmButton: { text: "Reset" },
   },
   suspend: {
     title: "Suspend this word?",

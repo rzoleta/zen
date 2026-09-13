@@ -16,7 +16,7 @@ type WordRowProps = {
   saving: boolean;
   selecting: boolean;
   selected: boolean;
-  onAction: (action: "known" | "suspend") => void;
+  onAction: (action: "known" | "reset" | "suspend") => void;
   onSelect: () => void;
 };
 
@@ -87,6 +87,7 @@ export function WordRow({
         <WordContextMenu
           width={width}
           knownDisabled={saving || status === "known"}
+          resetDisabled={saving}
           suspendDisabled={saving || item.cards.suspended !== "none"}
           onAction={onAction}
           onSelect={onSelect}
