@@ -1,1 +1,1 @@
-export { default } from "@/features/words/words-screen";
+export { default } from "@/features/words/word-groups-screen";

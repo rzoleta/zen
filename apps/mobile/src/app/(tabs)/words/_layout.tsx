@@ -6,6 +6,7 @@ export default function WordsLayout() {
   return (
     <Stack screenOptions={useNativeHeaderOptions()}>
       <Stack.Screen name="index" options={{ title: "Words" }} />
+      <Stack.Screen name="group/[group]" options={{ title: "Words" }} />
       <Stack.Screen
         name="[id]"
         options={{
