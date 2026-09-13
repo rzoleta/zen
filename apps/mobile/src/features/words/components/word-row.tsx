@@ -35,9 +35,6 @@ export function WordRow({
   const content = (showSelection: boolean) => (
     <>
       {showSelection ? <SelectionIndicator selected={selected} /> : null}
-      <Text native muted className="w-12 text-right text-subhead">
-        #{item.words.deckOrder}
-      </Text>
       <View className="min-w-0 flex-1 gap-1">
         <FuriganaText
           text={item.words.wordFurigana}
@@ -49,7 +46,12 @@ export function WordRow({
           {item.words.meaning}
         </Text>
       </View>
-      <StatusChip status={status} leech={item.cards.suspended === "leech"} />
+      <View className="self-stretch items-end justify-between">
+        <StatusChip status={status} leech={item.cards.suspended === "leech"} />
+        <Text native muted className="text-subhead">
+          #{item.words.deckOrder}
+        </Text>
+      </View>
     </>
   );
   if (selecting) {
