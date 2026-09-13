@@ -6,24 +6,37 @@ export interface WordContextMenuProps {
   preview: ReactElement;
   width: number;
   knownDisabled: boolean;
+  resetDisabled: boolean;
   suspendDisabled: boolean;
-  onAction: (action: "known" | "suspend") => void;
+  onAction: (action: "known" | "reset" | "suspend") => void;
+  onSelect: () => void;
 }
 
 export function WordContextMenu({
   children,
   knownDisabled,
+  resetDisabled,
   suspendDisabled,
   onAction,
+  onSelect,
 }: WordContextMenuProps) {
   return (
     <MenuView
       shouldOpenOnLongPress
       actions={[
         {
+          id: "select",
+          title: "Select",
+        },
+        {
           id: "known",
           title: "Mark known",
           attributes: { disabled: knownDisabled },
+        },
+        {
+          id: "reset",
+          title: "Reset",
+          attributes: { disabled: resetDisabled },
         },
         {
           id: "suspend",
@@ -32,8 +45,13 @@ export function WordContextMenu({
         },
       ]}
       onPressAction={({ nativeEvent }) => {
-        if (nativeEvent.event === "known" || nativeEvent.event === "suspend")
+        if (
+          nativeEvent.event === "known" ||
+          nativeEvent.event === "reset" ||
+          nativeEvent.event === "suspend"
+        )
           onAction(nativeEvent.event);
+        else if (nativeEvent.event === "select") onSelect();
       }}
     >
       {children}

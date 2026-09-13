@@ -15,7 +15,14 @@ import { toast } from "sonner-native";
 import { Text } from "@/components/ui";
 import { WordRow } from "@/features/words/components/word-row";
 import { db } from "@/db/client";
-import { setKnown, setSuspended } from "@/data/study-commands";
+import {
+  resetCard,
+  resetCards,
+  setKnown,
+  setManyKnown,
+  setManySuspended,
+  setSuspended,
+} from "@/data/study-commands";
 import { cn } from "@/lib/cn";
 import { matchesWordQuery } from "@/lib/search";
 import { cardStatus, type WordStatus, useDeckRows } from "@/hooks/use-deck";
@@ -32,12 +39,16 @@ const filters: ("all" | WordStatus)[] = [
   "suspended",
 ];
 
+type BulkAction = "known" | "reset" | "suspend";
+
 export default function WordsScreen() {
   const theme = useTheme();
   const { jpFont } = useSettings();
   const rows = useDeckRows();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<(typeof filters)[number]>("all");
+  const [selecting, setSelecting] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(() => new Set());
   const data = useMemo(
     () =>
       rows.filter((row) => {
@@ -53,20 +64,23 @@ export default function WordsScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const updateStatus = async (
     word: (typeof rows)[number]["words"],
-    action: "known" | "suspend",
+    action: "known" | "reset" | "suspend",
   ) => {
     if (saving.current) return;
     saving.current = true;
     setIsSaving(true);
     try {
       if (action === "known") await setKnown(db, word.id, true);
+      else if (action === "reset") await resetCard(db, word.id);
       else await setSuspended(db, word.id, "manual");
       const message =
         action === "known"
           ? `Marked ${word.word} as known`
-          : `Suspended ${word.word}`;
-      if (action === "known") toast.success(message);
-      else toast.info(message);
+          : action === "reset"
+            ? `Reset ${word.word}`
+            : `Suspended ${word.word}`;
+      if (action === "suspend") toast.info(message);
+      else toast.success(message);
       if (Platform.OS === "ios")
         AccessibilityInfo.announceForAccessibility(message);
       void Haptics.selectionAsync();
@@ -83,26 +97,165 @@ export default function WordsScreen() {
   };
   const confirmStatus = (
     word: (typeof rows)[number]["words"],
-    action: "known" | "suspend",
+    action: "known" | "reset" | "suspend",
   ) => {
     if (saving.current) return;
     confirmWordAction(
-      action === "known" ? "mark-known" : "suspend",
+      action === "known"
+        ? "mark-known"
+        : action === "reset"
+          ? "reset"
+          : "suspend",
       () => void updateStatus(word, action),
+    );
+  };
+  const enterSelection = (wordId?: number) => {
+    setSelecting(true);
+    setSelectedIds(wordId === undefined ? new Set() : new Set([wordId]));
+    void Haptics.selectionAsync();
+  };
+  const leaveSelection = () => {
+    setSelecting(false);
+    setSelectedIds(new Set());
+  };
+  const toggleSelection = (wordId: number) => {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (next.has(wordId)) next.delete(wordId);
+      else next.add(wordId);
+      return next;
+    });
+    void Haptics.selectionAsync();
+  };
+  const performBulkAction = async (action: BulkAction) => {
+    if (saving.current || selectedIds.size === 0) return;
+    const wordIds = [...selectedIds];
+    saving.current = true;
+    setIsSaving(true);
+    try {
+      if (action === "known") await setManyKnown(db, wordIds);
+      else if (action === "reset") await resetCards(db, wordIds);
+      else await setManySuspended(db, wordIds);
+      const count = wordIds.length;
+      const noun = count === 1 ? "word" : "words";
+      const message =
+        action === "known"
+          ? `Marked ${count} ${noun} as known`
+          : action === "reset"
+            ? `Reset study for ${count} ${noun}`
+            : `Suspended ${count} ${noun}`;
+      if (action === "suspend") toast.info(message);
+      else toast.success(message);
+      if (Platform.OS === "ios")
+        AccessibilityInfo.announceForAccessibility(message);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      leaveSelection();
+    } catch (error: unknown) {
+      console.error("Failed to update selected cards", error);
+      Alert.alert(
+        "Could not save",
+        "Your changes could not be saved. Please try again.",
+      );
+    } finally {
+      saving.current = false;
+      setIsSaving(false);
+    }
+  };
+  const confirmBulkAction = (action: BulkAction) => {
+    if (saving.current || selectedIds.size === 0) return;
+    const count = selectedIds.size;
+    const noun = count === 1 ? "word" : "words";
+    const title =
+      action === "known"
+        ? `Mark ${count} ${noun} as known?`
+        : action === "reset"
+          ? `Reset study for ${count} ${noun}?`
+          : `Suspend ${count} ${noun}?`;
+    const message =
+      action === "known"
+        ? "The selected words will be excluded from reviews."
+        : action === "reset"
+          ? count === 1
+            ? "Its review history and scheduling will be removed."
+            : "Their review history and scheduling will be removed."
+          : "The selected words will be excluded from reviews.";
+    Alert.alert(
+      title,
+      message,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text:
+            action === "known"
+              ? "Mark known"
+              : action === "reset"
+                ? "Reset study"
+                : "Suspend",
+          style: action === "suspend" ? "destructive" : "default",
+          onPress: () => void performBulkAction(action),
+        },
+      ],
+      { cancelable: true },
     );
   };
   return (
     <>
       <Stack.Screen
         options={{
+          title: selecting ? `${selectedIds.size} selected` : "Words",
           headerSearchBarOptions: {
             placeholder: "Word, reading, or meaning",
             hideWhenScrolling: false,
             textColor: theme.text,
-            onChangeText: (event) => setQuery(event.nativeEvent.text),
+            onChangeText: (event) => {
+              setQuery(event.nativeEvent.text);
+              if (selecting) setSelectedIds(new Set());
+            },
           },
         }}
       />
+      {selecting ? (
+        <Stack.Toolbar placement="left">
+          <Stack.Toolbar.Button disabled={isSaving} onPress={leaveSelection}>
+            Done
+          </Stack.Toolbar.Button>
+        </Stack.Toolbar>
+      ) : null}
+      <Stack.Toolbar placement="right">
+        {selecting ? (
+          <Stack.Toolbar.Menu
+            icon={Platform.OS === "ios" ? "ellipsis" : undefined}
+            accessibilityLabel="Actions for selected words"
+            disabled={isSaving || selectedIds.size === 0}
+          >
+            <Stack.Toolbar.MenuAction
+              onPress={() => confirmBulkAction("known")}
+            >
+              Mark known
+            </Stack.Toolbar.MenuAction>
+            <Stack.Toolbar.MenuAction
+              onPress={() => confirmBulkAction("reset")}
+            >
+              Reset
+            </Stack.Toolbar.MenuAction>
+            <Stack.Toolbar.MenuAction
+              destructive
+              onPress={() => confirmBulkAction("suspend")}
+            >
+              Suspend
+            </Stack.Toolbar.MenuAction>
+          </Stack.Toolbar.Menu>
+        ) : (
+          <Stack.Toolbar.Menu
+            icon={Platform.OS === "ios" ? "ellipsis" : undefined}
+            accessibilityLabel="More word actions"
+          >
+            <Stack.Toolbar.MenuAction onPress={() => enterSelection()}>
+              Select words
+            </Stack.Toolbar.MenuAction>
+          </Stack.Toolbar.Menu>
+        )}
+      </Stack.Toolbar>
       <FlatList
         className="flex-1 bg-background"
         data={data}
@@ -119,7 +272,10 @@ export default function WordsScreen() {
             {filters.map((item) => (
               <Pressable
                 key={item}
-                onPress={() => setFilter(item)}
+                onPress={() => {
+                  setFilter(item);
+                  if (selecting) setSelectedIds(new Set());
+                }}
                 className={cn(
                   "rounded-full border px-3.5 py-1.5",
                   filter === item
@@ -151,7 +307,14 @@ export default function WordsScreen() {
             item={item}
             font={jpFont}
             saving={isSaving}
+            selecting={selecting}
+            selected={selectedIds.has(item.words.id)}
             onAction={(action) => confirmStatus(item.words, action)}
+            onSelect={() =>
+              selecting
+                ? toggleSelection(item.words.id)
+                : enterSelection(item.words.id)
+            }
           />
         )}
       />

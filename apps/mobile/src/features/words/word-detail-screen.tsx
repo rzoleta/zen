@@ -106,9 +106,13 @@ export default function WordDetailScreen() {
           disabled={!detail || saving}
         >
           <Stack.Toolbar.MenuAction
-            onPress={() => perform("reset")}
+            disabled={detail?.cards.known ?? true}
+            onPress={() => perform("mark-known")}
           >
-            Reset card
+            Mark known
+          </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction onPress={() => perform("reset")}>
+            Reset
           </Stack.Toolbar.MenuAction>
           <Stack.Toolbar.MenuAction
             destructive

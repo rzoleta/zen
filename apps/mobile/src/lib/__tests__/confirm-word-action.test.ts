@@ -1,9 +1,6 @@
 import { Alert } from "react-native";
 
-import {
-  confirmWordAction,
-  type WordAction,
-} from "@/lib/confirm-word-action";
+import { confirmWordAction, type WordAction } from "@/lib/confirm-word-action";
 
 describe("confirmWordAction", () => {
   const alert = jest.spyOn(Alert, "alert").mockImplementation(() => {});
@@ -32,7 +29,7 @@ describe("confirmWordAction", () => {
       "Reset this card?",
       "Its review history and scheduling will be removed.",
       "Reset",
-      "destructive",
+      undefined,
     ],
     [
       "suspend",
@@ -56,7 +53,8 @@ describe("confirmWordAction", () => {
       confirmWordAction(action, onConfirm);
 
       expect(alert).toHaveBeenCalledTimes(1);
-      const [actualTitle, actualMessage, buttons, options] = alert.mock.calls[0];
+      const [actualTitle, actualMessage, buttons, options] =
+        alert.mock.calls[0];
       expect(actualTitle).toBe(title);
       expect(actualMessage).toBe(message);
       expect(buttons?.[0]).toMatchObject({ text: "Cancel", style: "cancel" });

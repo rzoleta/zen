@@ -1,4 +1,4 @@
-import { and, eq, gte, lt, sql } from "drizzle-orm";
+import { and, eq, gte, inArray, lt, sql } from "drizzle-orm";
 import { Rating, State } from "ts-fsrs";
 
 import type { ZenDatabase } from "@/db/client";
@@ -175,8 +175,38 @@ export async function resetCard(
   database: ZenDatabase,
   wordId: number,
 ): Promise<void> {
+  await resetCards(database, [wordId]);
+}
+
+export async function setManyKnown(
+  database: ZenDatabase,
+  wordIds: number[],
+): Promise<void> {
+  if (wordIds.length === 0) return;
+  await database
+    .update(cards)
+    .set({ known: true, suspended: "none" })
+    .where(inArray(cards.wordId, wordIds));
+}
+
+export async function setManySuspended(
+  database: ZenDatabase,
+  wordIds: number[],
+): Promise<void> {
+  if (wordIds.length === 0) return;
+  await database
+    .update(cards)
+    .set({ suspended: "manual" })
+    .where(inArray(cards.wordId, wordIds));
+}
+
+export async function resetCards(
+  database: ZenDatabase,
+  wordIds: number[],
+): Promise<void> {
+  if (wordIds.length === 0) return;
   database.transaction((tx) => {
-    tx.delete(reviewLog).where(eq(reviewLog.cardId, wordId)).run();
+    tx.delete(reviewLog).where(inArray(reviewLog.cardId, wordIds)).run();
     tx.update(cards)
       .set({
         state: State.New,
@@ -192,7 +222,7 @@ export async function resetCard(
         suspended: "none",
         known: false,
       })
-      .where(eq(cards.wordId, wordId))
+      .where(inArray(cards.wordId, wordIds))
       .run();
   });
 }
