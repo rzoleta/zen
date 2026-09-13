@@ -102,20 +102,19 @@ export default function WordDetailScreen() {
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu
           icon={Platform.OS === "ios" ? "ellipsis" : undefined}
-          title="More"
           accessibilityLabel="More word actions"
           disabled={!detail || saving}
         >
           <Stack.Toolbar.MenuAction
-            onPress={() => perform(suspended ? "unsuspend" : "suspend")}
-          >
-            {suspended ? "Unsuspend" : "Suspend"}
-          </Stack.Toolbar.MenuAction>
-          <Stack.Toolbar.MenuAction
-            destructive
             onPress={() => perform("reset")}
           >
             Reset card
+          </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction
+            destructive
+            onPress={() => perform(suspended ? "unsuspend" : "suspend")}
+          >
+            {suspended ? "Unsuspend" : "Suspend"}
           </Stack.Toolbar.MenuAction>
         </Stack.Toolbar.Menu>
       </Stack.Toolbar>
