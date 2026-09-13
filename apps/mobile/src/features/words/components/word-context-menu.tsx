@@ -23,6 +23,10 @@ export function WordContextMenu({
       shouldOpenOnLongPress
       actions={[
         {
+          id: "select",
+          title: "Select",
+        },
+        {
           id: "known",
           title: "Mark known",
           attributes: { disabled: knownDisabled },
@@ -31,10 +35,6 @@ export function WordContextMenu({
           id: "suspend",
           title: "Suspend",
           attributes: { disabled: suspendDisabled, destructive: true },
-        },
-        {
-          id: "select",
-          title: "Select",
         },
       ]}
       onPressAction={({ nativeEvent }) => {

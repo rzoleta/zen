@@ -206,11 +206,38 @@ export default function WordsScreen() {
           },
         }}
       />
-      <Stack.Toolbar placement="right">
-        {selecting ? (
+      {selecting ? (
+        <Stack.Toolbar placement="left">
           <Stack.Toolbar.Button disabled={isSaving} onPress={leaveSelection}>
             Done
           </Stack.Toolbar.Button>
+        </Stack.Toolbar>
+      ) : null}
+      <Stack.Toolbar placement="right">
+        {selecting ? (
+          <Stack.Toolbar.Menu
+            icon={Platform.OS === "ios" ? "ellipsis" : undefined}
+            accessibilityLabel="Actions for selected words"
+            disabled={isSaving || selectedIds.size === 0}
+          >
+            <Stack.Toolbar.MenuAction
+              onPress={() => confirmBulkAction("known")}
+            >
+              Mark known
+            </Stack.Toolbar.MenuAction>
+            <Stack.Toolbar.MenuAction
+              destructive
+              onPress={() => confirmBulkAction("reset")}
+            >
+              Reset
+            </Stack.Toolbar.MenuAction>
+            <Stack.Toolbar.MenuAction
+              destructive
+              onPress={() => confirmBulkAction("suspend")}
+            >
+              Suspend
+            </Stack.Toolbar.MenuAction>
+          </Stack.Toolbar.Menu>
         ) : (
           <Stack.Toolbar.Menu
             icon={Platform.OS === "ios" ? "ellipsis" : undefined}
@@ -222,128 +249,72 @@ export default function WordsScreen() {
           </Stack.Toolbar.Menu>
         )}
       </Stack.Toolbar>
-      <View className="flex-1 bg-background">
-        <FlatList
-          className="flex-1"
-          data={data}
-          keyExtractor={(item) => String(item.words.id)}
-          contentInsetAdjustmentBehavior="automatic"
-          contentContainerClassName="w-full max-w-3xl self-center pb-16"
-          ItemSeparatorComponent={WordSeparator}
-          ListHeaderComponent={
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerClassName="gap-2 px-5 py-3"
-            >
-              {filters.map((item) => (
-                <Pressable
-                  key={item}
-                  onPress={() => {
-                    setFilter(item);
-                    if (selecting) setSelectedIds(new Set());
-                  }}
+      <FlatList
+        className="flex-1 bg-background"
+        data={data}
+        keyExtractor={(item) => String(item.words.id)}
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerClassName="w-full max-w-3xl self-center pb-16"
+        ItemSeparatorComponent={WordSeparator}
+        ListHeaderComponent={
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerClassName="gap-2 px-5 py-3"
+          >
+            {filters.map((item) => (
+              <Pressable
+                key={item}
+                onPress={() => {
+                  setFilter(item);
+                  if (selecting) setSelectedIds(new Set());
+                }}
+                className={cn(
+                  "rounded-full border px-3.5 py-1.5",
+                  filter === item
+                    ? "border-primary bg-primary"
+                    : "border-border bg-transparent",
+                )}
+              >
+                <Text
                   className={cn(
-                    "rounded-full border px-3.5 py-1.5",
+                    "capitalize text-sm",
                     filter === item
-                      ? "border-primary bg-primary"
-                      : "border-border bg-transparent",
+                      ? "font-sans-medium text-primary-foreground"
+                      : "text-muted-foreground",
                   )}
                 >
-                  <Text
-                    className={cn(
-                      "capitalize text-sm",
-                      filter === item
-                        ? "font-sans-medium text-primary-foreground"
-                        : "text-muted-foreground",
-                    )}
-                  >
-                    {item}
-                  </Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-          }
-          ListEmptyComponent={
-            <View className="items-center py-16">
-              <Text muted>No words match.</Text>
-            </View>
-          }
-          renderItem={({ item }) => (
-            <WordRow
-              item={item}
-              font={jpFont}
-              saving={isSaving}
-              selecting={selecting}
-              selected={selectedIds.has(item.words.id)}
-              onAction={(action) => confirmStatus(item.words, action)}
-              onSelect={() =>
-                selecting
-                  ? toggleSelection(item.words.id)
-                  : enterSelection(item.words.id)
-              }
-            />
-          )}
-        />
-        {selecting ? (
-          <View className="flex-row border-t border-separator bg-background px-2 py-2">
-            <BulkActionButton
-              label="Mark known"
-              disabled={isSaving || selectedIds.size === 0}
-              onPress={() => confirmBulkAction("known")}
-            />
-            <BulkActionButton
-              label="Reset study"
-              destructive
-              disabled={isSaving || selectedIds.size === 0}
-              onPress={() => confirmBulkAction("reset")}
-            />
-            <BulkActionButton
-              label="Suspend"
-              destructive
-              disabled={isSaving || selectedIds.size === 0}
-              onPress={() => confirmBulkAction("suspend")}
-            />
+                  {item}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        }
+        ListEmptyComponent={
+          <View className="items-center py-16">
+            <Text muted>No words match.</Text>
           </View>
-        ) : null}
-      </View>
+        }
+        renderItem={({ item }) => (
+          <WordRow
+            item={item}
+            font={jpFont}
+            saving={isSaving}
+            selecting={selecting}
+            selected={selectedIds.has(item.words.id)}
+            onAction={(action) => confirmStatus(item.words, action)}
+            onSelect={() =>
+              selecting
+                ? toggleSelection(item.words.id)
+                : enterSelection(item.words.id)
+            }
+          />
+        )}
+      />
     </>
   );
 }
 
 function WordSeparator() {
   return <View className="mx-5 h-px bg-separator" />;
-}
-
-function BulkActionButton({
-  label,
-  destructive = false,
-  disabled,
-  onPress,
-}: {
-  label: string;
-  destructive?: boolean;
-  disabled: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      disabled={disabled}
-      onPress={onPress}
-      className={cn(
-        "min-h-11 flex-1 items-center justify-center rounded-xl px-1 active:bg-secondary",
-        disabled && "opacity-40",
-      )}
-    >
-      <Text
-        className={cn(
-          "text-center text-sm font-sans-medium",
-          destructive && "text-destructive",
-        )}
-      >
-        {label}
-      </Text>
-    </Pressable>
-  );
 }

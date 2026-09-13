@@ -33,6 +33,7 @@ export function WordContextMenu({
           <RNHostView matchContents>{preview}</RNHostView>
         </ContextMenu.Preview>
         <ContextMenu.Items>
+          <Button label="Select" onPress={onSelect} />
           <Button
             label="Mark known"
             modifiers={[disabled(knownDisabled)]}
@@ -44,7 +45,6 @@ export function WordContextMenu({
             modifiers={[disabled(suspendDisabled)]}
             onPress={() => onAction("suspend")}
           />
-          <Button label="Select" onPress={onSelect} />
         </ContextMenu.Items>
       </ContextMenu>
     </Host>
