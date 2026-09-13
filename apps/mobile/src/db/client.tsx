@@ -45,7 +45,10 @@ export function getDatabase(): ZenDatabase {
 
 const ReadyContext = createContext(false);
 
-export function DatabaseProvider({ children }: PropsWithChildren) {
+export function DatabaseProvider({
+  children,
+  onSettled,
+}: PropsWithChildren<{ onSettled?: () => void }>) {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState(false);
 
@@ -53,16 +56,22 @@ export function DatabaseProvider({ children }: PropsWithChildren) {
     let active = true;
     initializeDatabase()
       .then(() => {
-        if (active) setReady(true);
+        if (active) {
+          setReady(true);
+          onSettled?.();
+        }
       })
       .catch((error: unknown) => {
         console.error("Failed to initialize Zen database", error);
-        if (active) setError(true);
+        if (active) {
+          setError(true);
+          onSettled?.();
+        }
       });
     return () => {
       active = false;
     };
-  }, []);
+  }, [onSettled]);
 
   if (error) {
     return (

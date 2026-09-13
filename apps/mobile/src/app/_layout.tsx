@@ -9,8 +9,10 @@ import { setAudioModeAsync } from "expo-audio";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { View } from "react-native";
 
+import { LaunchSplash } from "@/components/launch-splash";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { AppProviders } from "@/providers/app-providers";
 
@@ -18,6 +20,8 @@ void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const scheme = useColorScheme();
+  const [appSettled, setAppSettled] = useState(false);
+  const [showLaunchSplash, setShowLaunchSplash] = useState(true);
   const [loaded, error] = useFonts({
     Geist_400Regular,
     Geist_500Medium,
@@ -31,22 +35,28 @@ export default function RootLayout() {
       console.error("Failed to configure audio playback", audioError);
     });
   }, []);
-  useEffect(() => {
-    if (loaded || error) void SplashScreen.hideAsync();
-  }, [loaded, error]);
+  const handleAppSettled = useCallback(() => setAppSettled(true), []);
   if (!loaded && !error) return null;
   return (
-    <AppProviders scheme={scheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen
-          name="review"
-          options={{
-            presentation: "fullScreenModal",
-            gestureEnabled: false,
-          }}
+    <View style={{ flex: 1 }}>
+      <AppProviders onSettled={handleAppSettled} scheme={scheme}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen
+            name="review"
+            options={{
+              presentation: "fullScreenModal",
+              gestureEnabled: false,
+            }}
+          />
+        </Stack>
+      </AppProviders>
+      {appSettled && showLaunchSplash ? (
+        <LaunchSplash
+          scheme={scheme === "dark" ? "dark" : "light"}
+          onFinish={() => setShowLaunchSplash(false)}
         />
-      </Stack>
-    </AppProviders>
+      ) : null}
+    </View>
   );
 }

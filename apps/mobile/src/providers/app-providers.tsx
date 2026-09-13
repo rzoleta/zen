@@ -49,13 +49,17 @@ function ThemeSync() {
 export function AppProviders({
   scheme,
   children,
-}: PropsWithChildren<{ scheme: "light" | "dark" | null | undefined }>) {
+  onSettled,
+}: PropsWithChildren<{
+  scheme: "light" | "dark" | null | undefined;
+  onSettled?: () => void;
+}>) {
   const isDark = scheme === "dark";
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider value={isDark ? navThemes.dark : navThemes.light}>
-          <DatabaseProvider>
+          <DatabaseProvider onSettled={onSettled}>
             <ThemeSync />
             {children}
             <Toaster
