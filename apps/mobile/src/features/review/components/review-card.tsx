@@ -23,7 +23,10 @@ import {
 } from "@/components/ui";
 import type { Word } from "@/db/schema";
 import type { BinaryGrade } from "@/domain/study";
-import { GradeActions } from "@/features/review/components/grade-actions";
+import {
+  gradeAppearance,
+  GradeActions,
+} from "@/features/review/components/grade-actions";
 import type { CardContent, JapaneseFont } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
 
@@ -74,6 +77,9 @@ export function ReviewCard({
     : undefined;
   const wordPlayer = useAudioPlayer(wordSource);
   const sentencePlayer = useAudioPlayer(sentenceSource);
+  const frontGradeAppearance = swipeIntent
+    ? gradeAppearance[swipeIntent]
+    : null;
   const showAnswer = () => {
     if (isFlipped.value === 1) return;
     isFlipped.value = 1;
@@ -122,7 +128,7 @@ export function ReviewCard({
   });
   const pan = Gesture.Pan()
     .onUpdate((event) => {
-      if (isFlipped.value === 1 && isGrading.value === 0) {
+      if (isGrading.value === 0) {
         offsetY.value = event.translationY;
         const nextIntentValue =
           event.translationY < -swipeIntentThreshold
@@ -169,10 +175,7 @@ export function ReviewCard({
         scheduleOnRN(onUndo);
         return;
       }
-      if (
-        isFlipped.value === 1 &&
-        Math.abs(event.translationY) > gradingThreshold
-      ) {
+      if (Math.abs(event.translationY) > gradingThreshold) {
         const answer = event.translationY < 0 ? "pass" : "fail";
         const answerIntentValue = answer === "pass" ? -1 : 1;
         if (swipeIntentValue.value !== answerIntentValue) {
@@ -326,10 +329,24 @@ export function ReviewCard({
         />
       ) : (
         <Button
-          label="Show answer"
+          label={frontGradeAppearance?.label ?? "Show answer"}
           size="lg"
-          variant="secondary"
+          variant={frontGradeAppearance ? "destructive" : "secondary"}
           haptic={false}
+          style={
+            frontGradeAppearance
+              ? { backgroundColor: frontGradeAppearance.color }
+              : undefined
+          }
+          icon={
+            frontGradeAppearance ? (
+              <SymbolView
+                name={frontGradeAppearance.icon}
+                tintColor="#ffffff"
+                size={16}
+              />
+            ) : undefined
+          }
           onPress={showAnswer}
         />
       )}
