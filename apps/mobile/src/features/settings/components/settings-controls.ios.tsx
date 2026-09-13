@@ -217,6 +217,7 @@ export function SettingsNumber({
               disabled(!action.enabled),
               accessibilityLabel(action.label),
               frame({ width: 36, height: 36 }),
+              contentShape(shapes.circle()),
               glassEffect({ glass: { variant: "regular", interactive: true } }),
             ]}
           >
