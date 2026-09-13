@@ -6,7 +6,6 @@ import { cn } from "@/lib/cn";
 const variants = {
   largeTitle: "font-sans-semibold text-4xl tracking-tight",
   title: "font-sans-semibold text-3xl tracking-tight",
-  headline: "font-sans-semibold text-lg",
   label:
     "font-sans-medium text-xs uppercase tracking-widest text-muted-foreground",
 } as const;

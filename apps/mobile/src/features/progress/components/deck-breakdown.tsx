@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 
-import { Card, Text } from "@/components/ui";
+import { Text } from "@/components/ui";
 import type { WordStatus } from "@/hooks/use-deck";
 import { useTheme } from "@/hooks/use-theme";
 
@@ -17,8 +17,10 @@ export function DeckBreakdown({
 }) {
   const theme = useTheme();
   const [chartWidth, setChartWidth] = useState(120);
+  // The grouped container is bg-secondary in dark mode, so "new" and the
+  // empty track need a color that stays visible on it.
   const colors = {
-    new: theme.secondary,
+    new: theme.chartNeutral,
     learning: theme.chartAmber,
     mature: theme.primary,
     known: theme.chartBlue,
@@ -42,7 +44,7 @@ export function DeckBreakdown({
   const size = Math.min(chartWidth, 144);
 
   return (
-    <Card className="flex-row items-center gap-4">
+    <View className="flex-row items-center gap-4">
       <View className="min-w-0 gap-2" style={{ flex: 1 }}>
         {statuses.map((status) => (
           <View key={status} className="flex-row items-center gap-3">
@@ -50,13 +52,10 @@ export function DeckBreakdown({
               className="h-2 w-2 rounded-full"
               style={{ backgroundColor: colors[status] }}
             />
-            <Text muted className="flex-1 capitalize">
+            <Text native muted className="flex-1 capitalize">
               {status}
             </Text>
-            <Text
-              className="font-sans-medium text-sm"
-              style={{ fontVariant: ["tabular-nums"] }}
-            >
+            <Text native className="tabular-nums">
               {(counts[status] ?? 0).toLocaleString()}
             </Text>
           </View>
@@ -80,7 +79,7 @@ export function DeckBreakdown({
             cy={72}
             r={radius}
             fill="none"
-            stroke={theme.secondary}
+            stroke={theme.chartNeutral}
             strokeWidth={18}
           />
           {segments
@@ -103,16 +102,22 @@ export function DeckBreakdown({
         </Svg>
         <View className="absolute items-center" pointerEvents="none">
           <Text
-            className="font-sans-semibold text-2xl"
+            native
+            className="text-content-title font-semibold tabular-nums"
             maxFontSizeMultiplier={1.2}
           >
             {total.toLocaleString()}
           </Text>
-          <Text className="text-xs" muted maxFontSizeMultiplier={1.2}>
+          <Text
+            native
+            muted
+            className="text-footnote"
+            maxFontSizeMultiplier={1.2}
+          >
             cards
           </Text>
         </View>
       </View>
-    </Card>
+    </View>
   );
 }
