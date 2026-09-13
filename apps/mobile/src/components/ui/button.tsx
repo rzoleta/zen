@@ -19,9 +19,9 @@ const variants = {
 } as const;
 
 const sizes = {
-  default: { container: "min-h-12 rounded-xl px-5 py-3", text: "text-base" },
-  lg: { container: "min-h-14 rounded-2xl px-6 py-4", text: "text-lg" },
-  sm: { container: "min-h-9 rounded-lg px-3 py-2", text: "text-sm" },
+  default: { container: "min-h-12 rounded-full px-5 py-3", text: "text-base" },
+  lg: { container: "min-h-14 rounded-full px-6 py-4", text: "text-lg" },
+  sm: { container: "min-h-9 rounded-full px-3 py-2", text: "text-sm" },
 } as const;
 
 export function Button({

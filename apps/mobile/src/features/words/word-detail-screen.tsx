@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { State } from "ts-fsrs";
 import { audioAssets } from "@/assets/deck/audio-assets";
-import { FuriganaText, Screen, Text } from "@/components/ui";
+import { Button, FuriganaText, Screen, Text } from "@/components/ui";
 import { db } from "@/db/client";
 import { wordQueryOptions } from "@/data/query/queries";
 import { resetCard, setKnown, setSuspended } from "@/data/study-commands";
@@ -251,22 +251,21 @@ export default function WordDetailScreen() {
                 <StudyRow title="Lapses" value={String(detail.cards.lapses)} />
               </View>
             </View>
-            <Pressable
-              accessibilityRole="button"
+            <Button
+              variant="secondary"
               disabled={saving}
               onPress={() =>
                 perform(detail.cards.known ? "return-to-study" : "mark-known")
               }
-              className="min-h-[52px] items-center justify-center rounded-[24px] bg-secondary px-5 py-4 active:opacity-60 disabled:opacity-40"
-            >
-              <Text native className="font-semibold">
-                {saving
+              className="min-h-[52px]"
+              label={
+                saving
                   ? "Saving…"
                   : detail.cards.known
                     ? "Return to study"
-                    : "Mark known"}
-              </Text>
-            </Pressable>
+                    : "Mark known"
+              }
+            />
           </>
         )}
       </Screen>
