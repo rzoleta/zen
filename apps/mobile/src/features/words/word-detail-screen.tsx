@@ -90,6 +90,11 @@ export default function WordDetailScreen() {
   };
   return (
     <>
+      <Stack.Screen
+        options={{
+          title: detail ? `Word #${detail.words.deckOrder}` : "Word",
+        }}
+      />
       <Stack.Toolbar placement="left">
         <Stack.Toolbar.Button
           icon={Platform.OS === "ios" ? "xmark" : undefined}

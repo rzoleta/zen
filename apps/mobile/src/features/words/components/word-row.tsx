@@ -35,6 +35,9 @@ export function WordRow({
   const content = (showSelection: boolean) => (
     <>
       {showSelection ? <SelectionIndicator selected={selected} /> : null}
+      <Text native muted className="w-12 text-right text-subhead">
+        #{item.words.deckOrder}
+      </Text>
       <View className="min-w-0 flex-1 gap-1">
         <FuriganaText
           text={item.words.wordFurigana}
@@ -54,7 +57,7 @@ export function WordRow({
       <Pressable
         accessibilityRole="checkbox"
         accessibilityState={{ checked: selected, disabled: saving }}
-        accessibilityLabel={`${item.words.word}, ${item.words.meaning}`}
+        accessibilityLabel={`Word ${item.words.deckOrder}, ${item.words.word}, ${item.words.meaning}`}
         disabled={saving}
         onPress={onSelect}
         className={cn(
