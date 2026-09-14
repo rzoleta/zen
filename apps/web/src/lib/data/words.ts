@@ -124,3 +124,12 @@ export const words: DeckWord[] = [
 ];
 
 export const wordById = (id: number) => words.find((w) => w.id === id)!;
+
+/** The first entries in deck order, as shipped. */
+export const firstWords: Pick<DeckWord, 'id' | 'word' | 'reading' | 'meaning'>[] = [
+	{ id: 1, word: '私', reading: 'わたし', meaning: 'I' },
+	{ id: 2, word: 'あなた', reading: 'あなた', meaning: 'you' },
+	{ id: 3, word: 'さん', reading: 'さん', meaning: 'san' },
+	{ id: 4, word: '彼', reading: 'かれ', meaning: 'he, him' },
+	{ id: 5, word: '好き', reading: 'すき', meaning: 'fond of, liked' }
+];

@@ -6,7 +6,7 @@
 	import ModeToggle from '$lib/components/mode-toggle.svelte';
 	import Furigana from '$lib/components/furigana.svelte';
 	import { site } from '$lib/data/site';
-	import { wordById } from '$lib/data/words';
+	import { firstWords, wordById } from '$lib/data/words';
 
 	const sample = wordById(318);
 	const facts = [
@@ -67,13 +67,45 @@
 	<section class="border-t">
 		<div class="mx-auto grid max-w-6xl gap-10 px-6 py-20 md:grid-cols-2 md:gap-16">
 			<div class="max-w-md">
+				<h2 class="text-3xl font-semibold tracking-tight">Frequency-based learning</h2>
+				<p class="mt-4 text-lg leading-relaxed">
+					Learn words based on their frequency in Japanese texts. Skip learning infrequent archaic
+					words and get straight to native-level fluency as fast as possible.
+				</p>
+				<p class="mt-4 leading-relaxed text-muted-foreground">
+					Based on the highly popular and acclaimed Kaishi 1.5K deck most trusted by Japanese
+					learning enthusiasts.
+				</p>
+			</div>
+			<div class="rounded-3xl border bg-card p-8">
+				<p class="text-sm text-muted-foreground">Deck</p>
+				<ol class="mt-3 divide-y">
+					{#each firstWords as entry (entry.id)}
+						<li class="flex items-baseline gap-5 py-3">
+							<span class="tabular w-6 shrink-0 text-sm text-muted-foreground">{entry.id}</span>
+							<span class="jp text-2xl font-medium" lang="ja">{entry.word}</span>
+							<span class="jp text-sm text-muted-foreground" lang="ja">{entry.reading}</span>
+							<span class="ml-auto text-right text-muted-foreground">{entry.meaning}</span>
+						</li>
+					{/each}
+					<li class="tabular pt-3 text-sm text-muted-foreground">
+						1,495 more, in the order you'll meet them
+					</li>
+				</ol>
+			</div>
+		</div>
+	</section>
+
+	<section class="border-t">
+		<div class="mx-auto grid max-w-6xl gap-10 px-6 py-20 md:grid-cols-2 md:gap-16">
+			<div class="order-1 max-w-md md:order-2">
 				<h2 class="text-3xl font-semibold tracking-tight">Learn words in sentences</h2>
 				<p class="mt-4 leading-relaxed text-muted-foreground">
 					Learn vocabulary in the context they are used in. Improves retention much better than
 					learning words in isolation. Perfectly crafted for immersion-based techniques.
 				</p>
 			</div>
-			<div class="rounded-3xl border bg-card p-8">
+			<div class="order-2 rounded-3xl border bg-card p-8 md:order-1">
 				<div class="flex flex-col gap-6">
 					<div>
 						<Furigana markup={sample.wordFurigana} class="text-5xl leading-tight font-medium" />
@@ -95,7 +127,7 @@
 
 	<section class="border-t">
 		<div class="mx-auto grid max-w-6xl gap-10 px-6 py-20 md:grid-cols-2 md:gap-16">
-			<div class="order-2 md:order-1">
+			<div class="order-2">
 				<div class="rounded-3xl border bg-card p-8">
 					<p class="text-sm text-muted-foreground">Study</p>
 					<dl class="mt-3 divide-y text-lg">
@@ -122,7 +154,7 @@
 					</dl>
 				</div>
 			</div>
-			<div class="order-1 max-w-md md:order-2">
+			<div class="order-1 max-w-md">
 				<h2 class="text-3xl font-semibold tracking-tight">Modern SRS Algorithms</h2>
 				<p class="mt-4 text-lg leading-relaxed">
 					Zen schedules reviews with FSRS, a spaced repetition algorithm that models how memory
