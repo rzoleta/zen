@@ -11,20 +11,12 @@ pnpm web
 
 Run `pnpm --filter @zen/web check` and `pnpm --filter @zen/web lint` before opening a pull request.
 
-## Design directions
+## Layout
 
-Five directions live in `src/lib/designs/` and are switched with the temporary
-control at the bottom of the page (or keys 1–5). The choice persists in the
-`?design=` query parameter. Once a direction is picked, delete the other four,
-`design-switcher.svelte`, and the `?design=` handling in `src/routes/+page.svelte`.
-
-| Key | File | Idea |
-| --- | --- | --- |
-| 1 | `card.svelte` | App's light palette; the hero is a working review card |
-| 2 | `sentence.svelte` | White, Mincho; a huge native sentence with furigana as the hero |
-| 3 | `night.svelte` | App's dark palette; a Zen vs. Anki comparison table |
-| 4 | `tategaki.svelte` | Sticky vertical Japanese column; blue marks the target word |
-| 5 | `phone.svelte` | Sticky handset whose screen follows the copy as you scroll |
-
-`src/lib/data/words.ts` holds real entries from the bundled Kaishi deck, and
-`static/screens/` holds simulator captures copied from `docs/ui/native-ios/`.
+- `src/routes/+page.svelte` renders `src/lib/components/landing.svelte`, the page itself.
+- `src/lib/components/flashcard.svelte` is the working review card in the hero; it cycles through
+  the real deck entries in `src/lib/data/words.ts`.
+- `src/lib/components/furigana.svelte` renders Kaishi's `漢字[かんじ]` markup as `<ruby>`, mirroring
+  `apps/mobile/src/lib/furigana.ts`.
+- `src/routes/layout.css` holds the theme tokens, copied from the mobile app's palette, and the
+  Geist, Noto Sans JP, and Noto Serif JP font imports.

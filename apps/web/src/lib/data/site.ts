@@ -11,13 +11,3 @@ export const site = {
 	},
 	fsrs: 'https://github.com/open-spaced-repetition/fsrs4anki/wiki/ABC-of-FSRS'
 } as const;
-
-export const designs = [
-	{ id: 'card', label: 'Card' },
-	{ id: 'sentence', label: 'Sentence' },
-	{ id: 'night', label: 'Night' },
-	{ id: 'tategaki', label: 'Tategaki' },
-	{ id: 'phone', label: 'Phone' }
-] as const;
-
-export type DesignId = (typeof designs)[number]['id'];

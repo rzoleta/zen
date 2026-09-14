@@ -1,5 +1,5 @@
 <script lang="ts">
-	// Direction 1 — "Card": the app's own light palette; the hero is a working review card.
+	// Landing page: the app's own light palette; the hero is a working review card.
 	import { Button } from '$lib/components/ui/button';
 	import Flashcard from '$lib/components/flashcard.svelte';
 	import Furigana from '$lib/components/furigana.svelte';
