@@ -2,6 +2,8 @@
 	// Landing page: the app's own light palette; the hero is a working review card.
 	import { Button } from '$lib/components/ui/button';
 	import Flashcard from '$lib/components/flashcard.svelte';
+	import GithubIcon from '$lib/components/github-icon.svelte';
+	import ModeToggle from '$lib/components/mode-toggle.svelte';
 	import Furigana from '$lib/components/furigana.svelte';
 	import { site } from '$lib/data/site';
 	import { wordById } from '$lib/data/words';
@@ -25,7 +27,8 @@
 			<span class="jp text-2xl leading-none">前</span> Zen
 		</a>
 		<nav class="flex items-center gap-2">
-			<Button variant="ghost" href={site.github}>Source</Button>
+			<ModeToggle />
+			<Button variant="ghost" href={site.github}><GithubIcon class="size-4" /> GitHub</Button>
 			<Button href={site.download} class="rounded-full px-4">Get the app</Button>
 		</nav>
 	</header>
@@ -38,8 +41,8 @@
 				The last Japanese flashcard app you'll need.
 			</h1>
 			<p class="mt-6 max-w-md text-lg leading-relaxed text-muted-foreground">
-				1,500 words from Kaishi, each in a native sentence with audio, scheduled by FSRS so you
-				review less and remember more. Nothing to configure. Nothing to pay.
+				The best Anki settings already baked in. Modern SRS algorithms. Based on the highly popular
+				Kaishi 1.5k deck.
 			</p>
 			<div class="mt-8 flex flex-wrap items-center gap-3">
 				<Button href={site.download} size="lg" class="h-12 rounded-full px-6 text-base">
@@ -51,7 +54,7 @@
 					variant="outline"
 					class="h-12 rounded-full px-6 text-base"
 				>
-					Read the source
+					<GithubIcon class="size-4" /> GitHub
 				</Button>
 			</div>
 			<p class="mt-4 text-sm text-muted-foreground">iOS and Android. Free.</p>
@@ -64,14 +67,10 @@
 	<section class="border-t">
 		<div class="mx-auto grid max-w-6xl gap-10 px-6 py-20 md:grid-cols-2 md:gap-16">
 			<div class="max-w-md">
-				<h2 class="text-3xl font-semibold tracking-tight">Words in sentences, not in isolation</h2>
+				<h2 class="text-3xl font-semibold tracking-tight">Learn words in sentences</h2>
 				<p class="mt-4 leading-relaxed text-muted-foreground">
-					The front shows the word with the sentence it lives in underneath. Turn it over for the
-					reading, meaning, and translation. You learn how a word behaves, not just what it maps to.
-				</p>
-				<p class="mt-4 leading-relaxed text-muted-foreground">
-					Every entry comes from Kaishi 1.5k, the deck the immersion community settled on after a
-					decade of arguing about which one to recommend.
+					Learn vocabulary in the context they are used in. Improves retention much better than
+					learning words in isolation. Perfectly crafted for immersion-based techniques.
 				</p>
 			</div>
 			<div class="rounded-3xl border bg-card p-8">
@@ -124,17 +123,13 @@
 				</div>
 			</div>
 			<div class="order-1 max-w-md md:order-2">
-				<h2 class="text-3xl font-semibold tracking-tight">
-					Two buttons, and a scheduler that listens
-				</h2>
-				<p class="mt-4 leading-relaxed text-muted-foreground">
-					Did you know it or not? That's the only question. No "hard", no "easy", no second-guessing
-					which button to press.
+				<h2 class="text-3xl font-semibold tracking-tight">Modern SRS Algorithms</h2>
+				<p class="mt-4 text-lg leading-relaxed">
+					Zen schedules reviews with FSRS, a spaced repetition algorithm that models how memory
+					fades and fits each card's next review to your own history.
 				</p>
 				<p class="mt-4 leading-relaxed text-muted-foreground">
-					FSRS fits each card's next review to your own history instead of a fixed multiplier. In
-					the developers' benchmarks it predicts recall better than the algorithm Anki shipped with
-					for twenty years, which means fewer reviews for the same retention.
+					Best-in-class algorithms for optimal retention.
 				</p>
 			</div>
 		</div>
@@ -163,7 +158,7 @@
 			class="mx-auto flex max-w-6xl flex-col items-start gap-6 px-6 py-24 md:flex-row md:items-end md:justify-between"
 		>
 			<h2 class="max-w-lg text-4xl font-semibold tracking-tight md:text-5xl">
-				Start today's cards.
+				Start grinding now.
 			</h2>
 			<div class="flex gap-3">
 				<Button href={site.download} size="lg" class="h-12 rounded-full px-6 text-base"
