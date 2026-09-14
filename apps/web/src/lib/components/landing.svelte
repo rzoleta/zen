@@ -4,6 +4,7 @@
 	import Flashcard from '$lib/components/flashcard.svelte';
 	import GithubIcon from '$lib/components/github-icon.svelte';
 	import ModeToggle from '$lib/components/mode-toggle.svelte';
+	import SiteFooter from '$lib/components/site-footer.svelte';
 	import Furigana from '$lib/components/furigana.svelte';
 	import { site } from '$lib/data/site';
 	import { firstWords, wordById } from '$lib/data/words';
@@ -178,16 +179,5 @@
 		</div>
 	</section>
 
-	<footer class="border-t">
-		<div
-			class="mx-auto flex max-w-6xl flex-wrap justify-between gap-4 px-6 py-8 text-sm text-muted-foreground"
-		>
-			<p>Zen 前. Free and open source.</p>
-			<p>
-				Deck content from <a class="underline underline-offset-4" href={site.deck.url}
-					>Kaishi 1.5k</a
-				>.
-			</p>
-		</div>
-	</footer>
+	<SiteFooter />
 </div>
