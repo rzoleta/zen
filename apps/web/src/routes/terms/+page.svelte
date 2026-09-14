@@ -57,6 +57,6 @@
 
 	<h2>Contact</h2>
 	<p>
-		Questions? <a href="{site.github}/issues">Open an issue on GitHub</a>.
+		Questions? Email <a href="mailto:{site.contact}">{site.contact}</a>.
 	</p>
 </LegalPage>
