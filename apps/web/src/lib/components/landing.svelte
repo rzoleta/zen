@@ -9,16 +9,6 @@
 	import { firstWords, wordById } from '$lib/data/words';
 
 	const sample = wordById(318);
-	const facts = [
-		['Words', '1,500, ordered by frequency'],
-		['Sentences', 'One native sentence per word'],
-		['Audio', 'Every word and every sentence'],
-		['Scheduling', 'FSRS, tuned to your own reviews'],
-		['Grading', 'Pass or fail, by tap or swipe'],
-		['Fonts', 'Gothic or Mincho, your choice'],
-		['Storage', 'On your phone, nothing to sign up for'],
-		['Price', 'Free, open source']
-	];
 </script>
 
 <div class="min-h-screen bg-background text-foreground">
@@ -164,24 +154,6 @@
 					Best-in-class algorithms for optimal retention.
 				</p>
 			</div>
-		</div>
-	</section>
-
-	<section class="border-t">
-		<div class="mx-auto max-w-6xl px-6 py-20">
-			<h2 class="text-3xl font-semibold tracking-tight">What's in the box</h2>
-			<dl class="mt-8 grid gap-x-12 md:grid-cols-2">
-				{#each facts as [label, value] (label)}
-					<div class="flex justify-between gap-6 border-t py-4">
-						<dt class="font-medium">{label}</dt>
-						<dd class="text-right text-muted-foreground">{value}</dd>
-					</div>
-				{/each}
-			</dl>
-			<p class="mt-8 max-w-lg text-sm leading-relaxed text-muted-foreground">
-				Coming soon: add words from your own reading and watching, so the deck keeps growing after
-				Kaishi runs out.
-			</p>
 		</div>
 	</section>
 
