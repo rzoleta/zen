@@ -1,5 +1,6 @@
 import Constants from "expo-constants";
 import { router } from "expo-router";
+import { Linking } from "react-native";
 import {
   SettingsChoice,
   SettingsForm,
@@ -16,6 +17,10 @@ const cardContentOptions: { value: CardContent; label: string }[] = [
   { value: "sentence", label: "Sentence" },
   { value: "word_sentence", label: "Word + Sentence" },
 ];
+
+const privacyPolicyUrl = "https://zenflashcards.app/privacy";
+const termsOfUseUrl =
+  "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/";
 
 export default function SettingsScreen() {
   const values = useSettings();
@@ -104,6 +109,16 @@ export default function SettingsScreen() {
           destructive
           disabled={resetting}
           onPress={() => confirmReset(true)}
+        />
+      </SettingsGroup>
+      <SettingsGroup title="Legal">
+        <SettingsRow
+          title="Privacy Policy"
+          onPress={() => void Linking.openURL(privacyPolicyUrl)}
+        />
+        <SettingsRow
+          title="Terms of Use"
+          onPress={() => void Linking.openURL(termsOfUseUrl)}
         />
       </SettingsGroup>
     </SettingsForm>
