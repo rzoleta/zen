@@ -96,7 +96,6 @@ export default function SettingsScreen() {
       </SettingsGroup>
       <SettingsGroup
         title="Data"
-        footer={`Zen · Version ${Constants.expoConfig?.version ?? "1.0.0"}`}
       >
         <SettingsRow
           title="Reset settings"
@@ -111,7 +110,9 @@ export default function SettingsScreen() {
           onPress={() => confirmReset(true)}
         />
       </SettingsGroup>
-      <SettingsGroup title="Legal">
+      <SettingsGroup title="Legal"
+        footer={`Zen · Version ${Constants.expoConfig?.version ?? "1.0.0"}`}
+      >
         <SettingsRow
           title="Privacy Policy"
           onPress={() => void Linking.openURL(privacyPolicyUrl)}
