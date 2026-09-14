@@ -8,7 +8,9 @@
     "ios": "pnpm --filter @zen/mobile ios",
     "lint": "pnpm --filter @zen/mobile lint",
     "test": "pnpm --filter @zen/mobile test",
-    "typecheck": "tsc --noEmit && pnpm --filter @zen/mobile typecheck"
+    "typecheck": "tsc --noEmit && pnpm --filter @zen/mobile typecheck && pnpm --filter @zen/web check",
+    "web": "pnpm --filter @zen/web dev",
+    "web:build": "pnpm --filter @zen/web build"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
