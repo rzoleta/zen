@@ -10,23 +10,31 @@ import { StudyEmptyState } from "@/features/home/components/study-empty-state";
 import { useQueue } from "@/hooks/use-deck";
 import { useSettings } from "@/hooks/use-settings";
 import { useStudyClock } from "@/hooks/use-study-clock";
-import { useSessionStore } from "@/stores/session";
+import { confirmEndlessMode } from "@/lib/confirm-endless-mode";
+import { useSessionStore, type EndlessOptions } from "@/stores/session";
 
 export default function HomeScreen() {
   const { now, refresh } = useStudyClock();
-  const { queue, pendingQueue, newCount, reviewCount } = useQueue(
-    new Date(now),
-  );
-  const { learnAheadLimit } = useSettings();
+  const { queue, pendingQueue, extraNewQueue, newCount, reviewCount } =
+    useQueue(new Date(now));
+  const { learnAheadLimit, newPerDay } = useSettings();
   const begin = useSessionStore((state) => state.begin);
   useEffect(() => {
     if (pendingQueue.length === 0) return;
     const timer = setInterval(refresh, 1_000);
     return () => clearInterval(timer);
   }, [pendingQueue.length, refresh]);
-  const start = () => {
-    begin([...queue, ...pendingQueue], learnAheadLimit);
+  const start = (endless?: EndlessOptions) => {
+    begin(
+      [...queue, ...pendingQueue, ...(endless ? extraNewQueue : [])],
+      learnAheadLimit,
+      endless,
+    );
     router.push("/review");
+  };
+  const startEndless = () => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    confirmEndlessMode(newPerDay, (failLimit) => start({ failLimit }));
   };
   const today = new Date(now);
   const weekday = format(today, "EEEE");
@@ -53,6 +61,7 @@ export default function HomeScreen() {
                 void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 start();
               }}
+              onStudyEndlessly={startEndless}
             />
             <Text muted className="mt-2">
               {reviewCount} to review · {newCount} new
@@ -62,7 +71,7 @@ export default function HomeScreen() {
             size="lg"
             label="Start studying"
             haptic={Haptics.ImpactFeedbackStyle.Medium}
-            onPress={start}
+            onPress={() => start()}
           />
         </>
       ) : pendingQueue.length > 0 ? (

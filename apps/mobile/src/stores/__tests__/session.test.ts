@@ -248,3 +248,89 @@ describe("learn ahead", () => {
     expect(remaining()).toBe(3);
   });
 });
+
+describe("endless mode", () => {
+  const extra = (wordId: number): QueueItem => ({
+    ...card(wordId, "new"),
+    extra: true,
+  });
+  const fail = (wordId: number) =>
+    session().finishCard(
+      card(wordId, "learning", Date.now() + TEN_MINUTES),
+      "fail",
+    );
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date("2026-09-09T10:00:00Z"));
+    session().clear();
+  });
+  afterEach(() => jest.useRealTimers());
+
+  test("a normal session ignores fails and keeps extra cards", () => {
+    begin([card(1), extra(2)]);
+    expect(session().endless).toBe(false);
+    fail(1);
+    expect(session().fails).toBe(1);
+    expect(ids()).toEqual([2, 1]);
+  });
+
+  test("keeps extra cards after failures when there is no limit", () => {
+    session().begin([card(1), extra(2), extra(3)], 20, { failLimit: null });
+    expect(session().endless).toBe(true);
+    expect(session().failLimit).toBeNull();
+    fail(1);
+    fail(2);
+    expect(session().fails).toBe(2);
+    expect(ids()).toEqual([3, 1, 2]);
+    expect(remaining()).toBe(3);
+  });
+
+  test("reaching the fail limit drops extra cards but keeps retries", () => {
+    session().begin([card(1), card(2), extra(3), extra(4)], 20, {
+      failLimit: 2,
+    });
+    fail(1);
+    expect(ids()).toEqual([2, 3, 4, 1]);
+    session().finishCard();
+    fail(3);
+    expect(session().fails).toBe(2);
+    expect(ids()).toEqual([1, 3]);
+    expect(remaining()).toBe(2);
+    session().finishCard();
+    session().finishCard();
+    expect(remaining()).toBe(0);
+  });
+
+  test("today's cards survive the fail limit", () => {
+    session().begin([card(1), card(2, "new"), extra(3)], 20, { failLimit: 1 });
+    fail(1);
+    expect(ids()).toEqual([2, 1]);
+  });
+
+  test("undo takes back a failure without restoring dropped extras", () => {
+    session().begin([card(1), card(2), extra(3)], 20, { failLimit: 1 });
+    session().finishCard();
+    expect(session().fails).toBe(0);
+    const previous = session().queue[0];
+    fail(2);
+    expect(ids()).toEqual([2]);
+    session().restore(previous);
+    expect(session().fails).toBe(0);
+    expect(session().lastFailed).toBe(false);
+    expect(ids()).toEqual([2]);
+  });
+
+  test("clearing and beginning again resets endless state", () => {
+    session().begin([card(1)], 20, { failLimit: 3 });
+    fail(1);
+    begin([card(2)]);
+    expect(session().endless).toBe(false);
+    expect(session().failLimit).toBeNull();
+    expect(session().fails).toBe(0);
+    session().begin([card(1)], 20, { failLimit: 3 });
+    session().clear();
+    expect(session().endless).toBe(false);
+    expect(session().failLimit).toBeNull();
+  });
+});

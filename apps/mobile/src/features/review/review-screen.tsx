@@ -46,6 +46,9 @@ export default function ReviewScreen() {
     learnAheadLimit,
     now,
     canUndo,
+    endless,
+    failLimit,
+    fails,
     begin,
     refresh,
     finishCard,
@@ -121,7 +124,7 @@ export default function ReviewScreen() {
                   due: next.due,
                 }
               : undefined;
-          finishCard(learning);
+          finishCard(learning, answer);
         })
         .catch((gradeError: unknown) => {
           console.error("Failed to save card grade", gradeError);
@@ -220,6 +223,22 @@ export default function ReviewScreen() {
       active = false;
     };
   }, [sessionFinished]);
+  // Once the fail limit is hit the session winds down like a normal one.
+  const failLimitReached = failLimit !== null && fails >= failLimit;
+  const progress =
+    !endless || failLimitReached
+      ? {
+          label: `${remainingCount} left`,
+          done: completed,
+          left: remainingCount,
+        }
+      : failLimit === null
+        ? { label: `Endless · ${answered} answered` }
+        : {
+            label: `${fails} of ${failLimit} fails`,
+            done: fails,
+            left: failLimit - fails,
+          };
   const glass = isLiquidGlassAvailable();
 
   if (sessionFinished) {
@@ -261,15 +280,17 @@ export default function ReviewScreen() {
         </GlassView>
         <View className="flex-1 items-center gap-2">
           <Text className="text-xs" muted>
-            {remainingCount} left
+            {progress.label}
           </Text>
-          <View className="h-1 w-full max-w-[180px] flex-row overflow-hidden rounded-full bg-secondary">
-            <View
-              className="min-w-[2px] bg-primary"
-              style={{ flex: completed }}
-            />
-            <View style={{ flex: remainingCount }} />
-          </View>
+          {"done" in progress ? (
+            <View className="h-1 w-full max-w-[180px] flex-row overflow-hidden rounded-full bg-secondary">
+              <View
+                className="min-w-[2px] bg-primary"
+                style={{ flex: progress.done }}
+              />
+              <View style={{ flex: progress.left }} />
+            </View>
+          ) : null}
         </View>
         <MenuView
           actions={[

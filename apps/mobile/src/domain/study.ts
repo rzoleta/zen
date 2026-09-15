@@ -10,6 +10,8 @@ export interface QueueItem {
   wordId: number;
   kind: QueueKind;
   due: number;
+  /** Introduced past the daily new-card limit (endless mode only). */
+  extra?: boolean;
 }
 
 export function currentStudyDay(now: Date): string {
@@ -22,6 +24,17 @@ export function studyDayBounds(now: Date): { start: Date; end: Date } {
     start,
     end: addDays(start, 1),
   };
+}
+
+function eligibleNewCards(
+  rows: (CardRow & { deckOrder: number })[],
+): (CardRow & { deckOrder: number })[] {
+  return rows
+    .filter(
+      (row) =>
+        row.suspended === "none" && !row.known && row.state === State.New,
+    )
+    .sort((a, b) => a.deckOrder - b.deckOrder);
 }
 
 export function composeQueue(
@@ -54,12 +67,27 @@ export function composeQueue(
       due: row.due,
     }));
   const remaining = Math.max(0, newPerDay - introducedToday);
-  const newCards = eligible
-    .filter((row) => row.state === State.New)
-    .sort((a, b) => a.deckOrder - b.deckOrder)
+  const newCards = eligibleNewCards(eligible)
     .slice(0, remaining)
     .map((row) => ({ wordId: row.wordId, kind: "new" as const, due: row.due }));
   return [...learning, ...reviews, ...newCards];
+}
+
+/** New cards beyond today's limit, in deck order, for endless mode. */
+export function composeExtraNewQueue(
+  rows: (CardRow & { deckOrder: number })[],
+  introducedToday: number,
+  newPerDay: number,
+): QueueItem[] {
+  const remaining = Math.max(0, newPerDay - introducedToday);
+  return eligibleNewCards(rows)
+    .slice(remaining)
+    .map((row) => ({
+      wordId: row.wordId,
+      kind: "new" as const,
+      due: row.due,
+      extra: true,
+    }));
 }
 
 export function composePendingLearningQueue(
