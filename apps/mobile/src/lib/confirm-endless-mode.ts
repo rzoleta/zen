@@ -10,7 +10,7 @@ export function confirmEndlessMode(
 ) {
   Alert.alert(
     "Start endless mode?",
-    "New cards keep coming past today's limit. Study until you quit, or stop introducing cards once you've failed enough of them.",
+    "Study as much as you want.",
     [
       { text: "Cancel", style: "cancel" },
       { text: "Study endlessly", onPress: () => onConfirm(null) },
