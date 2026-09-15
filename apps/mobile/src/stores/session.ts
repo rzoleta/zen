@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import type { QueueItem } from "@/domain/study";
+import type { BinaryGrade, QueueItem } from "@/domain/study";
 
 export function isReady(
   item: QueueItem,
@@ -21,6 +21,11 @@ function orderQueue(queue: QueueItem[], now: number): QueueItem[] {
   return [...learning, ...other, ...pending];
 }
 
+export interface EndlessOptions {
+  /** Stop introducing extra cards after this many failed answers. */
+  failLimit: number | null;
+}
+
 interface SessionState {
   queue: QueueItem[];
   answered: number;
@@ -30,9 +35,17 @@ interface SessionState {
   learnAheadLimit: number;
   now: number;
   canUndo: boolean;
-  begin: (queue: QueueItem[], learnAheadLimit?: number) => void;
+  endless: boolean;
+  failLimit: number | null;
+  fails: number;
+  lastFailed: boolean;
+  begin: (
+    queue: QueueItem[],
+    learnAheadLimit?: number,
+    endless?: EndlessOptions,
+  ) => void;
   refresh: () => void;
-  finishCard: (next?: QueueItem) => void;
+  finishCard: (next?: QueueItem, answer?: BinaryGrade) => void;
   dismissCard: (wordId: number) => void;
   restore: (item: QueueItem) => void;
   clear: () => void;
@@ -47,7 +60,11 @@ export const useSessionStore = create<SessionState>((set) => ({
   learnAheadLimit: 20,
   now: Date.now(),
   canUndo: false,
-  begin: (queue, learnAheadLimit = 20) => {
+  endless: false,
+  failLimit: null,
+  fails: 0,
+  lastFailed: false,
+  begin: (queue, learnAheadLimit = 20, endless) => {
     const now = Date.now();
     set({
       queue: orderQueue(queue, now),
@@ -58,6 +75,10 @@ export const useSessionStore = create<SessionState>((set) => ({
       learnAheadLimit,
       now,
       canUndo: false,
+      endless: endless !== undefined,
+      failLimit: endless?.failLimit ?? null,
+      fails: 0,
+      lastFailed: false,
     });
   },
   refresh: () =>
@@ -71,12 +92,17 @@ export const useSessionStore = create<SessionState>((set) => ({
           : orderQueue(state.queue, now);
       return { queue, now };
     }),
-  finishCard: (next) =>
+  finishCard: (next, answer = "pass") =>
     set((state) => {
       const now = Date.now();
+      const fails = state.fails + (answer === "fail" ? 1 : 0);
+      const limitReached = state.failLimit !== null && fails >= state.failLimit;
+      const rest = [...state.queue.slice(1), ...(next ? [next] : [])];
       return {
+        // Reaching the fail limit stops introducing cards beyond today's;
+        // cards already introduced still get their retries.
         queue: orderQueue(
-          [...state.queue.slice(1), ...(next ? [next] : [])],
+          limitReached ? rest.filter((item) => !item.extra) : rest,
           now,
         ),
         now,
@@ -85,6 +111,8 @@ export const useSessionStore = create<SessionState>((set) => ({
         lastCompleted: !next,
         lastReviewedId: state.queue[0]?.wordId ?? null,
         canUndo: true,
+        fails,
+        lastFailed: answer === "fail",
       };
     }),
   dismissCard: (wordId) =>
@@ -120,6 +148,9 @@ export const useSessionStore = create<SessionState>((set) => ({
         lastCompleted: false,
         lastReviewedId: null,
         canUndo: false,
+        // Extra cards dropped at the fail limit are not brought back.
+        fails: Math.max(0, state.fails - (state.lastFailed ? 1 : 0)),
+        lastFailed: false,
       };
     }),
   clear: () =>
@@ -132,5 +163,9 @@ export const useSessionStore = create<SessionState>((set) => ({
       learnAheadLimit: 20,
       now: Date.now(),
       canUndo: false,
+      endless: false,
+      failLimit: null,
+      fails: 0,
+      lastFailed: false,
     }),
 }));

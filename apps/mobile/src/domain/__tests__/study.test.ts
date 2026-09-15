@@ -2,6 +2,7 @@ import { State } from "ts-fsrs";
 
 import type { CardRow } from "@/db/schema";
 import {
+  composeExtraNewQueue,
   composePendingLearningQueue,
   composeQueue,
   currentStudyDay,
@@ -75,6 +76,21 @@ describe("queue composition", () => {
     expect(composeQueue(rows, 1, 2, now).map((item) => item.wordId)).toEqual([
       1,
     ]);
+  });
+
+  test("collects new cards beyond the daily limit for endless mode", () => {
+    const rows = [
+      card({ wordId: 3, deckOrder: 3 }),
+      card({ wordId: 1 }),
+      card({ wordId: 2, deckOrder: 2 }),
+      card({ wordId: 4, deckOrder: 4, known: true }),
+      card({ wordId: 5, deckOrder: 5, suspended: "manual" }),
+      card({ wordId: 6, deckOrder: 6, state: State.Review, due: 0 }),
+    ];
+    const extra = composeExtraNewQueue(rows, 1, 2);
+    expect(extra.map((item) => item.wordId)).toEqual([2, 3]);
+    expect(extra.every((item) => item.kind === "new" && item.extra)).toBe(true);
+    expect(composeExtraNewQueue(rows, 0, 5)).toEqual([]);
   });
 
   test("finds learning cards waiting for later in the same study day", () => {

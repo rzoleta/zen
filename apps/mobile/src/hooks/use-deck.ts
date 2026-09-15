@@ -5,6 +5,7 @@ import { cards } from "@/db/schema";
 import { deckQueryOptions, reviewLogsQueryOptions } from "@/data/query/queries";
 import { useSettings } from "@/hooks/use-settings";
 import {
+  composeExtraNewQueue,
   composePendingLearningQueue,
   composeQueue,
   studyDayBounds,
@@ -64,6 +65,7 @@ export function useQueue(now = new Date()) {
   return {
     queue,
     pendingQueue,
+    extraNewQueue: composeExtraNewQueue(cardsWithOrder, introduced, newPerDay),
     newCount: queue.filter((item) => item.kind === "new").length,
     reviewCount: queue.filter((item) => item.kind !== "new").length,
   };
