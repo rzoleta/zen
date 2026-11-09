@@ -23,6 +23,9 @@ export function useSettings() {
       values.learn_ahead_limit ?? DEFAULT_SETTINGS.learn_ahead_limit,
     ),
     autoplay: (values.autoplay ?? DEFAULT_SETTINGS.autoplay) === "true",
+    autoplaySentence:
+      (values.autoplay_sentence ?? DEFAULT_SETTINGS.autoplay_sentence) ===
+      "true",
     wordAudio: (values.word_audio ?? DEFAULT_SETTINGS.word_audio) === "true",
     highlightWord:
       (values.highlight_word ?? DEFAULT_SETTINGS.highlight_word) === "true",

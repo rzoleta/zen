@@ -4,6 +4,7 @@ export const DEFAULT_SETTINGS = {
   leech_threshold: "8",
   learn_ahead_limit: "20",
   autoplay: "true",
+  autoplay_sentence: "true",
   word_audio: "true",
   highlight_word: "true",
   card_front: "word_sentence",

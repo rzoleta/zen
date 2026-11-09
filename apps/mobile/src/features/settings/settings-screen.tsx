@@ -81,7 +81,7 @@ export default function SettingsScreen() {
       </SettingsGroup>
       <SettingsGroup
         title="Audio"
-        footer="Autoplay plays the word when you reveal a card's answer."
+        footer="Autoplay plays audio when you reveal a card's answer. Sentence audio plays after the word when the sentence is on the back of the card."
       >
         <SettingsToggle
           title="Word audio"
@@ -92,6 +92,11 @@ export default function SettingsScreen() {
           title="Autoplay word audio"
           value={values.autoplay}
           onChange={(value) => save("autoplay", value)}
+        />
+        <SettingsToggle
+          title="Autoplay sentence audio"
+          value={values.autoplaySentence}
+          onChange={(value) => save("autoplay_sentence", value)}
         />
       </SettingsGroup>
       <SettingsGroup

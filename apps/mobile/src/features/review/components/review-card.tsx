@@ -1,7 +1,7 @@
 import { useAudioPlayer } from "expo-audio";
 import * as Haptics from "expo-haptics";
 import { SymbolView } from "expo-symbols";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -34,6 +34,7 @@ interface ReviewCardProps {
   word: Word;
   font: JapaneseFont;
   autoplay: boolean;
+  autoplaySentence: boolean;
   wordAudio: boolean;
   highlightWord: boolean;
   front: CardContent;
@@ -49,11 +50,13 @@ const wordTextStyle = { fontSize: 60, lineHeight: 80 };
 const sentenceTextStyle = { fontSize: 28, lineHeight: 44 };
 const swipeIntentThreshold = 20;
 const gradingThreshold = 85;
+const sentenceAutoplayDelayMs = 400;
 
 export function ReviewCard({
   word,
   font,
   autoplay,
+  autoplaySentence,
   wordAudio,
   highlightWord,
   front,
@@ -77,6 +80,35 @@ export function ReviewCard({
     : undefined;
   const wordPlayer = useAudioPlayer(wordSource);
   const sentencePlayer = useAudioPlayer(sentenceSource);
+  const [sentenceQueued, setSentenceQueued] = useState(false);
+  const playWord = () => {
+    void wordPlayer.seekTo(0);
+    wordPlayer.play();
+  };
+  const playSentence = () => {
+    void sentencePlayer.seekTo(0);
+    sentencePlayer.play();
+  };
+  useEffect(() => {
+    if (!sentenceQueued) return;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const subscription = wordPlayer.addListener(
+      "playbackStatusUpdate",
+      (status) => {
+        if (status.didJustFinish && !timeout) {
+          timeout = setTimeout(() => {
+            setSentenceQueued(false);
+            void sentencePlayer.seekTo(0);
+            sentencePlayer.play();
+          }, sentenceAutoplayDelayMs);
+        }
+      },
+    );
+    return () => {
+      subscription.remove();
+      clearTimeout(timeout);
+    };
+  }, [sentenceQueued, wordPlayer, sentencePlayer]);
   const frontGradeAppearance = swipeIntent
     ? gradeAppearance[swipeIntent]
     : null;
@@ -86,9 +118,15 @@ export function ReviewCard({
     rotation.value = withTiming(180, { duration: 430 });
     setRevealed(true);
     void Haptics.selectionAsync();
-    if (wordAudio && autoplay && wordSource) {
-      wordPlayer.seekTo(0);
-      wordPlayer.play();
+    if (wordAudio) {
+      const shouldPlaySentence =
+        autoplaySentence && back !== "word" && !!sentenceSource;
+      if (autoplay && wordSource) {
+        setSentenceQueued(shouldPlaySentence);
+        playWord();
+      } else if (shouldPlaySentence) {
+        playSentence();
+      }
     }
     onFlip();
   };
@@ -279,8 +317,8 @@ export function ReviewCard({
                   <AudioButton
                     disabled={!wordSource}
                     onPress={() => {
-                      void wordPlayer.seekTo(0);
-                      wordPlayer.play();
+                      setSentenceQueued(false);
+                      playWord();
                     }}
                   />
                 ) : null}
@@ -311,8 +349,8 @@ export function ReviewCard({
                   <AudioButton
                     disabled={!sentenceSource}
                     onPress={() => {
-                      void sentencePlayer.seekTo(0);
-                      sentencePlayer.play();
+                      setSentenceQueued(false);
+                      playSentence();
                     }}
                   />
                 ) : null}

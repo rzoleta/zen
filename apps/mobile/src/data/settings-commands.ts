@@ -8,10 +8,16 @@ export async function updateSetting(
   key: keyof typeof DEFAULT_SETTINGS,
   value: string,
 ): Promise<void> {
-  const updates = [{ key, value }];
+  const updates: { key: string; value: string }[] = [{ key, value }];
   if (key === "word_audio" && value === "false") {
-    updates.push({ key: "autoplay", value: "false" });
-  } else if (key === "autoplay" && value === "true") {
+    updates.push(
+      { key: "autoplay", value: "false" },
+      { key: "autoplay_sentence", value: "false" },
+    );
+  } else if (
+    (key === "autoplay" || key === "autoplay_sentence") &&
+    value === "true"
+  ) {
     updates.push({ key: "word_audio", value: "true" });
   }
   await getDatabase()
