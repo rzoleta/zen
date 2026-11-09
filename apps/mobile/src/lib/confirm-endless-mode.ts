@@ -7,9 +7,10 @@ import { Alert } from "react-native";
 export function confirmEndlessMode(
   failLimit: number,
   onConfirm: (failLimit: number | null) => void,
+  title = "Start endless mode?",
 ) {
   Alert.alert(
-    "Start endless mode?",
+    title,
     "Study as much as you want.",
     [
       { text: "Cancel", style: "cancel" },

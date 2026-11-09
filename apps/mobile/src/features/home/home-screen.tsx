@@ -32,9 +32,9 @@ export default function HomeScreen() {
     );
     router.push("/review");
   };
-  const startEndless = () => {
+  const startEndless = (title?: string) => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    confirmEndlessMode(newPerDay, (failLimit) => start({ failLimit }));
+    confirmEndlessMode(newPerDay, (failLimit) => start({ failLimit }), title);
   };
   const today = new Date(now);
   const weekday = format(today, "EEEE");
@@ -61,7 +61,7 @@ export default function HomeScreen() {
                 void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 start();
               }}
-              onStudyEndlessly={startEndless}
+              onStudyEndlessly={() => startEndless()}
             />
             <Text muted className="mt-2">
               {reviewCount} to review · {newCount} new
@@ -84,13 +84,24 @@ export default function HomeScreen() {
           />
         </View>
       ) : (
-        <View className="flex-1 items-center justify-center gap-2">
-          <StudyEmptyState
-            pendingCount={0}
-            now={now}
-            learnAheadLimit={learnAheadLimit}
-          />
-        </View>
+        <>
+          <View className="flex-1 items-center justify-center gap-2">
+            <StudyEmptyState
+              pendingCount={0}
+              now={now}
+              learnAheadLimit={learnAheadLimit}
+            />
+          </View>
+          {extraNewQueue.length > 0 && (
+            <Button
+              size="lg"
+              variant="secondary"
+              label="Keep studying"
+              haptic={false}
+              onPress={() => startEndless("Continue studying?")}
+            />
+          )}
+        </>
       )}
     </Screen>
   );
