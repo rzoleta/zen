@@ -15,8 +15,14 @@ import { useSessionStore, type EndlessOptions } from "@/stores/session";
 
 export default function HomeScreen() {
   const { now, refresh } = useStudyClock();
-  const { queue, pendingQueue, extraNewQueue, newCount, reviewCount } =
-    useQueue(new Date(now));
+  const {
+    queue,
+    pendingQueue,
+    extraNewQueue,
+    nextAvailableAt,
+    newCount,
+    reviewCount,
+  } = useQueue(new Date(now));
   const { learnAheadLimit, newPerDay } = useSettings();
   const begin = useSessionStore((state) => state.begin);
   useEffect(() => {
@@ -88,6 +94,7 @@ export default function HomeScreen() {
           <View className="flex-1 items-center justify-center gap-2">
             <StudyEmptyState
               pendingCount={0}
+              nextAvailableAt={nextAvailableAt}
               now={now}
               learnAheadLimit={learnAheadLimit}
             />

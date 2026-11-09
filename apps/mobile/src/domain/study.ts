@@ -113,6 +113,32 @@ export function composePendingLearningQueue(
     }));
 }
 
+/**
+ * When cards will next be available after today's study day: the next day
+ * boundary if new cards remain, the start of the study day a review falls due,
+ * or the exact due time of a learning card scheduled past today.
+ */
+export function nextStudyAvailableAt(
+  rows: CardRow[],
+  newPerDay: number,
+  now: Date,
+): Date | undefined {
+  const dayEnd = studyDayBounds(now).end.getTime();
+  let next = Infinity;
+  for (const row of rows) {
+    if (row.suspended !== "none" || row.known) continue;
+    if (row.state === State.New) {
+      if (newPerDay > 0) next = Math.min(next, dayEnd);
+    } else if (row.state === State.Review) {
+      const start = studyDayBounds(new Date(row.due)).start.getTime();
+      next = Math.min(next, Math.max(start, dayEnd));
+    } else if (row.due >= dayEnd) {
+      next = Math.min(next, row.due);
+    }
+  }
+  return Number.isFinite(next) ? new Date(next) : undefined;
+}
+
 function toFsrsCard(card: CardRow): Card {
   return {
     due: new Date(card.due),

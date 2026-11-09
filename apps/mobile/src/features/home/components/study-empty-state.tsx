@@ -1,14 +1,17 @@
 import { JapaneseText, Text } from "@/components/ui";
 import { formatWait } from "@/lib/format-wait";
+import { formatNextSession } from "@/lib/schedule-date";
 
 export function StudyEmptyState({
   pendingCount,
   nextDue,
+  nextAvailableAt,
   now,
   learnAheadLimit,
 }: {
   pendingCount: number;
   nextDue?: number;
+  nextAvailableAt?: Date;
   now: number;
   learnAheadLimit: number;
 }) {
@@ -37,9 +40,16 @@ export function StudyEmptyState({
             {formatWait(nextDue - now - learnAheadLimit * 60_000)}
           </Text>
         </Text>
+      ) : nextAvailableAt ? (
+        <Text muted className="text-center">
+          Next session starts{"\n"}
+          <Text className="font-sans-semibold text-foreground">
+            {formatNextSession(nextAvailableAt, new Date(now))}
+          </Text>
+        </Text>
       ) : (
         <Text muted className="text-center">
-          Come back tomorrow to study new words.
+          No more cards to study.
         </Text>
       )}
     </>

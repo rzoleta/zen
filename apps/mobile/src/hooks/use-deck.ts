@@ -8,6 +8,7 @@ import {
   composeExtraNewQueue,
   composePendingLearningQueue,
   composeQueue,
+  nextStudyAvailableAt,
   studyDayBounds,
 } from "@/domain/study";
 import { isReady } from "@/stores/session";
@@ -66,6 +67,7 @@ export function useQueue(now = new Date()) {
     queue,
     pendingQueue,
     extraNewQueue: composeExtraNewQueue(cardsWithOrder, introduced, newPerDay),
+    nextAvailableAt: nextStudyAvailableAt(cardsWithOrder, newPerDay, now),
     newCount: queue.filter((item) => item.kind === "new").length,
     reviewCount: queue.filter((item) => item.kind !== "new").length,
   };

@@ -14,3 +14,14 @@ export function formatRelativeDueDate(date: Date, now = new Date()): string {
   const label = `${Math.abs(days)} ${Math.abs(days) === 1 ? "day" : "days"}`;
   return days < 0 ? `${label} ago` : `In ${label}`;
 }
+
+/** "today at 4:00 AM", "tomorrow at 4:00 AM", "Wednesday at 4:00 AM", "Nov 20 at 4:00 AM" */
+export function formatNextSession(date: Date, now = new Date()): string {
+  const days = differenceInCalendarDays(date, now);
+  const time = format(date, "p");
+  if (days <= 0) return `today at ${time}`;
+  if (days === 1) return `tomorrow at ${time}`;
+  if (days < 7) return `${format(date, "EEEE")} at ${time}`;
+  const sameYear = date.getFullYear() === now.getFullYear();
+  return `${format(date, sameYear ? "MMM d" : "MMM d, yyyy")} at ${time}`;
+}
