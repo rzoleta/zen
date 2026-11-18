@@ -37,6 +37,8 @@ import {
 import { isReady, useSessionStore } from "@/stores/session";
 
 const SCHEDULE_TOAST_ID = "review-schedule";
+// Keep toasts off the header so the queue counts stay visible.
+const TOAST_POSITION = "bottom-center";
 
 function plural(count: number, word: string) {
   return `${count} ${word}${count === 1 ? "" : "s"}`;
@@ -134,7 +136,11 @@ export default function ReviewScreen() {
           finishCard(learning, answer);
           if (answer === "pass" && next.suspended === "none" && !next.known) {
             const message = `Review ${formatRelativeInterval(new Date(next.due), reviewedAt)}`;
-            toast(message, { id: SCHEDULE_TOAST_ID, duration: 1_500 });
+            toast(message, {
+              id: SCHEDULE_TOAST_ID,
+              duration: 1_500,
+              position: TOAST_POSITION,
+            });
             if (Platform.OS === "ios")
               AccessibilityInfo.announceForAccessibility(message);
           } else {
@@ -167,8 +173,9 @@ export default function ReviewScreen() {
             action === "known"
               ? `Marked ${detail.words.word} as known`
               : `Suspended ${detail.words.word}`;
-          if (action === "known") toast.success(message);
-          else toast.info(message);
+          if (action === "known")
+            toast.success(message, { position: TOAST_POSITION });
+          else toast.info(message, { position: TOAST_POSITION });
           // Sonner supplies Android's live region; VoiceOver needs an announcement.
           if (Platform.OS === "ios")
             AccessibilityInfo.announceForAccessibility(message);
