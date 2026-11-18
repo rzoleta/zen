@@ -1,4 +1,4 @@
-import { and, eq, gte, inArray, lt, sql } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, lt, notInArray, sql } from "drizzle-orm";
 import { Rating, State } from "ts-fsrs";
 
 import type { ZenDatabase } from "@/db/client";
@@ -60,6 +60,31 @@ export async function buildQueue(
     ),
     ...composePendingLearningQueue(all, now),
   ];
+}
+
+/** The next unseen new card in deck order, skipping cards already queued. */
+export async function nextNewCard(
+  database: ZenDatabase,
+  excludeWordIds: number[],
+): Promise<QueueItem | undefined> {
+  const rows = await database
+    .select({ wordId: cards.wordId, due: cards.due })
+    .from(cards)
+    .innerJoin(words, eq(words.id, cards.wordId))
+    .where(
+      and(
+        eq(cards.state, State.New),
+        eq(cards.suspended, "none"),
+        eq(cards.known, false),
+        excludeWordIds.length > 0
+          ? notInArray(cards.wordId, excludeWordIds)
+          : undefined,
+      ),
+    )
+    .orderBy(asc(words.deckOrder))
+    .limit(1);
+  const row = rows[0];
+  return row ? { wordId: row.wordId, kind: "new", due: row.due } : undefined;
 }
 
 export async function grade(
