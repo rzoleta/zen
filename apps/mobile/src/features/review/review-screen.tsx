@@ -26,6 +26,7 @@ import type { BinaryGrade, QueueItem } from "@/domain/study";
 import { useSettings } from "@/hooks/use-settings";
 import { useTheme } from "@/hooks/use-theme";
 import { confirmWordAction } from "@/lib/confirm-word-action";
+import { formatRelativeInterval } from "@/lib/schedule-date";
 import {
   buildQueue,
   grade,
@@ -34,6 +35,12 @@ import {
   undo,
 } from "@/data/study-commands";
 import { isReady, useSessionStore } from "@/stores/session";
+
+const SCHEDULE_TOAST_ID = "review-schedule";
+
+function plural(count: number, word: string) {
+  return `${count} ${word}${count === 1 ? "" : "s"}`;
+}
 
 export default function ReviewScreen() {
   const theme = useTheme();
@@ -125,6 +132,14 @@ export default function ReviewScreen() {
                 }
               : undefined;
           finishCard(learning, answer);
+          if (answer === "pass" && next.suspended === "none" && !next.known) {
+            const message = `Review ${formatRelativeInterval(new Date(next.due), reviewedAt)}`;
+            toast(message, { id: SCHEDULE_TOAST_ID, duration: 1_500 });
+            if (Platform.OS === "ios")
+              AccessibilityInfo.announceForAccessibility(message);
+          } else {
+            toast.dismiss(SCHEDULE_TOAST_ID);
+          }
         })
         .catch((gradeError: unknown) => {
           console.error("Failed to save card grade", gradeError);
@@ -197,6 +212,7 @@ export default function ReviewScreen() {
               ? "review"
               : "learning";
         restore({ wordId, kind, due: row.cards.due });
+        toast.dismiss(SCHEDULE_TOAST_ID);
         void Haptics.selectionAsync();
       })
       .catch((error: unknown) => {
@@ -208,9 +224,12 @@ export default function ReviewScreen() {
         setSaving(false);
       });
   }, [canUndo, restore]);
-  const remainingCount = queue.filter((item) =>
+  const readyQueue = queue.filter((item) =>
     isReady(item, now, learnAheadLimit),
-  ).length;
+  );
+  const remainingCount = readyQueue.length;
+  const newCount = readyQueue.filter((item) => item.kind === "new").length;
+  const reviewCount = remainingCount - newCount;
   const sessionFinished =
     remainingCount === 0 && (answered > 0 || completed > 0 || queue.length > 0);
   useEffect(() => {
@@ -228,7 +247,7 @@ export default function ReviewScreen() {
   const progress =
     !endless || failLimitReached
       ? {
-          label: `${remainingCount} left`,
+          label: `${remainingCount} left · ${plural(reviewCount, "review")} · ${newCount} new`,
           done: completed,
           left: remainingCount,
         }
