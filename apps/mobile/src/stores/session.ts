@@ -46,7 +46,12 @@ interface SessionState {
   ) => void;
   refresh: () => void;
   finishCard: (next?: QueueItem, answer?: BinaryGrade) => void;
-  dismissCard: (wordId: number) => void;
+  /**
+   * Drops a known or suspended card. A new card's slot in today's limit is
+   * refilled so the session keeps the same number of new cards: by promoting
+   * the first extra card in endless mode, otherwise with `replacement`.
+   */
+  dismissCard: (wordId: number, replacement?: QueueItem) => void;
   restore: (item: QueueItem) => void;
   clear: () => void;
 }
@@ -115,15 +120,26 @@ export const useSessionStore = create<SessionState>((set) => ({
         lastFailed: answer === "fail",
       };
     }),
-  dismissCard: (wordId) =>
+  dismissCard: (wordId, replacement) =>
     set((state) => {
-      if (!state.queue.some((item) => item.wordId === wordId)) return state;
+      const dismissed = state.queue.find((item) => item.wordId === wordId);
+      if (!dismissed) return state;
       const now = Date.now();
+      let rest = state.queue.filter((item) => item.wordId !== wordId);
+      if (dismissed.kind === "new" && !dismissed.extra) {
+        const extraIndex = rest.findIndex((item) => item.extra);
+        if (extraIndex >= 0)
+          rest = rest.map((item, index) =>
+            index === extraIndex ? { ...item, extra: false } : item,
+          );
+        else if (
+          replacement &&
+          !rest.some((item) => item.wordId === replacement.wordId)
+        )
+          rest = [...rest, replacement];
+      }
       return {
-        queue: orderQueue(
-          state.queue.filter((item) => item.wordId !== wordId),
-          now,
-        ),
+        queue: orderQueue(rest, now),
         now,
         completed: state.completed + 1,
         // Undo restores a full card snapshot. Don't let it overwrite a new

@@ -30,6 +30,7 @@ import { formatRelativeInterval } from "@/lib/schedule-date";
 import {
   buildQueue,
   grade,
+  nextNewCard,
   setKnown,
   setSuspended,
   undo,
@@ -169,6 +170,18 @@ export default function ReviewScreen() {
         .then(async () => {
           if (action === "known") await setKnown(db, current.wordId, true);
           else await setSuspended(db, current.wordId, "manual");
+          // A dismissed new card frees a slot in today's new-card limit.
+          // Fill it now so the session doesn't end short of the daily count.
+          const { queue: queued } = useSessionStore.getState();
+          const replacement =
+            current.kind === "new" &&
+            !current.extra &&
+            !queued.some((item) => item.extra)
+              ? await nextNewCard(
+                  db,
+                  queued.map((item) => item.wordId),
+                )
+              : undefined;
           const message =
             action === "known"
               ? `Marked ${detail.words.word} as known`
@@ -179,7 +192,7 @@ export default function ReviewScreen() {
           // Sonner supplies Android's live region; VoiceOver needs an announcement.
           if (Platform.OS === "ios")
             AccessibilityInfo.announceForAccessibility(message);
-          dismissCard(current.wordId);
+          dismissCard(current.wordId, replacement);
           void Haptics.selectionAsync();
         })
         .catch((error: unknown) => {
