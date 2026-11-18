@@ -1,4 +1,8 @@
-import { differenceInCalendarDays, format } from "date-fns";
+import {
+  differenceInCalendarDays,
+  format,
+  formatDistanceStrict,
+} from "date-fns";
 
 export function formatDueDate(date: Date): string {
   return format(date, "MMM d, yyyy");
@@ -24,4 +28,9 @@ export function formatNextSession(date: Date, now = new Date()): string {
   if (days < 7) return `${format(date, "EEEE")} at ${time}`;
   const sameYear = date.getFullYear() === now.getFullYear();
   return `${format(date, sameYear ? "MMM d" : "MMM d, yyyy")} at ${time}`;
+}
+
+/** "in 10 minutes", "in 5 days", "in 3 months" */
+export function formatRelativeInterval(date: Date, now = new Date()): string {
+  return formatDistanceStrict(date, now, { addSuffix: true });
 }
